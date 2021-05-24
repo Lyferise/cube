@@ -4,8 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import static com.lyferise.cube.concurrency.RingBuffer.DEFAULT_CAPACITY;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 
 public class RingBufferTest {
 
@@ -27,5 +26,22 @@ public class RingBufferTest {
 
         // poll
         assertThat(ringBuffer.poll(), is(equalTo(5)));
+    }
+
+    @Test
+    public void shouldOfferUntilFull() {
+
+        // offer
+        final int capacity = 100;
+        final RingBuffer<Integer> ringBuffer = new RingBuffer<>(capacity);
+        for (int i = 0; i < capacity; i++) {
+            assertThat(ringBuffer.offer(i), is(equalTo(true)));
+        }
+
+        // poll
+        for (int i = 0; i < capacity; i++) {
+            assertThat(ringBuffer.poll(), is(equalTo(i)));
+        }
+        assertThat(ringBuffer.poll(), is(nullValue()));
     }
 }
