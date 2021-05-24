@@ -5,8 +5,8 @@ public class RingBuffer<T> {
 
     private final int capacity;
     private final T[] buffer;
-    private int readSequenceNumber;
-    private int writeSequenceNumber = -1;
+    private volatile int readSequenceNumber;
+    private volatile int writeSequenceNumber = -1;
 
     public RingBuffer() {
         this(DEFAULT_CAPACITY);
@@ -19,12 +19,17 @@ public class RingBuffer<T> {
     }
 
     public T poll() {
-        return isEmpty() ? null : buffer[readSequenceNumber++ % capacity];
+        if (isEmpty()) return null;
+        final T nextValue = buffer[readSequenceNumber % capacity];
+        readSequenceNumber++;
+        return nextValue;
     }
 
     public boolean offer(final T value) {
         if (isFull()) return false;
-        buffer[(writeSequenceNumber++ + 1) % capacity] = value;
+        final int nextSequenceNumber = writeSequenceNumber + 1;
+        buffer[nextSequenceNumber % capacity] = value;
+        writeSequenceNumber++;
         return true;
     }
 
