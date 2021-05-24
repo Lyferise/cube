@@ -1,5 +1,6 @@
 package com.lyferise.cube.concurrency;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static com.lyferise.cube.concurrency.RingBuffer.DEFAULT_CAPACITY;
@@ -7,6 +8,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 public class RingBufferTest {
+
+    @Test
+    public void pollShouldReturnNullWhenRingBufferIsEmpty() {
+        final RingBuffer<Integer> ringBuffer = new RingBuffer<>();
+        assertThat(ringBuffer.isEmpty(), is(equalTo(true)));
+        assertThat(ringBuffer.poll(), is(nullValue()));
+    }
 
     @Test
     public void shouldOfferThenPollSingleItem() {
