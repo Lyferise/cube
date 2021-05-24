@@ -1,0 +1,7 @@
+rootProject.name = "cube"
+
+include "cube-cli"
+include "cube-client"
+include "cube-cluster"
+include "cube-core"
+include "cube-sql"
