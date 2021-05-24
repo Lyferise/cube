@@ -18,8 +18,8 @@ public class RingBuffer<T> {
         this.buffer = (T[]) new Object[capacity];
     }
 
-    public T next() {
-        return buffer[readSequenceNumber++ % capacity];
+    public T poll() {
+        return isEmpty() ? null : buffer[readSequenceNumber++ % capacity];
     }
 
     public boolean offer(final T value) {

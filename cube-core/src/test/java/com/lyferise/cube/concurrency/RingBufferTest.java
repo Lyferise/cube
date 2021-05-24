@@ -10,7 +10,7 @@ import static org.hamcrest.Matchers.is;
 public class RingBufferTest {
 
     @Test
-    public void shouldOfferSingleItem() {
+    public void shouldOfferThenPollSingleItem() {
 
         // empty
         final RingBuffer<Integer> ringBuffer = new RingBuffer<>();
@@ -19,10 +19,13 @@ public class RingBufferTest {
         assertThat(ringBuffer.isEmpty(), is(equalTo(true)));
         assertThat(ringBuffer.isFull(), is(equalTo(false)));
 
-        // single item
+        // offer
         assertThat(ringBuffer.offer(5), is(equalTo(true)));
         assertThat(ringBuffer.size(), is(equalTo(1)));
         assertThat(ringBuffer.isEmpty(), is(equalTo(false)));
         assertThat(ringBuffer.isFull(), is(equalTo(false)));
+
+        // poll
+        assertThat(ringBuffer.poll(), is(equalTo(5)));
     }
 }
