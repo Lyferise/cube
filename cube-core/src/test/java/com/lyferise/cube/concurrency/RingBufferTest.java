@@ -1,6 +1,5 @@
 package com.lyferise.cube.concurrency;
 
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static com.lyferise.cube.concurrency.RingBuffer.DEFAULT_CAPACITY;
