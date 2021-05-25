@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.BitSet;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -20,37 +21,56 @@ public class RingBufferStressTest {
         final int messageCount = 10_000_000;
         final RingBuffer<Integer> ringBuffer = new RingBuffer<>(1024);
 
+        // number of reader/writer threads
+        final int threadCount = 1;
+
         // writers
-        final CountDownLatch writers = new CountDownLatch(1);
-        final Thread writer = new Thread(() -> {
-            for (int i = 0; i < messageCount; i++) {
-                while (!ringBuffer.offer(i)) {
-                    Thread.yield();
+        final CountDownLatch latch = new CountDownLatch(threadCount);
+        final Thread[] writers = new Thread[threadCount];
+        final AtomicInteger w = new AtomicInteger();
+        for (int i = 0; i < threadCount; i++) {
+            writers[i] = new Thread(() -> {
+                for (int j = 0; j < messageCount; j++) {
+                    while (!ringBuffer.offer(j)) {
+                        Thread.yield();
+                    }
+                    w.incrementAndGet();
                 }
-            }
-            writers.countDown();
-        });
+                latch.countDown();
+            });
+        }
+
+        final BitSet bitSet = new BitSet();
 
         // readers
-        final BitSet bitSet = new BitSet();
+        final AtomicInteger r = new AtomicInteger();
         final Thread reader = new Thread(() -> {
-            while (!ringBuffer.isEmpty() || writers.getCount() > 0) {
+            while (!ringBuffer.isEmpty() || latch.getCount() > 0) {
                 final Integer value = ringBuffer.poll();
                 if (value != null) {
                     bitSet.set(value);
+                    r.incrementAndGet();
                 }
             }
         });
 
         // start threads
-        writer.start();
+        for (int i = 0; i < threadCount; i++) {
+            writers[i].start();
+        }
         reader.start();
 
         // wait for threads to terminate
-        writer.join();
+        for (int i = 0; i < threadCount; i++) {
+            writers[i].join();
+        }
         reader.join();
+        System.err.println("w = " + w);
+        System.err.println("r = " + r);
 
         // verify messages seen by readers
+        System.err.println("cardinality = " + bitSet.cardinality());
+        System.err.println("length = " + bitSet.length());
         assertThat(bitSet.cardinality(), is(equalTo(messageCount)));
         assertThat(bitSet.length(), is(equalTo(messageCount)));
     }
