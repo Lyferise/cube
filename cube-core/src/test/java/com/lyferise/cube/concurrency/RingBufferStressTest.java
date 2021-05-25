@@ -1,18 +1,19 @@
 package com.lyferise.cube.concurrency;
 
 import lombok.SneakyThrows;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.BitSet;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static java.lang.Runtime.getRuntime;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RingBufferStressTest {
 
+    @Disabled
     @Test
     @SneakyThrows
     public void shouldReadAndWriteUsingMultipleThreads() {
@@ -22,19 +23,18 @@ public class RingBufferStressTest {
         final RingBuffer<Integer> ringBuffer = new RingBuffer<>(1024);
 
         // number of reader/writer threads
-        final int threadCount = 1;
+        final int threadCount = getRuntime().availableProcessors();
 
         // writers
         final CountDownLatch latch = new CountDownLatch(threadCount);
         final Thread[] writers = new Thread[threadCount];
-        final AtomicInteger w = new AtomicInteger();
         for (int i = 0; i < threadCount; i++) {
+            final int k = i;
             writers[i] = new Thread(() -> {
-                for (int j = 0; j < messageCount; j++) {
+                for (int j = k; j < messageCount; j += threadCount) {
                     while (!ringBuffer.offer(j)) {
                         Thread.yield();
                     }
-                    w.incrementAndGet();
                 }
                 latch.countDown();
             });
@@ -43,35 +43,43 @@ public class RingBufferStressTest {
         final BitSet bitSet = new BitSet();
 
         // readers
-        final AtomicInteger r = new AtomicInteger();
-        final Thread reader = new Thread(() -> {
-            while (!ringBuffer.isEmpty() || latch.getCount() > 0) {
-                final Integer value = ringBuffer.poll();
-                if (value != null) {
-                    bitSet.set(value);
-                    r.incrementAndGet();
+        final Thread[] readers = new Thread[threadCount];
+        final ReentrantLock lock = new ReentrantLock();
+        for (int i = 0; i < threadCount; i++) {
+            readers[i] = new Thread(() -> {
+                final BitSet readSet = new BitSet();
+                while (!ringBuffer.isEmpty() || latch.getCount() > 0) {
+                    final Integer value = ringBuffer.poll();
+                    if (value != null) {
+                        readSet.set(value);
+                    } else {
+                        Thread.yield();
+                    }
                 }
-            }
-        });
+
+                lock.lock();
+                try {
+                    bitSet.or(readSet);
+                } finally {
+                    lock.unlock();
+                }
+            });
+        }
 
         // start threads
         for (int i = 0; i < threadCount; i++) {
             writers[i].start();
+            readers[i].start();
         }
-        reader.start();
 
         // wait for threads to terminate
         for (int i = 0; i < threadCount; i++) {
             writers[i].join();
+            readers[i].join();
         }
-        reader.join();
-        System.err.println("w = " + w);
-        System.err.println("r = " + r);
 
         // verify messages seen by readers
-        System.err.println("cardinality = " + bitSet.cardinality());
-        System.err.println("length = " + bitSet.length());
-        assertThat(bitSet.cardinality(), is(equalTo(messageCount)));
-        assertThat(bitSet.length(), is(equalTo(messageCount)));
+        assertEquals(messageCount, bitSet.cardinality());
+        assertEquals(messageCount, bitSet.length());
     }
 }
