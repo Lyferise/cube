@@ -17,7 +17,7 @@ public class RingBufferStressTest {
     public void shouldReadAndWriteUsingMultipleThreads() {
 
         // 10 million messages
-        final int messageCount = 10000000;
+        final int messageCount = 10_000_000;
         final RingBuffer<Integer> ringBuffer = new RingBuffer<>(1024);
 
         // writers
