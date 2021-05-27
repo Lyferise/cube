@@ -107,4 +107,14 @@ public class RingBufferTest {
             assertThat(ringBuffer.size(), is(equalTo(0)));
         }
     }
+
+    @Test
+    public void capacityShouldBeAPowerOfTwo() {
+        final RingBuffer<Integer> ringBuffer = new RingBuffer<>(10);
+        for (int i = 0; i < 100; i++) {
+            ringBuffer.offer(i);
+        }
+        assertThat(ringBuffer.getCapacity(), is(equalTo(16)));
+        assertThat(ringBuffer.size(), is(equalTo(16)));
+    }
 }

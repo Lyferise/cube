@@ -19,8 +19,8 @@ public class RingBuffer<T> implements BlockingQueue<T> {
 
     @SuppressWarnings("unchecked")
     public RingBuffer(final int capacity) {
-        this.capacity = capacity;
-        this.buffer = (T[]) new Object[capacity];
+        this.capacity = getNextPowerOfTwo(capacity);
+        this.buffer = (T[]) new Object[this.capacity];
     }
 
     @Override
@@ -161,5 +161,11 @@ public class RingBuffer<T> implements BlockingQueue<T> {
     @Override
     public boolean isEmpty() {
         return writeSequenceNumber < readSequenceNumber;
+    }
+
+    private static int getNextPowerOfTwo(final int value) {
+        int k = 1;
+        while (k < value) k <<= 1;
+        return k;
     }
 }
