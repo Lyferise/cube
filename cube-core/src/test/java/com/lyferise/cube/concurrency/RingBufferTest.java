@@ -184,7 +184,6 @@ public class RingBufferTest {
         }
     }
 
-    @Disabled
     @Test
     public void shouldGetRemainingCapacity() {
         final int capacity = 64;

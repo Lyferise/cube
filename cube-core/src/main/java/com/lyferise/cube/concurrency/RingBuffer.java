@@ -89,7 +89,7 @@ public class RingBuffer<T> implements BlockingQueue<T> {
 
     @Override
     public int remainingCapacity() {
-        throw new UnsupportedOperationException();
+        return capacity - size();
     }
 
     @Override
