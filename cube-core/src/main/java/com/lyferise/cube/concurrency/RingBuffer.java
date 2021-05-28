@@ -7,6 +7,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.Math.max;
+import static java.lang.Math.min;
 import static java.util.Arrays.fill;
 
 public class RingBuffer<T> implements BlockingQueue<T> {
@@ -185,12 +186,34 @@ public class RingBuffer<T> implements BlockingQueue<T> {
 
     @Override
     public int drainTo(final Collection<? super T> values) {
-        throw new UnsupportedOperationException();
+        return drainTo(values, size());
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public int drainTo(final Collection<? super T> values, final int maxElements) {
-        throw new UnsupportedOperationException();
+
+        // move
+        if (this == values) throw new IllegalArgumentException("Can't drain ring buffer to same instance.");
+        final T[] data = (T[]) new Object[min(size(), maxElements)];
+        final int moved = moveTo(data);
+
+        // add
+        int count = 0;
+        for (int i = 0; i < moved; i++) {
+            if (values.add(data[i])) count++;
+        }
+        return count;
+    }
+
+    public int moveTo(final T[] values) {
+        final int count = min((int) (tail - head), values.length);
+        if (count <= 0) return 0;
+        for (int i = 0; i < count; i++) {
+            values[i] = buffer[(int) ((head + i) & mask)];
+        }
+        head += count;
+        return count;
     }
 
     @Override

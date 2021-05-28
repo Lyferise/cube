@@ -241,7 +241,6 @@ public class RingBufferTest {
         assertThrows(NoSuchElementException.class, ringBuffer::element);
     }
 
-    @Disabled
     @Test
     public void shouldDrain() {
 
@@ -260,7 +259,6 @@ public class RingBufferTest {
         }
     }
 
-    @Disabled
     @Test
     public void shouldDrainWithLimit() {
 
