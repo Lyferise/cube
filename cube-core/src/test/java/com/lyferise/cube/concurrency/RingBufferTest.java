@@ -1,7 +1,6 @@
 package com.lyferise.cube.concurrency;
 
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -74,7 +73,6 @@ public class RingBufferTest {
         assertThat(ringBuffer.poll(), is(nullValue()));
     }
 
-    @Disabled
     @Test
     @SneakyThrows
     public void shouldOfferThenTake() {
@@ -95,7 +93,6 @@ public class RingBufferTest {
         assertThat(ringBuffer.take(), is(equalTo(capacity)));
     }
 
-    @Disabled
     @Test
     @SneakyThrows
     public void shouldPutThenPoll() {

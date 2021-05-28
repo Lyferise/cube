@@ -8,15 +8,21 @@ import java.util.concurrent.TimeUnit;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import static java.lang.System.nanoTime;
+import static java.lang.Thread.currentThread;
 import static java.util.Arrays.fill;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 public class RingBuffer<T> implements BlockingQueue<T> {
     public static final int DEFAULT_CAPACITY = 16;
+    private static final long WAIT_TIMEOUT_NANOS = 50;
     private final int capacity;
     private final T[] buffer;
     private final long mask;
     private long head;
     private long tail;
+    private final QueueCondition notEmpty = new NotEmpty();
+    private final QueueCondition notFull = new NotFull();
 
     public RingBuffer() {
         this(DEFAULT_CAPACITY);
@@ -41,24 +47,33 @@ public class RingBuffer<T> implements BlockingQueue<T> {
         final T value = buffer[index];
         buffer[index] = null;
         head++;
+        notFull.signal();
         return value;
     }
 
     @Override
-    public T poll(final long timeout, final TimeUnit unit) {
-        throw new UnsupportedOperationException();
+    public T poll(final long timeout, final TimeUnit unit) throws InterruptedException {
+        while (true) {
+            final T value = poll();
+            if (value != null) return value;
+            if (timedOutFor(notEmpty, timeout, unit)) return null;
+        }
     }
 
     @Override
     public boolean offer(final T value) {
         if (isFull()) return false;
         buffer[(int) (tail++ & mask)] = value;
+        notEmpty.signal();
         return true;
     }
 
     @Override
-    public boolean offer(final T t, final long timeout, final TimeUnit unit) {
-        throw new UnsupportedOperationException();
+    public boolean offer(final T value, final long timeout, final TimeUnit unit) throws InterruptedException {
+        while (true) {
+            if (offer(value)) return true;
+            if (timedOutFor(notFull, timeout, unit)) return false;
+        }
     }
 
     @Override
@@ -102,6 +117,7 @@ public class RingBuffer<T> implements BlockingQueue<T> {
         }
         if (count == 0) return false;
         head += count;
+        notFull.signal();
         return true;
     }
 
@@ -115,13 +131,21 @@ public class RingBuffer<T> implements BlockingQueue<T> {
     }
 
     @Override
-    public void put(final T value) {
-        throw new UnsupportedOperationException();
+    public void put(final T value) throws InterruptedException {
+        while (!offer(value)) {
+            if (currentThread().isInterrupted()) throw new InterruptedException();
+            notFull.await();
+        }
     }
 
     @Override
-    public T take() {
-        throw new UnsupportedOperationException();
+    public T take() throws InterruptedException {
+        while (true) {
+            final T value = poll();
+            if (value != null) return value;
+            if (currentThread().isInterrupted()) throw new InterruptedException();
+            notEmpty.await();
+        }
     }
 
     @Override
@@ -158,6 +182,7 @@ public class RingBuffer<T> implements BlockingQueue<T> {
         fill(buffer, null);
         tail++;
         head = tail - 1;
+        notFull.signal();
     }
 
     @Override
@@ -218,6 +243,7 @@ public class RingBuffer<T> implements BlockingQueue<T> {
             values[i] = buffer[(int) ((head + i) & mask)];
         }
         head += count;
+        notFull.signal();
         return count;
     }
 
@@ -243,6 +269,35 @@ public class RingBuffer<T> implements BlockingQueue<T> {
         int k = 1;
         while (k < value) k <<= 1;
         return k;
+    }
+
+    private static boolean timedOutFor(
+            final QueueCondition condition, final long timeout, final TimeUnit unit)
+            throws InterruptedException {
+
+        final long t1 = nanoTime() + NANOSECONDS.convert(timeout, unit);
+        while (condition.test()) {
+            final long remaining = t1 - nanoTime();
+            if (remaining <= 0) return true;
+            condition.awaitNanos(remaining - WAIT_TIMEOUT_NANOS);
+        }
+        return false;
+    }
+
+    private final class NotEmpty extends QueueCondition {
+
+        @Override
+        public final boolean test() {
+            return isEmpty();
+        }
+    }
+
+    private final class NotFull extends QueueCondition {
+
+        @Override
+        public final boolean test() {
+            return isFull();
+        }
     }
 
     private final class RingBufferIterator implements Iterator<T> {
