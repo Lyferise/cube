@@ -138,7 +138,18 @@ public class RingBuffer<T> implements BlockingQueue<T> {
 
     @Override
     public boolean retainAll(final Collection<?> values) {
-        throw new UnsupportedOperationException();
+        boolean modified = false;
+        for (int i = 0; i < size(); i++) {
+            final int index = (int) ((head + i) & mask);
+            final T value = buffer[index];
+            if (value != null && !values.contains(value)) {
+                if (remove(buffer[index])) {
+                    modified = true;
+                    i--;
+                }
+            }
+        }
+        return modified;
     }
 
     @Override

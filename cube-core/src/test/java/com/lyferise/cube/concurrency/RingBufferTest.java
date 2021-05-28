@@ -527,7 +527,6 @@ public class RingBufferTest {
         assertThat(ringBuffer.size(), is(equalTo(capacity)));
     }
 
-    @Disabled
     @Test
     public void shouldRetainValues() {
 
@@ -554,7 +553,6 @@ public class RingBufferTest {
         }
     }
 
-    @Disabled
     @Test
     public void testRetainAllValues() {
 
