@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.LongAdder;
 
 import static java.lang.Math.max;
@@ -26,8 +25,8 @@ public class RingBuffer<T> implements BlockingQueue<T> {
     private final LongAdder tail = new LongAdder();
     private long headCache = 0;
     private long tailCache = 0;
-    private final AtomicLong headCursor = new AtomicLong();
-    private final AtomicLong tailCursor = new AtomicLong();
+    private final CacheLineValue headCursor = new CacheLineValue();
+    private final CacheLineValue tailCursor = new CacheLineValue();
     private final QueueCondition notEmpty = new NotEmpty();
     private final QueueCondition notFull = new NotFull();
 
