@@ -371,7 +371,6 @@ public class RingBufferTest {
         assertThrows(IllegalStateException.class, () -> ringBuffer.add(1));
     }
 
-    @Disabled
     @Test
     public void shouldRemoveThenPollValues() {
 
@@ -398,7 +397,6 @@ public class RingBufferTest {
         }
     }
 
-    @Disabled
     @Test
     public void shouldRemoveDuplicates() {
 
@@ -478,7 +476,6 @@ public class RingBufferTest {
         assertThat(ringBuffer.containsAll(b), is(equalTo(true)));
     }
 
-    @Disabled
     @Test
     public void shouldRemoveValues() {
 
@@ -512,7 +509,6 @@ public class RingBufferTest {
         assertThat(ringBuffer.containsAll(positive), is(equalTo(false)));
     }
 
-    @Disabled
     @Test
     public void shouldRemoveEmptyCollection() {
 

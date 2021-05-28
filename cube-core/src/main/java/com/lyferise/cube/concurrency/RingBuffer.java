@@ -84,17 +84,33 @@ public class RingBuffer<T> implements BlockingQueue<T> {
 
     @Override
     public T remove() {
-        throw new UnsupportedOperationException();
+        return poll();
     }
 
     @Override
     public boolean remove(final Object value) {
-        throw new UnsupportedOperationException();
+        int count = 0;
+        for (int i = 0; i < size(); i++) {
+            final T data = buffer[(int) ((head + i) & mask)];
+            if (data != null && data.equals(value)) {
+                for (int j = i; j > 0; j--) {
+                    buffer[(int) ((head + j) & mask)] = buffer[(int) ((head + j - 1) & mask)];
+                }
+                count++;
+            }
+        }
+        if (count == 0) return false;
+        head += count;
+        return true;
     }
 
     @Override
     public boolean removeAll(final Collection<?> values) {
-        throw new UnsupportedOperationException();
+        boolean modified = false;
+        for (final Object value : values) {
+            modified |= remove(value);
+        }
+        return modified;
     }
 
     @Override
