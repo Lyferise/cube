@@ -174,14 +174,19 @@ public class RingBuffer<T> implements BlockingQueue<T> {
         throw new UnsupportedOperationException();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Object[] toArray() {
-        throw new UnsupportedOperationException();
+        final T[] values = (T[]) new Object[size()];
+        toArray(values);
+        return values;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <V> V[] toArray(final V[] values) {
-        throw new UnsupportedOperationException();
+        moveTo((T[]) values);
+        return values;
     }
 
     @Override

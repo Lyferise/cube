@@ -613,7 +613,6 @@ public class RingBufferTest {
         }
     }
 
-    @Disabled
     @Test
     public void shouldCopyRingBufferToArray() {
 
@@ -631,7 +630,6 @@ public class RingBufferTest {
         }
     }
 
-    @Disabled
     @Test
     public void shouldCopyRingBufferToTypedArray() {
 
