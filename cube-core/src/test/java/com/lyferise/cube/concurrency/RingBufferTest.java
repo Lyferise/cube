@@ -595,7 +595,6 @@ public class RingBufferTest {
         assertThat(ringBuffer.size(), is(equalTo(0)));
     }
 
-    @Disabled
     @Test
     public void ringBufferShouldBeIterable() {
 

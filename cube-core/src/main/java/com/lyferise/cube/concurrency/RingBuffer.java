@@ -171,7 +171,7 @@ public class RingBuffer<T> implements BlockingQueue<T> {
 
     @Override
     public Iterator<T> iterator() {
-        throw new UnsupportedOperationException();
+        return new RingBufferIterator();
     }
 
     @SuppressWarnings("unchecked")
@@ -243,5 +243,25 @@ public class RingBuffer<T> implements BlockingQueue<T> {
         int k = 1;
         while (k < value) k <<= 1;
         return k;
+    }
+
+    private final class RingBufferIterator implements Iterator<T> {
+        private int index;
+        private T value;
+
+        @Override
+        public boolean hasNext() {
+            return index < size();
+        }
+
+        @Override
+        public T next() {
+            return value = buffer[(int) ((head + index++) & mask)];
+        }
+
+        @Override
+        public void remove() {
+            RingBuffer.this.remove(value);
+        }
     }
 }
