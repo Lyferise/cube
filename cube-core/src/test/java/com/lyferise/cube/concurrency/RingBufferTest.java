@@ -360,7 +360,6 @@ public class RingBufferTest {
         assertThat(ringBuffer.containsAll(subset), is(equalTo(false)));
     }
 
-    @Disabled
     @Test
     public void addShouldThrowWhenAtCapacity() {
 

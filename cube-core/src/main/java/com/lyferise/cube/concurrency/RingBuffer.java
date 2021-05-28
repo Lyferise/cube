@@ -68,7 +68,8 @@ public class RingBuffer<T> implements BlockingQueue<T> {
 
     @Override
     public boolean add(final T value) {
-        throw new UnsupportedOperationException();
+        if (offer(value)) return true;
+        throw new IllegalStateException("ring buffer is full");
     }
 
     @Override
