@@ -194,7 +194,6 @@ public class RingBufferTest {
         }
     }
 
-    @Disabled
     @Test
     public void shouldPeekThenRemoveSingleItem() {
 
