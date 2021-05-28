@@ -7,6 +7,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.Math.max;
+import static java.util.Arrays.fill;
 
 public class RingBuffer<T> implements BlockingQueue<T> {
     public static final int DEFAULT_CAPACITY = 16;
@@ -73,7 +74,26 @@ public class RingBuffer<T> implements BlockingQueue<T> {
     }
 
     @Override
+    public boolean addAll(final Collection<? extends T> values) {
+        boolean modified = false;
+        for (final T value : values) {
+            modified |= offer(value);
+        }
+        return modified;
+    }
+
+    @Override
     public T remove() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean remove(final Object value) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean removeAll(final Collection<?> values) {
         throw new UnsupportedOperationException();
     }
 
@@ -93,23 +113,11 @@ public class RingBuffer<T> implements BlockingQueue<T> {
     }
 
     @Override
-    public boolean remove(final Object value) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public boolean containsAll(final Collection<?> values) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean addAll(final Collection<? extends T> values) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean removeAll(final Collection<?> values) {
-        throw new UnsupportedOperationException();
+        for (final Object value : values) {
+            if (!contains(value)) return false;
+        }
+        return true;
     }
 
     @Override
@@ -119,12 +127,18 @@ public class RingBuffer<T> implements BlockingQueue<T> {
 
     @Override
     public void clear() {
-        throw new UnsupportedOperationException();
+        fill(buffer, null);
+        tail++;
+        head = tail - 1;
     }
 
     @Override
     public boolean contains(final Object value) {
-        throw new UnsupportedOperationException();
+        for (int i = 0; i < size(); i++) {
+            final T data = buffer[(int) ((head + i) & mask)];
+            if (data != null && data.equals(value)) return true;
+        }
+        return false;
     }
 
     @Override

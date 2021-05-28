@@ -308,7 +308,6 @@ public class RingBufferTest {
         }
     }
 
-    @Disabled
     @Test
     public void shouldDetermineIfRingBufferContainsValues() {
 
@@ -331,7 +330,6 @@ public class RingBufferTest {
         }
     }
 
-    @Disabled
     @Test
     public void shouldDetermineIfRingBufferContainsCollection() {
 
@@ -425,7 +423,6 @@ public class RingBufferTest {
         }
     }
 
-    @Disabled
     @Test
     public void shouldAddValuesThenPoll() {
 
@@ -455,7 +452,6 @@ public class RingBufferTest {
         assertThat(ringBuffer.size(), is(capacity));
     }
 
-    @Disabled
     @Test
     public void shouldAddValues() {
 
@@ -580,7 +576,6 @@ public class RingBufferTest {
         assertThat(ringBuffer.size(), is(equalTo(capacity)));
     }
 
-    @Disabled
     @Test
     public void shouldClear() {
 
