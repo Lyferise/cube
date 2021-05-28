@@ -5,6 +5,8 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.LongAdder;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -15,12 +17,17 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 public class RingBuffer<T> implements BlockingQueue<T> {
     public static final int DEFAULT_CAPACITY = 16;
+
     private static final long WAIT_TIMEOUT_NANOS = 50;
     private final int capacity;
     private final T[] buffer;
     private final long mask;
-    private long head;
-    private long tail;
+    private final LongAdder head = new LongAdder();
+    private final LongAdder tail = new LongAdder();
+    private long headCache = 0;
+    private long tailCache = 0;
+    private final AtomicLong headCursor = new AtomicLong();
+    private final AtomicLong tailCursor = new AtomicLong();
     private final QueueCondition notEmpty = new NotEmpty();
     private final QueueCondition notFull = new NotFull();
 
@@ -37,18 +44,23 @@ public class RingBuffer<T> implements BlockingQueue<T> {
 
     @Override
     public T peek() {
-        return buffer[(int) (head & mask)];
+        return buffer[(int) (head.sum() & mask)];
     }
 
     @Override
     public T poll() {
-        if (tail <= head) return null;
-        final int index = (int) (head & mask);
-        final T value = buffer[index];
-        buffer[index] = null;
-        head++;
-        notFull.signal();
-        return value;
+        while (true) {
+            final long head = this.head.sum();
+            if (tailCache <= head && (tailCache = tail.sum()) <= head) return null;
+            if (headCursor.compareAndSet(head, head + 1)) {
+                final int index = (int) (head & mask);
+                final T value = buffer[index];
+                buffer[index] = null;
+                this.head.increment();
+                notFull.signal();
+                return value;
+            }
+        }
     }
 
     @Override
@@ -62,10 +74,21 @@ public class RingBuffer<T> implements BlockingQueue<T> {
 
     @Override
     public boolean offer(final T value) {
-        if (isFull()) return false;
-        buffer[(int) (tail++ & mask)] = value;
-        notEmpty.signal();
-        return true;
+        while (true) {
+            final long tail = this.tail.sum();
+            final long index = tail - capacity;
+            if (headCache <= index && (headCache = head.sum()) <= index) {
+                notEmpty.signal();
+                return false;
+            }
+
+            if (tailCursor.compareAndSet(tail, tail + 1)) {
+                buffer[(int) (tail & mask)] = value;
+                this.tail.increment();
+                notEmpty.signal();
+                return true;
+            }
+        }
     }
 
     @Override
@@ -105,20 +128,38 @@ public class RingBuffer<T> implements BlockingQueue<T> {
 
     @Override
     public boolean remove(final Object value) {
-        int count = 0;
-        for (int i = 0; i < size(); i++) {
-            final T data = buffer[(int) ((head + i) & mask)];
-            if (data != null && data.equals(value)) {
-                for (int j = i; j > 0; j--) {
-                    buffer[(int) ((head + j) & mask)] = buffer[(int) ((head + j - 1) & mask)];
+        while (true) {
+            final long head = this.head.sum();
+            if (headCursor.compareAndSet(head, head + 1)) {
+                while (true) {
+                    final long tail = this.tail.sum();
+                    if (tailCursor.compareAndSet(tail, tail + 1)) {
+                        int count = 0;
+                        for (int i = 0; i < size(); i++) {
+                            final T data = buffer[(int) ((this.head.sum() + i) & mask)];
+                            if (data != null && data.equals(value)) {
+                                count++;
+                                for (int j = i; j > 0; j--) {
+                                    buffer[(int) ((this.head.sum() + j) & mask)] = buffer[(int) ((this.head.sum() + j - 1) & mask)];
+                                }
+                            }
+                        }
+
+                        if (count > 0) {
+                            headCursor.set(head + count);
+                            tailCursor.set(tail);
+                            this.head.add(count);
+                            notFull.signal();
+                            return true;
+                        }
+
+                        tailCursor.set(tail);
+                        headCursor.set(head);
+                        return false;
+                    }
                 }
-                count++;
             }
         }
-        if (count == 0) return false;
-        head += count;
-        notFull.signal();
-        return true;
     }
 
     @Override
@@ -165,13 +206,11 @@ public class RingBuffer<T> implements BlockingQueue<T> {
     public boolean retainAll(final Collection<?> values) {
         boolean modified = false;
         for (int i = 0; i < size(); i++) {
-            final int index = (int) ((head + i) & mask);
+            final int index = (int) ((head.sum() + i) & mask);
             final T value = buffer[index];
-            if (value != null && !values.contains(value)) {
-                if (remove(buffer[index])) {
-                    modified = true;
-                    i--;
-                }
+            if (value != null && !values.contains(value) && remove(buffer[index])) {
+                modified = true;
+                i--;
             }
         }
         return modified;
@@ -179,16 +218,28 @@ public class RingBuffer<T> implements BlockingQueue<T> {
 
     @Override
     public void clear() {
-        fill(buffer, null);
-        tail++;
-        head = tail - 1;
-        notFull.signal();
+        while (true) {
+            final long head = this.head.sum();
+            if (!headCursor.compareAndSet(head, head + 1)) continue;
+
+            while (true) {
+                final long tail = this.tail.sum();
+                if (tailCursor.compareAndSet(tail, tail + 1)) {
+                    fill(buffer, null);
+                    this.tail.increment();
+                    this.head.add(tail - head + 1);
+                    headCursor.set(tail + 1);
+                    notFull.signal();
+                    return;
+                }
+            }
+        }
     }
 
     @Override
     public boolean contains(final Object value) {
         for (int i = 0; i < size(); i++) {
-            final T data = buffer[(int) ((head + i) & mask)];
+            final T data = buffer[(int) ((head.sum() + i) & mask)];
             if (data != null && data.equals(value)) return true;
         }
         return false;
@@ -237,19 +288,31 @@ public class RingBuffer<T> implements BlockingQueue<T> {
     }
 
     public int moveTo(final T[] values) {
-        final int count = min((int) (tail - head), values.length);
-        if (count <= 0) return 0;
-        for (int i = 0; i < count; i++) {
-            values[i] = buffer[(int) ((head + i) & mask)];
+        final int length = values.length;
+        while (true) {
+
+            // count
+            final long head = this.head.sum();
+            final int count = min((int) (this.tail.sum() - head), length);
+            if (count <= 0) return 0;
+
+            // values
+            for (int i = 0; i < count; i++) {
+                values[i] = buffer[(int) ((head + i) & mask)];
+            }
+
+            // done?
+            if (headCursor.compareAndSet(head, head + count)) {
+                this.head.add(count);
+                notFull.signal();
+                return count;
+            }
         }
-        head += count;
-        notFull.signal();
-        return count;
     }
 
     @Override
-    public int size() {
-        return (int) max(tail - head, 0);
+    public final int size() {
+        return (int) max(tail.sum() - head.sum(), 0);
     }
 
     public int getCapacity() {
@@ -257,12 +320,12 @@ public class RingBuffer<T> implements BlockingQueue<T> {
     }
 
     public boolean isFull() {
-        return head == tail - capacity;
+        return head.sum() == tail.sum() - capacity;
     }
 
     @Override
-    public boolean isEmpty() {
-        return head == tail;
+    public final boolean isEmpty() {
+        return head.sum() == tail.sum();
     }
 
     private static int getNextPowerOfTwo(final int value) {
@@ -311,7 +374,7 @@ public class RingBuffer<T> implements BlockingQueue<T> {
 
         @Override
         public T next() {
-            return value = buffer[(int) ((head + index++) & mask)];
+            return value = buffer[(int) ((head.sum() + index++) & mask)];
         }
 
         @Override

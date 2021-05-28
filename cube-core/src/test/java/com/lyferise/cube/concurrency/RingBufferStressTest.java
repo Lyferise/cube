@@ -1,7 +1,6 @@
 package com.lyferise.cube.concurrency;
 
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.BitSet;
@@ -13,7 +12,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RingBufferStressTest {
 
-    @Disabled
     @Test
     @SneakyThrows
     public void shouldReadAndWriteUsingMultipleThreads() {
