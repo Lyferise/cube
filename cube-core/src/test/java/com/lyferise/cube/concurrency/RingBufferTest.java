@@ -216,7 +216,6 @@ public class RingBufferTest {
         assertThat(ringBuffer.peek(), is(equalTo(1)));
     }
 
-    @Disabled
     @Test
     public void shouldPeekThenPoll() {
 

@@ -5,6 +5,8 @@ import java.util.Iterator;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import static java.lang.Math.max;
+
 public class RingBuffer<T> implements BlockingQueue<T> {
     public static final int DEFAULT_CAPACITY = 16;
     private final int capacity;
@@ -26,7 +28,7 @@ public class RingBuffer<T> implements BlockingQueue<T> {
 
     @Override
     public T peek() {
-        throw new UnsupportedOperationException();
+        return buffer[(int) (head & mask)];
     }
 
     @Override
@@ -148,7 +150,7 @@ public class RingBuffer<T> implements BlockingQueue<T> {
 
     @Override
     public int size() {
-        return (int) Math.max((tail - head), 0);
+        return (int) max(tail - head, 0);
     }
 
     public int getCapacity() {
