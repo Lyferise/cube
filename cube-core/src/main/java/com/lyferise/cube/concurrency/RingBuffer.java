@@ -7,11 +7,11 @@ import java.util.concurrent.TimeUnit;
 
 public class RingBuffer<T> implements BlockingQueue<T> {
     public static final int DEFAULT_CAPACITY = 16;
-
     private final int capacity;
     private final T[] buffer;
-    private volatile int readSequenceNumber;
-    private volatile int writeSequenceNumber = -1;
+    private final long mask;
+    private long head;
+    private long tail;
 
     public RingBuffer() {
         this(DEFAULT_CAPACITY);
@@ -20,20 +20,8 @@ public class RingBuffer<T> implements BlockingQueue<T> {
     @SuppressWarnings("unchecked")
     public RingBuffer(final int capacity) {
         this.capacity = getNextPowerOfTwo(capacity);
+        this.mask = this.capacity - 1;
         this.buffer = (T[]) new Object[this.capacity];
-    }
-
-    @Override
-    public T poll() {
-        if (isEmpty()) return null;
-        final T nextValue = buffer[readSequenceNumber % capacity];
-        readSequenceNumber++;
-        return nextValue;
-    }
-
-    @Override
-    public T element() {
-        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -42,17 +30,40 @@ public class RingBuffer<T> implements BlockingQueue<T> {
     }
 
     @Override
-    public boolean add(final T value) {
+    public T poll() {
+        if (tail <= head) return null;
+        final int index = (int) (head & mask);
+        final T value = buffer[index];
+        buffer[index] = null;
+        head++;
+        return value;
+    }
+
+    @Override
+    public T poll(final long timeout, final TimeUnit unit) {
         throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean offer(final T value) {
         if (isFull()) return false;
-        final int nextSequenceNumber = writeSequenceNumber + 1;
-        buffer[nextSequenceNumber % capacity] = value;
-        writeSequenceNumber++;
+        buffer[(int) (tail++ & mask)] = value;
         return true;
+    }
+
+    @Override
+    public boolean offer(final T t, final long timeout, final TimeUnit unit) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public T element() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean add(final T value) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -66,17 +77,7 @@ public class RingBuffer<T> implements BlockingQueue<T> {
     }
 
     @Override
-    public boolean offer(final T t, final long timeout, final TimeUnit unit) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public T take() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public T poll(final long timeout, final TimeUnit unit) {
         throw new UnsupportedOperationException();
     }
 
@@ -147,7 +148,7 @@ public class RingBuffer<T> implements BlockingQueue<T> {
 
     @Override
     public int size() {
-        return (writeSequenceNumber - readSequenceNumber) + 1;
+        return (int) Math.max((tail - head), 0);
     }
 
     public int getCapacity() {
@@ -155,12 +156,12 @@ public class RingBuffer<T> implements BlockingQueue<T> {
     }
 
     public boolean isFull() {
-        return size() == capacity;
+        return head == tail - capacity;
     }
 
     @Override
     public boolean isEmpty() {
-        return writeSequenceNumber < readSequenceNumber;
+        return head == tail;
     }
 
     private static int getNextPowerOfTwo(final int value) {
