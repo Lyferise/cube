@@ -2,6 +2,7 @@ package com.lyferise.cube.concurrency;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -60,7 +61,9 @@ public class RingBuffer<T> implements BlockingQueue<T> {
 
     @Override
     public T element() {
-        throw new UnsupportedOperationException();
+        final T value = peek();
+        if (value == null) throw new NoSuchElementException();
+        return value;
     }
 
     @Override

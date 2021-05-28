@@ -236,7 +236,6 @@ public class RingBufferTest {
         }
     }
 
-    @Disabled
     @Test
     public void gettingHeadOfQueueShouldThrowWhenQueueIsEmpty() {
         final RingBuffer<Integer> ringBuffer = new RingBuffer<>();
