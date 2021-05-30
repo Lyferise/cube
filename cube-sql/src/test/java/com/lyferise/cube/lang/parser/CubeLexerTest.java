@@ -1,24 +1,34 @@
 package com.lyferise.cube.lang.parser;
 
+import com.lyferise.cube.lang.elements.Symbol;
 import org.junit.jupiter.api.Test;
 
+import static com.lyferise.cube.lang.parser.CubeLexer.tokenize;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 
 public class CubeLexerTest {
 
     @Test
     public void shouldTokenizeNullString() {
-        final CubeLexer lexer = new CubeLexer();
-        lexer.tokenize(null);
-        assertThat(lexer.next(), is(equalTo(null)));
+        assertThat(tokenize(null), is(empty()));
     }
 
     @Test
     public void shouldTokenizeEmptyString() {
-        final CubeLexer lexer = new CubeLexer();
-        lexer.tokenize("");
-        assertThat(lexer.next(), is(equalTo(null)));
+        assertThat(tokenize(""), is(empty()));
+    }
+
+    @Test
+    public void shouldTokenizeSymbols() {
+        assertThat(
+                tokenize("*.='()"),
+                contains(
+                        new Symbol("*"),
+                        new Symbol("."),
+                        new Symbol("="),
+                        new Symbol("'"),
+                        new Symbol("("),
+                        new Symbol(")")));
     }
 }
