@@ -21,6 +21,11 @@ public class CubeLexerTest {
     }
 
     @Test
+    public void shouldTokenizeWhitespaceString() {
+        assertThat(tokenize("    "), is(empty()));
+    }
+
+    @Test
     public void shouldTokenizeSymbols() {
         assertThat(
                 tokenize("*.='()"),
