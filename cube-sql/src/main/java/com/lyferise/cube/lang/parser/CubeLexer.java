@@ -21,13 +21,6 @@ public class CubeLexer {
         this.position = 0;
     }
 
-    public ElementType next() {
-        if (position >= length) return null;
-        tokenStart = position++;
-        tokenEnd = position;
-        return tokenType = SYMBOL;
-    }
-
     public String getTokenText() {
         return text.substring(tokenStart, tokenEnd);
     }
@@ -41,5 +34,45 @@ public class CubeLexer {
         var lexer = new CubeLexer();
         lexer.read(text);
         return new LexerTokenStream(lexer).toList();
+    }
+
+    public ElementType next() {
+
+        // done?
+        if (position >= length) return null;
+
+        // read
+        return readSymbol();
+    }
+
+    private ElementType readSymbol() {
+
+        // symbol
+        int n = 0;
+        final char ch = peek();
+        if (ch == '.' || ch == '*' || ch == '+' || ch == '\'' || ch == '(' || ch == ')') {
+            n = 1;
+        } else if (ch == '=') {
+            n = peek2() == '=' ? 2 : 1;
+        }
+
+        // not found?
+        if (n == 0) {
+            throw new UnsupportedOperationException("Unrecognized character: " + ch);
+        }
+
+        // token
+        tokenStart = position;
+        position += n;
+        tokenEnd = position;
+        return tokenType = SYMBOL;
+    }
+
+    private char peek() {
+        return text.charAt(position);
+    }
+
+    private char peek2() {
+        return text.charAt(position + 1);
     }
 }
