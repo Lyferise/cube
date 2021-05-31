@@ -1,11 +1,13 @@
 package com.lyferise.cube.lang.parser;
 
 import com.lyferise.cube.lang.elements.Element;
+import com.lyferise.cube.lang.elements.ElementType;
+import com.lyferise.cube.lang.elements.Identifier;
 import com.lyferise.cube.lang.elements.Symbol;
 
 import java.util.List;
 
-import static com.lyferise.cube.lang.parser.ElementType.SYMBOL;
+import static com.lyferise.cube.lang.elements.ElementType.*;
 
 public class CubeLexer {
     private int position;
@@ -26,8 +28,10 @@ public class CubeLexer {
     }
 
     public Element getToken() {
-        if (tokenType == SYMBOL) return new Symbol(getTokenText());
-        throw new UnsupportedOperationException();
+        return switch (tokenType) {
+            case SYMBOL -> new Symbol(getTokenText());
+            case IDENTIFIER -> new Identifier(getTokenText());
+        };
     }
 
     public static List<Element> tokenize(final String text) {
@@ -41,8 +45,26 @@ public class CubeLexer {
         // done?
         if (position >= length) return null;
 
+        // whitespace
+        while (canRead() && whitespace(peek())) {
+            position++;
+        }
+
         // read
-        return readSymbol();
+        return identifier(peek()) ? readIdentifier() : readSymbol();
+    }
+
+    private ElementType readIdentifier() {
+
+        // identifier
+        tokenStart = position;
+        while (canRead() && identifier(peek())) {
+            position++;
+        }
+
+        // token
+        tokenEnd = position;
+        return tokenType = IDENTIFIER;
     }
 
     private ElementType readSymbol() {
@@ -68,11 +90,23 @@ public class CubeLexer {
         return tokenType = SYMBOL;
     }
 
+    private boolean canRead() {
+        return position < length;
+    }
+
     private char peek() {
         return text.charAt(position);
     }
 
     private char peek2() {
         return text.charAt(position + 1);
+    }
+
+    private static boolean whitespace(final char ch) {
+        return ch == ' ' || ch == '\t';
+    }
+
+    private static boolean identifier(final char ch) {
+        return ch == '_' || (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || (ch >= '0' && ch <= '9');
     }
 }

@@ -2,10 +2,13 @@ package com.lyferise.cube.lang.elements;
 
 import com.lyferise.cube.lang.formatter.ElementFormatter;
 
+import static com.lyferise.cube.lang.elements.ElementType.IDENTIFIER;
+
 public class Identifier extends Element {
     private final String text;
 
     public Identifier(final String text) {
+        super(IDENTIFIER);
         this.text = text;
     }
 

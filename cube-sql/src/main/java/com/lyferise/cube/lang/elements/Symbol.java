@@ -2,10 +2,13 @@ package com.lyferise.cube.lang.elements;
 
 import com.lyferise.cube.lang.formatter.ElementFormatter;
 
+import static com.lyferise.cube.lang.elements.ElementType.SYMBOL;
+
 public class Symbol extends Element {
     private final String text;
 
     public Symbol(final String text) {
+        super(SYMBOL);
         this.text = text;
     }
 

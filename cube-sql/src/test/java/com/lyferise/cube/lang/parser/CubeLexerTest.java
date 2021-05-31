@@ -2,7 +2,6 @@ package com.lyferise.cube.lang.parser;
 
 import com.lyferise.cube.lang.elements.Identifier;
 import com.lyferise.cube.lang.elements.Symbol;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static com.lyferise.cube.lang.parser.CubeLexer.tokenize;
@@ -35,7 +34,6 @@ public class CubeLexerTest {
     }
 
     @Test
-    @Disabled
     public void shouldTokenizeIdentifiers() {
         assertThat(
                 tokenize("aaa a.b xxx.yyy test_1 test1 _test1 __test2"),
@@ -48,7 +46,7 @@ public class CubeLexerTest {
                         new Symbol("."),
                         new Identifier("yyy"),
                         new Identifier("test_1"),
-                        new Identifier("tet1"),
+                        new Identifier("test1"),
                         new Identifier("_test1"),
                         new Identifier("__test2")));
     }
