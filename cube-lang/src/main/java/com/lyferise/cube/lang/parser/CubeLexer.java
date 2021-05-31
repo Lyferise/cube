@@ -45,7 +45,7 @@ public class CubeLexer {
     public ElementType next() {
 
         // done?
-        if (position >= length) return null;
+        if (!canRead()) return null;
 
         // whitespace
         while (canRead() && whitespace(peek())) {
@@ -53,6 +53,7 @@ public class CubeLexer {
         }
 
         // read
+        if (!canRead()) return null;
         return identifier(peek()) ? readIdentifier() : readSymbol();
     }
 

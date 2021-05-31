@@ -34,6 +34,13 @@ public class CubeLexerTest {
     }
 
     @Test
+    public void shouldTokenizeSingleSymbolWithWhitespace() {
+        assertThat(
+                tokenize("  *  "),
+                contains(new Symbol("*")));
+    }
+
+    @Test
     public void shouldTokenizeIdentifiers() {
         assertThat(
                 tokenize("aaa a.b xxx.yyy test_1 test1 _test1 __test2"),
