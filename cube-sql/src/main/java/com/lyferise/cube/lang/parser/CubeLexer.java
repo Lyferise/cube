@@ -7,7 +7,8 @@ import com.lyferise.cube.lang.elements.Symbol;
 
 import java.util.List;
 
-import static com.lyferise.cube.lang.elements.ElementType.*;
+import static com.lyferise.cube.lang.elements.ElementType.IDENTIFIER;
+import static com.lyferise.cube.lang.elements.ElementType.SYMBOL;
 
 public class CubeLexer {
     private int position;
@@ -29,6 +30,7 @@ public class CubeLexer {
 
     public Element getToken() {
         return switch (tokenType) {
+            case INT_CONSTANT, LONG_CONSTANT -> throw new UnsupportedOperationException();
             case SYMBOL -> new Symbol(getTokenText());
             case IDENTIFIER -> new Identifier(getTokenText());
         };

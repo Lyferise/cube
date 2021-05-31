@@ -7,6 +7,14 @@ public class ElementFormatter {
         this.text.append(text);
     }
 
+    public void write(final int value) {
+        this.text.append(value);
+    }
+
+    public void write(final long value) {
+        this.text.append(value);
+    }
+
     @Override
     public String toString() {
         return text.toString();
