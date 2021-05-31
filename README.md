@@ -8,7 +8,7 @@ This is a Git [monorepo](https://en.wikipedia.org/wiki/Monorepo) for Cube, struc
 - `cube-client`
 - `cube-cluster`
 - `cube-core`
-- `cube-sql`
+- `cube-lang`
 
 ## Prerequisites
 

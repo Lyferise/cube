@@ -7,6 +7,10 @@ public class ElementFormatter {
         this.text.append(text);
     }
 
+    public void write(final char ch) {
+        this.text.append(ch);
+    }
+
     public void write(final int value) {
         this.text.append(value);
     }
