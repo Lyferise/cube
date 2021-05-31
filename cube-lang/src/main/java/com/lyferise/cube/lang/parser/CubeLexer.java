@@ -72,8 +72,8 @@ public class CubeLexer {
     private ElementType readSymbol() {
 
         // symbol
-        int n = 0;
-        final char ch = peek();
+        var n = 0;
+        final var ch = peek();
         if (ch == '.' || ch == '*' || ch == '+' || ch == '\'' || ch == '(' || ch == ')') {
             n = 1;
         } else if (ch == '=') {
