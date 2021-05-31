@@ -15,7 +15,7 @@ public class RingBufferTest {
 
     @Test
     public void pollShouldReturnNullWhenRingBufferIsEmpty() {
-        final RingBuffer<Integer> ringBuffer = new RingBuffer<>();
+        final var ringBuffer = new RingBuffer<Integer>();
         assertThat(ringBuffer.poll(), is(nullValue()));
     }
 
@@ -23,7 +23,7 @@ public class RingBufferTest {
     public void shouldOfferThenPollSingleItem() {
 
         // empty
-        final RingBuffer<Integer> ringBuffer = new RingBuffer<>();
+        final var ringBuffer = new RingBuffer<Integer>();
         assertThat(ringBuffer.getCapacity(), is(equalTo(DEFAULT_CAPACITY)));
         assertThat(ringBuffer.size(), is(equalTo(0)));
         assertThat(ringBuffer.isEmpty(), is(equalTo(true)));
@@ -43,7 +43,7 @@ public class RingBufferTest {
     public void shouldOfferThenPollTwoItems() {
 
         // empty
-        final RingBuffer<Integer> ringBuffer = new RingBuffer<>();
+        final var ringBuffer = new RingBuffer<Integer>();
         assertThat(ringBuffer.poll(), is(nullValue()));
 
         // offer
@@ -60,14 +60,14 @@ public class RingBufferTest {
     public void shouldOfferUntilFull() {
 
         // offer
-        final int capacity = 100;
-        final RingBuffer<Integer> ringBuffer = new RingBuffer<>(capacity);
-        for (int i = 0; i < capacity; i++) {
+        final var capacity = 100;
+        final var ringBuffer = new RingBuffer<Integer>(capacity);
+        for (var i = 0; i < capacity; i++) {
             assertThat(ringBuffer.offer(i), is(equalTo(true)));
         }
 
         // poll
-        for (int i = 0; i < capacity; i++) {
+        for (var i = 0; i < capacity; i++) {
             assertThat(ringBuffer.poll(), is(equalTo(i)));
         }
         assertThat(ringBuffer.poll(), is(nullValue()));
@@ -78,8 +78,8 @@ public class RingBufferTest {
     public void shouldOfferThenTake() {
 
         // offer
-        final int capacity = 100;
-        final RingBuffer<Integer> ringBuffer = new RingBuffer<>(capacity);
+        final var capacity = 100;
+        final var ringBuffer = new RingBuffer<Integer>(capacity);
         new Thread(() -> {
             try {
                 sleep(1000);
@@ -98,9 +98,9 @@ public class RingBufferTest {
     public void shouldPutThenPoll() {
 
         // offer
-        final int capacity = 100;
-        final RingBuffer<Integer> ringBuffer = new RingBuffer<>(capacity);
-        for (int i = 0; i < capacity; i++) {
+        final var capacity = 100;
+        final var ringBuffer = new RingBuffer<Integer>(capacity);
+        for (var i = 0; i < capacity; i++) {
             ringBuffer.offer(i);
         }
 
@@ -125,8 +125,8 @@ public class RingBufferTest {
 
     @Test
     public void capacityShouldBeAPowerOfTwo() {
-        final RingBuffer<Integer> ringBuffer = new RingBuffer<>(10);
-        for (int i = 0; i < 100; i++) {
+        final var ringBuffer = new RingBuffer<Integer>(10);
+        for (var i = 0; i < 100; i++) {
             ringBuffer.offer(i);
         }
         assertThat(ringBuffer.getCapacity(), is(equalTo(16)));
@@ -137,16 +137,16 @@ public class RingBufferTest {
     public void offerShouldFailWhenAtCapacity() {
 
         // capacity -> power of two
-        final Map<Integer, Integer> map = Map.of(
+        final var map = Map.of(
                 16, 16,
                 42, 64,
                 200, 256);
 
         // offer
-        for (final int capacity : map.keySet()) {
-            final int powerOfTwo = map.get(capacity);
-            final RingBuffer<Integer> ringBuffer = new RingBuffer<>(capacity);
-            for (int i = 0; i < capacity * 2; i++) {
+        for (final var capacity : map.keySet()) {
+            final var powerOfTwo = map.get(capacity);
+            final var ringBuffer = new RingBuffer<Integer>(capacity);
+            for (var i = 0; i < capacity * 2; i++) {
                 assertThat(ringBuffer.offer(i), is(equalTo(i < powerOfTwo)));
             }
 
@@ -159,21 +159,21 @@ public class RingBufferTest {
     public void shouldGetSize() {
 
         // empty
-        final int capacity = 100;
-        final RingBuffer<Integer> ringBuffer = new RingBuffer<>(capacity);
+        final var capacity = 100;
+        final var ringBuffer = new RingBuffer<Integer>(capacity);
         assertThat(ringBuffer.size(), is(equalTo(0)));
 
-        for (int i = 0; i < 2; i++) {
+        for (var i = 0; i < 2; i++) {
 
             // offer
-            for (int j = 0; j < capacity; j++) {
+            for (var j = 0; j < capacity; j++) {
                 assertThat(ringBuffer.offer(j), is(equalTo(true)));
                 assertThat(ringBuffer.size(), is(equalTo(j + 1)));
             }
             assertThat(ringBuffer.size(), is(equalTo(capacity)));
 
             // poll
-            for (int j = 0; j < capacity; j++) {
+            for (var j = 0; j < capacity; j++) {
                 assertThat(ringBuffer.size(), is(equalTo(capacity - j)));
                 ringBuffer.poll();
             }
@@ -183,9 +183,9 @@ public class RingBufferTest {
 
     @Test
     public void shouldGetRemainingCapacity() {
-        final int capacity = 64;
-        final RingBuffer<Integer> ringBuffer = new RingBuffer<>(capacity);
-        for (int i = 0; i < capacity; i++) {
+        final var capacity = 64;
+        final var ringBuffer = new RingBuffer<Integer>(capacity);
+        for (var i = 0; i < capacity; i++) {
             assertThat(ringBuffer.remainingCapacity(), is(equalTo(capacity - i)));
             ringBuffer.offer(i);
         }
@@ -195,18 +195,18 @@ public class RingBufferTest {
     public void shouldPeekThenRemoveSingleItem() {
 
         // offer
-        final int capacity = 100;
-        final RingBuffer<Integer> ringBuffer = new RingBuffer<>(capacity);
-        for (int i = 0; i < capacity; i++) {
+        final var capacity = 100;
+        final var ringBuffer = new RingBuffer<Integer>(capacity);
+        for (var i = 0; i < capacity; i++) {
             ringBuffer.offer(i);
         }
 
         // peek
-        final Integer value = ringBuffer.peek();
+        final var value = ringBuffer.peek();
         assertThat(value, is(equalTo(0)));
 
         // remove
-        final Integer removed = ringBuffer.remove();
+        final var removed = ringBuffer.remove();
         assertThat(removed, is(equalTo(0)));
         assertThat(ringBuffer.peek(), is(equalTo(1)));
     }
@@ -215,17 +215,17 @@ public class RingBufferTest {
     public void shouldPeekThenPoll() {
 
         // peek
-        final int capacity = 10;
-        final RingBuffer<Integer> ringBuffer = new RingBuffer<>(capacity);
+        final var capacity = 10;
+        final var ringBuffer = new RingBuffer<Integer>(capacity);
         assertThat(ringBuffer.peek(), is(nullValue()));
 
         // offer
-        for (int i = 0; i < capacity; i++) {
+        for (var i = 0; i < capacity; i++) {
             ringBuffer.offer(i);
         }
 
         // peek/poll
-        for (int i = 0; i < capacity; i++) {
+        for (var i = 0; i < capacity; i++) {
             assertThat(ringBuffer.peek(), is(equalTo(i)));
             ringBuffer.poll();
         }
@@ -233,7 +233,7 @@ public class RingBufferTest {
 
     @Test
     public void gettingHeadOfQueueShouldThrowWhenQueueIsEmpty() {
-        final RingBuffer<Integer> ringBuffer = new RingBuffer<>();
+        final var ringBuffer = new RingBuffer<Integer>();
         assertThrows(NoSuchElementException.class, ringBuffer::element);
     }
 
@@ -241,16 +241,16 @@ public class RingBufferTest {
     public void shouldDrain() {
 
         // offer
-        final int capacity = 100;
-        final RingBuffer<Integer> ringBuffer = new RingBuffer<>(capacity);
-        for (int i = 0; i < capacity; i++) {
+        final var capacity = 100;
+        final var ringBuffer = new RingBuffer<Integer>(capacity);
+        for (var i = 0; i < capacity; i++) {
             ringBuffer.offer(i);
         }
 
         // drain
-        final List<Integer> values = new ArrayList<>();
+        final var values = new ArrayList<Integer>();
         assertThat(ringBuffer.drainTo(values), is(equalTo(capacity)));
-        for (int i = 0; i < capacity; i++) {
+        for (var i = 0; i < capacity; i++) {
             assertThat(values.get(i), is(equalTo(i)));
         }
     }
@@ -259,18 +259,18 @@ public class RingBufferTest {
     public void shouldDrainWithLimit() {
 
         // offer
-        final int capacity = 100;
-        final int limit = 75;
-        final RingBuffer<Integer> ringBuffer = new RingBuffer<>(capacity);
-        for (int i = 0; i < capacity; i++) {
+        final var capacity = 100;
+        final var limit = 75;
+        final var ringBuffer = new RingBuffer<Integer>(capacity);
+        for (var i = 0; i < capacity; i++) {
             ringBuffer.offer(i);
         }
 
         // drain
-        final List<Integer> values = new ArrayList<>();
+        final var values = new ArrayList<Integer>();
         assertThat(ringBuffer.drainTo(values, limit), is(equalTo(limit)));
         assertThat(values.size(), is(equalTo(limit)));
-        for (int i = 0; i < limit; i++) {
+        for (var i = 0; i < limit; i++) {
             assertThat(values.get(i), is(equalTo(i)));
         }
     }
@@ -279,20 +279,20 @@ public class RingBufferTest {
     public void shouldDetermineIfRingBufferIsEmpty() {
 
         // empty
-        final int capacity = 100;
-        final RingBuffer<Integer> ringBuffer = new RingBuffer<>(capacity);
+        final var capacity = 100;
+        final var ringBuffer = new RingBuffer<Integer>(capacity);
         assertThat(ringBuffer.isEmpty(), is(true));
 
-        for (int i = 0; i < 2; i++) {
+        for (var i = 0; i < 2; i++) {
 
             // offer
-            for (int j = 0; j < capacity; j++) {
+            for (var j = 0; j < capacity; j++) {
                 ringBuffer.offer(j);
                 assertThat(ringBuffer.isEmpty(), is(false));
             }
 
             // poll
-            for (int j = 0; j < capacity; j++) {
+            for (var j = 0; j < capacity; j++) {
                 assertThat(ringBuffer.isEmpty(), is(false));
                 ringBuffer.poll();
             }
@@ -306,19 +306,19 @@ public class RingBufferTest {
     public void shouldDetermineIfRingBufferContainsValues() {
 
         // empty
-        final int capacity = 100;
-        final RingBuffer<Integer> ringBuffer = new RingBuffer<>(capacity);
-        for (int i = 0; i < capacity; i++) {
+        final var capacity = 100;
+        final var ringBuffer = new RingBuffer<Integer>(capacity);
+        for (var i = 0; i < capacity; i++) {
             assertThat(ringBuffer.contains(i), is(false));
         }
 
         // offer
-        for (int i = 0; i < capacity; i++) {
+        for (var i = 0; i < capacity; i++) {
             assertThat(ringBuffer.offer(i), is(true));
         }
 
         // contains
-        for (int i = 0; i < capacity; i++) {
+        for (var i = 0; i < capacity; i++) {
             assertThat(ringBuffer.contains(i), is(true));
             assertThat(ringBuffer.contains(capacity + i), is(false));
         }
@@ -328,15 +328,15 @@ public class RingBufferTest {
     public void shouldDetermineIfRingBufferContainsCollection() {
 
         // offer
-        final int capacity = 100;
-        final RingBuffer<Integer> ringBuffer = new RingBuffer<>(capacity);
-        for (int i = 0; i < capacity; i++) {
+        final var capacity = 100;
+        final var ringBuffer = new RingBuffer<Integer>(capacity);
+        for (var i = 0; i < capacity; i++) {
             ringBuffer.offer(i);
         }
 
         // subset
-        final Set<Integer> subset = new HashSet<>(10);
-        for (int i = 0; i < capacity / 10; i++) {
+        final var subset = new HashSet<Integer>(10);
+        for (var i = 0; i < capacity / 10; i++) {
             subset.add(i);
         }
         assertThat(ringBuffer.containsAll(subset), is(equalTo(true)));
@@ -355,9 +355,9 @@ public class RingBufferTest {
     public void addShouldThrowWhenAtCapacity() {
 
         // add
-        final int capacity = 64;
-        final RingBuffer<Integer> ringBuffer = new RingBuffer<>(capacity);
-        for (int i = 0; i < capacity; i++) {
+        final var capacity = 64;
+        final var ringBuffer = new RingBuffer<Integer>(capacity);
+        for (var i = 0; i < capacity; i++) {
             assertThat(ringBuffer.add(i), is(true));
         }
 
@@ -369,14 +369,14 @@ public class RingBufferTest {
     public void shouldRemoveThenPollValues() {
 
         // offer
-        final int capacity = 100;
-        final RingBuffer<Integer> ringBuffer = new RingBuffer<>(capacity);
-        for (int i = 0; i < capacity; i++) {
+        final var capacity = 100;
+        final var ringBuffer = new RingBuffer<Integer>(capacity);
+        for (var i = 0; i < capacity; i++) {
             ringBuffer.offer(i);
         }
 
         // remove even values
-        for (int i = 0; i < capacity; i++) {
+        for (var i = 0; i < capacity; i++) {
             if (i % 2 == 0) {
                 ringBuffer.remove(i);
             }
@@ -384,7 +384,7 @@ public class RingBufferTest {
         assertThat(ringBuffer.size(), is(equalTo(capacity / 2)));
 
         // poll odd values
-        for (int i = 0; i < capacity; i++) {
+        for (var i = 0; i < capacity; i++) {
             if (i % 2 == 1) {
                 assertThat(ringBuffer.poll(), is(equalTo(i)));
             }
@@ -395,9 +395,9 @@ public class RingBufferTest {
     public void shouldRemoveDuplicates() {
 
         // offer
-        final int capacity = 100;
-        final RingBuffer<Integer> ringBuffer = new RingBuffer<>(capacity);
-        for (int i = 0; i < capacity; i++) {
+        final var capacity = 100;
+        final var ringBuffer = new RingBuffer<Integer>(capacity);
+        for (var i = 0; i < capacity; i++) {
             ringBuffer.offer(i % 2);
         }
 
@@ -410,7 +410,7 @@ public class RingBufferTest {
         assertThat(ringBuffer.size(), is(equalTo(capacity / 2)));
 
         // poll
-        for (int i = 0; i < capacity / 2; i++) {
+        for (var i = 0; i < capacity / 2; i++) {
             assertThat(ringBuffer.poll(), is(equalTo(0)));
         }
     }
@@ -419,10 +419,10 @@ public class RingBufferTest {
     public void shouldAddValuesThenPoll() {
 
         // add
-        final int capacity = 64;
-        final RingBuffer<Integer> ringBuffer = new RingBuffer<>(capacity);
-        final Set<Integer> set = new HashSet<>();
-        for (int i = 0; i < capacity; i++) {
+        final var capacity = 64;
+        final var ringBuffer = new RingBuffer<Integer>(capacity);
+        final var set = new HashSet<Integer>();
+        for (var i = 0; i < capacity; i++) {
             set.add(i);
         }
         assertThat(ringBuffer.addAll(set), is(true));
@@ -437,7 +437,7 @@ public class RingBufferTest {
         assertThat(ringBuffer.isEmpty(), is(true));
 
         // add
-        for (int i = 0; i < capacity * 2; i++) {
+        for (var i = 0; i < capacity * 2; i++) {
             set.add(i);
         }
         assertThat(ringBuffer.addAll(set), is(true));
@@ -448,20 +448,20 @@ public class RingBufferTest {
     public void shouldAddValues() {
 
         // add
-        final int capacity = 100;
-        final RingBuffer<Integer> ringBuffer = new RingBuffer<>(capacity);
+        final var capacity = 100;
+        final var ringBuffer = new RingBuffer<Integer>(capacity);
 
         // positive
-        final Set<Integer> a = new HashSet<>(capacity);
-        for (int i = 0; i < capacity / 10; i++) {
+        final var a = new HashSet<Integer>(capacity);
+        for (var i = 0; i < capacity / 10; i++) {
             a.add(i);
         }
         ringBuffer.addAll(a);
         assertThat(ringBuffer.containsAll(a), is(equalTo(true)));
 
         // negative
-        final Set<Integer> b = new HashSet<>(capacity);
-        for (int i = 0; i < capacity / 10; i++) {
+        final var b = new HashSet<Integer>(capacity);
+        for (var i = 0; i < capacity / 10; i++) {
             b.add(-i);
         }
         ringBuffer.addAll(b);
@@ -474,18 +474,18 @@ public class RingBufferTest {
     public void shouldRemoveValues() {
 
         // positive
-        final int capacity = 100;
-        final RingBuffer<Integer> ringBuffer = new RingBuffer<>(capacity);
-        final Set<Integer> positive = new HashSet<>(capacity);
-        for (int i = 0; i < capacity / 10; i++) {
+        final var capacity = 100;
+        final var ringBuffer = new RingBuffer<Integer>(capacity);
+        final var positive = new HashSet<Integer>(capacity);
+        for (var i = 0; i < capacity / 10; i++) {
             positive.add(i);
         }
         ringBuffer.addAll(positive);
         assertThat(ringBuffer.containsAll(positive), is(equalTo(true)));
 
         // negative
-        final Set<Integer> negative = new HashSet<>(capacity);
-        for (int i = 1; i < capacity / 10; i++) {
+        final var negative = new HashSet<Integer>(capacity);
+        for (var i = 1; i < capacity / 10; i++) {
             negative.add(-i);
         }
         ringBuffer.addAll(negative);
@@ -507,10 +507,10 @@ public class RingBufferTest {
     public void shouldRemoveEmptyCollection() {
 
         // add
-        final int capacity = 64;
-        final RingBuffer<Integer> ringBuffer = new RingBuffer<>(capacity);
-        final Set<Integer> set = new HashSet<>();
-        for (int i = 0; i < capacity; i++) {
+        final var capacity = 64;
+        final var ringBuffer = new RingBuffer<Integer>(capacity);
+        final var set = new HashSet<Integer>();
+        for (var i = 0; i < capacity; i++) {
             set.add(i);
         }
         ringBuffer.addAll(set);
@@ -525,24 +525,24 @@ public class RingBufferTest {
     public void shouldRetainValues() {
 
         // offer
-        final int capacity = 100;
-        final RingBuffer<Integer> ringBuffer = new RingBuffer<>(capacity);
-        final Set<Integer> values = new HashSet<>(capacity);
-        for (int i = 0; i < capacity; i++) {
+        final var capacity = 100;
+        final var ringBuffer = new RingBuffer<Integer>(capacity);
+        final var values = new HashSet<Integer>(capacity);
+        for (var i = 0; i < capacity; i++) {
             ringBuffer.offer(i);
             values.add(i);
         }
 
         // retain
-        final Set<Integer> subset = new HashSet<>(capacity);
-        for (int i = 0; i < capacity / 10; i++) {
+        final var subset = new HashSet<Integer>(capacity);
+        for (var i = 0; i < capacity / 10; i++) {
             subset.add(i);
             values.remove(i);
         }
         assertThat(ringBuffer.retainAll(subset), is(true));
         assertThat(ringBuffer.containsAll(subset), is(true));
         assertThat(ringBuffer.size(), is(equalTo(capacity / 10)));
-        for (final int value : values) {
+        for (final var value : values) {
             assertThat(ringBuffer.contains(value), is(false));
         }
     }
@@ -551,10 +551,10 @@ public class RingBufferTest {
     public void testRetainAllValues() {
 
         // offer
-        final int capacity = 100;
-        final RingBuffer<Integer> ringBuffer = new RingBuffer<>(capacity);
-        final Set<Integer> values = new HashSet<>(capacity);
-        for (int i = 0; i < capacity; i++) {
+        final var capacity = 100;
+        final var ringBuffer = new RingBuffer<Integer>(capacity);
+        final var values = new HashSet<Integer>(capacity);
+        for (var i = 0; i < capacity; i++) {
             values.add(i);
             ringBuffer.offer(i);
         }
@@ -568,15 +568,15 @@ public class RingBufferTest {
     public void shouldClear() {
 
         // offer
-        final int capacity = 100;
-        final RingBuffer<Integer> ringBuffer = new RingBuffer<>(capacity);
-        for (int i = 0; i < capacity; i++) {
+        final var capacity = 100;
+        final var ringBuffer = new RingBuffer<Integer>(capacity);
+        for (var i = 0; i < capacity; i++) {
             ringBuffer.offer(i);
         }
 
         // values
-        final Set<Integer> values = new HashSet<>(capacity);
-        for (int i = 0; i < capacity / 10; i++) {
+        final var values = new HashSet<Integer>(capacity);
+        for (var i = 0; i < capacity / 10; i++) {
             values.add(i);
         }
         assertThat(ringBuffer.containsAll(values), is(true));
@@ -595,9 +595,9 @@ public class RingBufferTest {
     public void ringBufferShouldBeIterable() {
 
         // offer
-        final int capacity = 100;
-        final RingBuffer<Integer> ringBuffer = new RingBuffer<>(capacity);
-        for (int i = 0; i < capacity; i++) {
+        final var capacity = 100;
+        final var ringBuffer = new RingBuffer<Integer>(capacity);
+        for (var i = 0; i < capacity; i++) {
             ringBuffer.offer(i);
         }
 
@@ -612,15 +612,15 @@ public class RingBufferTest {
     public void shouldCopyRingBufferToArray() {
 
         // offer
-        final int capacity = 100;
-        final RingBuffer<Integer> ringBuffer = new RingBuffer<>(capacity);
-        for (int i = 0; i < capacity; i++) {
+        final var capacity = 100;
+        final var ringBuffer = new RingBuffer<Integer>(capacity);
+        for (var i = 0; i < capacity; i++) {
             assertThat(ringBuffer.offer(i), is(true));
         }
 
         // copy
-        final Object[] values = ringBuffer.toArray();
-        for (int i = 0; i < capacity; i++) {
+        final var values = ringBuffer.toArray();
+        for (var i = 0; i < capacity; i++) {
             assertThat(values[i], is(equalTo(i)));
         }
     }
@@ -629,16 +629,16 @@ public class RingBufferTest {
     public void shouldCopyRingBufferToTypedArray() {
 
         // offer
-        final int capacity = 100;
-        final RingBuffer<Integer> ringBuffer = new RingBuffer<>(capacity);
-        for (int i = 0; i < capacity; i++) {
+        final var capacity = 100;
+        final var ringBuffer = new RingBuffer<Integer>(capacity);
+        for (var i = 0; i < capacity; i++) {
             ringBuffer.offer(i);
         }
 
         // copy
-        final Integer[] values = new Integer[capacity];
+        final var values = new Integer[capacity];
         ringBuffer.toArray(values);
-        for (int i = 0; i < capacity; i++) {
+        for (var i = 0; i < capacity; i++) {
             assertThat(values[i], is(equalTo(i)));
         }
     }

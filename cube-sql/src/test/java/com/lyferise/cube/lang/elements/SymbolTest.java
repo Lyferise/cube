@@ -10,7 +10,7 @@ public class SymbolTest {
 
     @Test
     public void shouldFormatSymbol() {
-        final Symbol symbol = new Symbol("*");
+        final var symbol = new Symbol("*");
         assertThat(symbol.toString(), is(equalTo("*")));
     }
 }

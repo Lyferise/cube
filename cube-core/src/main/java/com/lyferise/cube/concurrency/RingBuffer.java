@@ -52,7 +52,7 @@ public class RingBuffer<T> implements BlockingQueue<T> {
             final long head = this.head.sum();
             if (tailCache <= head && (tailCache = tail.sum()) <= head) return null;
             if (headCursor.compareAndSet(head, head + 1)) {
-                final int index = (int) (head & mask);
+                final var index = (int) (head & mask);
                 final T value = buffer[index];
                 buffer[index] = null;
                 this.head.increment();
@@ -134,11 +134,11 @@ public class RingBuffer<T> implements BlockingQueue<T> {
                     final long tail = this.tail.sum();
                     if (tailCursor.compareAndSet(tail, tail + 1)) {
                         int count = 0;
-                        for (int i = 0; i < size(); i++) {
+                        for (var i = 0; i < size(); i++) {
                             final T data = buffer[(int) ((this.head.sum() + i) & mask)];
                             if (data != null && data.equals(value)) {
                                 count++;
-                                for (int j = i; j > 0; j--) {
+                                for (var j = i; j > 0; j--) {
                                     buffer[(int) ((this.head.sum() + j) & mask)] = buffer[(int) ((this.head.sum() + j - 1) & mask)];
                                 }
                             }
@@ -204,8 +204,8 @@ public class RingBuffer<T> implements BlockingQueue<T> {
     @Override
     public boolean retainAll(final Collection<?> values) {
         boolean modified = false;
-        for (int i = 0; i < size(); i++) {
-            final int index = (int) ((head.sum() + i) & mask);
+        for (var i = 0; i < size(); i++) {
+            final var index = (int) ((head.sum() + i) & mask);
             final T value = buffer[index];
             if (value != null && !values.contains(value) && remove(buffer[index])) {
                 modified = true;
@@ -237,7 +237,7 @@ public class RingBuffer<T> implements BlockingQueue<T> {
 
     @Override
     public boolean contains(final Object value) {
-        for (int i = 0; i < size(); i++) {
+        for (var i = 0; i < size(); i++) {
             final T data = buffer[(int) ((head.sum() + i) & mask)];
             if (data != null && data.equals(value)) return true;
         }
@@ -275,19 +275,19 @@ public class RingBuffer<T> implements BlockingQueue<T> {
 
         // move
         if (this == values) throw new IllegalArgumentException("Can't drain ring buffer to same instance.");
-        final T[] data = (T[]) new Object[min(size(), maxElements)];
-        final int moved = moveTo(data);
+        final var data = (T[]) new Object[min(size(), maxElements)];
+        final var moved = moveTo(data);
 
         // add
         int count = 0;
-        for (int i = 0; i < moved; i++) {
+        for (var i = 0; i < moved; i++) {
             if (values.add(data[i])) count++;
         }
         return count;
     }
 
     public int moveTo(final T[] values) {
-        final int length = values.length;
+        final var length = values.length;
         while (true) {
 
             // count
@@ -296,7 +296,7 @@ public class RingBuffer<T> implements BlockingQueue<T> {
             if (count <= 0) return 0;
 
             // values
-            for (int i = 0; i < count; i++) {
+            for (var i = 0; i < count; i++) {
                 values[i] = buffer[(int) ((head + i) & mask)];
             }
 

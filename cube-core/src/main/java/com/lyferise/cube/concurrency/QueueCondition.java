@@ -21,7 +21,7 @@ public abstract class QueueCondition {
     }
 
     public void awaitNanos(final long nanosTimeout) throws InterruptedException {
-        long t = nanosTimeout;
+        var t = nanosTimeout;
         lock.lock();
         try {
             while (test() && t > 0) {

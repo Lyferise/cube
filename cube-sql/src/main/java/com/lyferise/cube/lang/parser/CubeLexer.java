@@ -37,8 +37,8 @@ public class CubeLexer {
     }
 
     public static List<Element> tokenize(final String text) {
-        final List<Element> tokens = new ArrayList<>();
-        final CubeLexer lexer = new CubeLexer();
+        final var tokens = new ArrayList<Element>();
+        final var lexer = new CubeLexer();
         lexer.read(text);
         while (lexer.next() != null) {
             tokens.add(lexer.getToken());

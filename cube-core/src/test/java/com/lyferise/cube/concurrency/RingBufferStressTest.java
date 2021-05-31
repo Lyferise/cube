@@ -17,19 +17,19 @@ public class RingBufferStressTest {
     public void shouldReadAndWriteUsingMultipleThreads() {
 
         // 10 million messages
-        final int messageCount = 10_000_000;
-        final RingBuffer<Integer> ringBuffer = new RingBuffer<>(1024);
+        final var messageCount = 10_000_000;
+        final var ringBuffer = new RingBuffer<Integer>(1024);
 
         // number of reader/writer threads
-        final int threadCount = getRuntime().availableProcessors();
+        final var threadCount = getRuntime().availableProcessors();
 
         // writers
-        final CountDownLatch latch = new CountDownLatch(threadCount);
-        final Thread[] writers = new Thread[threadCount];
-        for (int i = 0; i < threadCount; i++) {
-            final int k = i;
+        final var latch = new CountDownLatch(threadCount);
+        final var writers = new Thread[threadCount];
+        for (var i = 0; i < threadCount; i++) {
+            final var k = i;
             writers[i] = new Thread(() -> {
-                for (int j = k; j < messageCount; j += threadCount) {
+                for (var j = k; j < messageCount; j += threadCount) {
                     while (!ringBuffer.offer(j)) {
                         Thread.yield();
                     }
@@ -38,14 +38,14 @@ public class RingBufferStressTest {
             });
         }
 
-        final BitSet bitSet = new BitSet();
+        final var bitSet = new BitSet();
 
         // readers
-        final Thread[] readers = new Thread[threadCount];
-        final ReentrantLock lock = new ReentrantLock();
-        for (int i = 0; i < threadCount; i++) {
+        final var readers = new Thread[threadCount];
+        final var lock = new ReentrantLock();
+        for (var i = 0; i < threadCount; i++) {
             readers[i] = new Thread(() -> {
-                final BitSet readSet = new BitSet();
+                final var readSet = new BitSet();
                 while (!ringBuffer.isEmpty() || latch.getCount() > 0) {
                     final Integer value = ringBuffer.poll();
                     if (value != null) {
@@ -65,13 +65,13 @@ public class RingBufferStressTest {
         }
 
         // start threads
-        for (int i = 0; i < threadCount; i++) {
+        for (var i = 0; i < threadCount; i++) {
             writers[i].start();
             readers[i].start();
         }
 
         // wait for threads to terminate
-        for (int i = 0; i < threadCount; i++) {
+        for (var i = 0; i < threadCount; i++) {
             writers[i].join();
             readers[i].join();
         }

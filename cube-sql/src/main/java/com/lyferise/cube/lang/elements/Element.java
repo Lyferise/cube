@@ -8,7 +8,7 @@ public abstract class Element {
 
     @Override
     public String toString() {
-        final ElementFormatter formatter = new ElementFormatter();
+        final var formatter = new ElementFormatter();
         format(formatter);
         return formatter.toString();
     }
