@@ -1,7 +1,9 @@
 package com.lyferise.cube.lang.parser;
 
 import com.lyferise.cube.lang.elements.Element;
-import com.lyferise.cube.lang.elements.Symbol;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class LexerTokenStream implements TokenStream {
     private final CubeLexer lexer;
@@ -12,13 +14,15 @@ public class LexerTokenStream implements TokenStream {
 
     @Override
     public Element next() {
-        final ElementType elementType = lexer.next();
-        if (elementType == null) return null;
-        switch (elementType) {
-            case SYMBOL:
-                return new Symbol(lexer.getTokenText());
-            default:
-                throw new UnsupportedOperationException();
+        return lexer.next() == null ? null : lexer.getToken();
+    }
+
+    public List<Element> toList() {
+        final var tokens = new ArrayList<Element>();
+        Element token;
+        while ((token = next()) != null) {
+            tokens.add(token);
         }
+        return tokens;
     }
 }

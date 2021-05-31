@@ -3,7 +3,6 @@ package com.lyferise.cube.lang.parser;
 import com.lyferise.cube.lang.elements.Element;
 import com.lyferise.cube.lang.elements.Symbol;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.lyferise.cube.lang.parser.ElementType.SYMBOL;
@@ -14,6 +13,7 @@ public class CubeLexer {
     private int length;
     private int tokenStart;
     private int tokenEnd;
+    private ElementType tokenType;
 
     public void read(final String text) {
         this.text = text;
@@ -25,7 +25,7 @@ public class CubeLexer {
         if (position >= length) return null;
         tokenStart = position++;
         tokenEnd = position;
-        return SYMBOL;
+        return tokenType = SYMBOL;
     }
 
     public String getTokenText() {
@@ -33,16 +33,13 @@ public class CubeLexer {
     }
 
     public Element getToken() {
-        return new Symbol(getTokenText());
+        if (tokenType == SYMBOL) return new Symbol(getTokenText());
+        throw new UnsupportedOperationException();
     }
 
     public static List<Element> tokenize(final String text) {
-        final var tokens = new ArrayList<Element>();
-        final var lexer = new CubeLexer();
+        var lexer = new CubeLexer();
         lexer.read(text);
-        while (lexer.next() != null) {
-            tokens.add(lexer.getToken());
-        }
-        return tokens;
+        return new LexerTokenStream(lexer).toList();
     }
 }
