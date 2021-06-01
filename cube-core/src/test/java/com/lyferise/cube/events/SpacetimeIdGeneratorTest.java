@@ -2,7 +2,7 @@ package com.lyferise.cube.events;
 
 import org.junit.jupiter.api.Test;
 
-import static com.lyferise.cube.time.CubeClock.toUTC;
+import static com.lyferise.cube.time.CubeTime.toUTC;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
