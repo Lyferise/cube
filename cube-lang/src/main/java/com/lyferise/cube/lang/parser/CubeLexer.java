@@ -30,9 +30,9 @@ public class CubeLexer {
 
     public Element getToken() {
         return switch (tokenType) {
-            case INT_CONSTANT, LONG_CONSTANT, STRING_CONSTANT -> throw new UnsupportedOperationException();
             case SYMBOL -> new Symbol(getTokenText());
             case IDENTIFIER -> new Identifier(getTokenText());
+            default -> throw new UnsupportedOperationException();
         };
     }
 

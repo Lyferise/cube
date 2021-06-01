@@ -5,5 +5,7 @@ public enum ElementType {
     LONG_CONSTANT,
     STRING_CONSTANT,
     SYMBOL,
-    IDENTIFIER
+    IDENTIFIER,
+    UNARY_EXPRESSION,
+    BINARY_EXPRESSION
 }
