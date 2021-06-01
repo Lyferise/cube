@@ -1,7 +1,7 @@
 package com.lyferise.cube.events;
 
 /*
-Inspired by physics of spacetime, Cube uses 128-bit unique identifiers, known as Spacetime IDs. When Cube needs to
+Inspired by the physics of spacetime, Cube uses 128-bit unique identifiers, known as Spacetime IDs. When Cube needs to
 uniquely label a new entity, it generates an ID corresponding to that entity's creation event. For example, the unique
 ID for a chat channel depends on where and when that channel was created.
 
