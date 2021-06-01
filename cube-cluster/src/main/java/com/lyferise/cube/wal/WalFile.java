@@ -9,6 +9,10 @@ public class WalFile {
     private final RandomAccessFile file;
     private long writePosition;
 
+    public WalFile(final String name) {
+        this(new File(name));
+    }
+
     @SneakyThrows
     public WalFile(final File file) {
         file.createNewFile();
