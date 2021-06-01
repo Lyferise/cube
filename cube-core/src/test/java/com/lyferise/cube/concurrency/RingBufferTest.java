@@ -548,7 +548,7 @@ public class RingBufferTest {
     }
 
     @Test
-    public void testRetainAllValues() {
+    public void shouldRetainAllValues() {
 
         // offer
         final var capacity = 100;
