@@ -1,4 +1,4 @@
-package com.lyferise.cube;
+package com.lyferise.cube.events;
 
 /*
 Inspired by the physics of spacetime, Cube uses 128-bit unique identifiers, known as Event IDs. When Cube needs to
@@ -30,6 +30,8 @@ This encoding scheme supports 2^20 nodes (> 1 million nodes), covers a time span
 years) and allows for 2^44 unique messages per node (> 17 trillion messages per node).
  */
 
+import static java.lang.Integer.parseInt;
+import static java.lang.Long.parseLong;
 import static java.lang.String.valueOf;
 
 public class EventId {
@@ -64,5 +66,26 @@ public class EventId {
     @Override
     public String toString() {
         return valueOf(getNode()) + '.' + getSequence() + '@' + time;
+    }
+
+    public static EventId parseEventId(final String text) {
+
+        // node
+        var p = 0;
+        while (text.charAt(p) != '.') {
+            p++;
+        }
+        var dot = p;
+        var node = parseInt(text.substring(0, dot));
+
+        // sequence
+        while (text.charAt(p) != '@') {
+            p++;
+        }
+        var sequence = parseLong(text.substring(dot + 1, p));
+
+        // time
+        var time = parseLong(text.substring(p + 1));
+        return new EventId(node, sequence, time);
     }
 }
