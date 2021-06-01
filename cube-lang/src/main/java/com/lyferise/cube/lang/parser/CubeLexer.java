@@ -44,17 +44,16 @@ public class CubeLexer {
 
     public ElementType next() {
 
-        // done?
-        if (!canRead()) return null;
-
         // whitespace
-        while (canRead() && whitespace(peek())) {
-            position++;
-        }
-
-        // read
         if (!canRead()) return null;
-        return identifier(peek()) ? readIdentifier() : readSymbol();
+        while (canRead() && whitespace(peek())) position++;
+
+        // identifier
+        if (!canRead()) return null;
+        if (identifier(peek())) return readIdentifier();
+
+        // symbol
+        return readSymbol();
     }
 
     private ElementType readIdentifier() {
