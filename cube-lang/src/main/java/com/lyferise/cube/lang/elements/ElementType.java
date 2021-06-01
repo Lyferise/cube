@@ -13,5 +13,6 @@ public enum ElementType {
     FROM_CLAUSE,
     WHERE_CLAUSE,
     SELECT_STATEMENT,
-    ELEMENT_LIST
+    ELEMENT_LIST,
+    SUBSCRIBE_STATEMENT
 }
