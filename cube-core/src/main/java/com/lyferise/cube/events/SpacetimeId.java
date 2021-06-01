@@ -30,8 +30,6 @@ This encoding scheme supports 2^20 nodes (> 1 million nodes), covers a time span
 years) and allows for 2^44 unique messages per node (> 17 trillion messages per node).
  */
 
-import com.lyferise.cube.time.CubeClock;
-
 import static java.lang.Integer.parseInt;
 import static java.lang.Long.parseLong;
 import static java.lang.String.valueOf;
@@ -89,9 +87,5 @@ public class SpacetimeId {
         // time
         var time = parseLong(text.substring(p + 1));
         return new SpacetimeId(node, sequence, time);
-    }
-
-    public static SpacetimeId generateSpacetimeId(final long node, final long sequence, final CubeClock clock) {
-        return new SpacetimeId(node, sequence, clock.getMillisecondsSinceEpoch());
     }
 }

@@ -1,13 +1,11 @@
 package com.lyferise.cube.events;
 
-import com.lyferise.cube.time.SystemClock;
 import org.junit.jupiter.api.Test;
 
-import static com.lyferise.cube.events.SpacetimeId.generateSpacetimeId;
 import static com.lyferise.cube.events.SpacetimeId.parseSpacetimeId;
-import static com.lyferise.cube.time.CubeClock.toUTC;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 
 public class SpacetimeIdTest {
 
@@ -36,20 +34,5 @@ public class SpacetimeIdTest {
         assertThat(spacetimeId.getNode(), is(equalTo(81723L)));
         assertThat(spacetimeId.getSequence(), is(equalTo(9018902834912L)));
         assertThat(spacetimeId.getTime(), is(equalTo(67836382932L)));
-    }
-
-    @Test
-    public void shouldGenerateSpacetimeId() {
-
-        final var node = 81723L;
-        final var sequence = 9018902834912L;
-        final var clock = new SystemClock();
-
-        final var spacetimeId = generateSpacetimeId(node, sequence, clock);
-        assertThat(spacetimeId.getNode(), is(equalTo(node)));
-        assertThat(spacetimeId.getSequence(), is(equalTo(sequence)));
-
-        final var year = toUTC(spacetimeId.getTime()).getYear();
-        assertThat(year, is(both(greaterThan(2020)).and(lessThan(2040))));
     }
 }
