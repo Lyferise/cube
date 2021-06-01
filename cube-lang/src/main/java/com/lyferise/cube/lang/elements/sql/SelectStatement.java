@@ -4,7 +4,6 @@ import com.lyferise.cube.lang.elements.Element;
 import com.lyferise.cube.lang.elements.ElementList;
 import com.lyferise.cube.lang.formatter.ElementFormatter;
 
-import static com.lyferise.cube.lang.elements.ElementList.singleElementList;
 import static com.lyferise.cube.lang.elements.ElementType.SELECT_STATEMENT;
 
 public class SelectStatement extends Element {
@@ -17,18 +16,18 @@ public class SelectStatement extends Element {
         this.selectList = selectList;
     }
 
-    public SelectStatement(final Element element, final FromClause fromClause) {
+    public SelectStatement(final ElementList selectList, final FromClause fromClause) {
         super(SELECT_STATEMENT);
-        this.selectList = singleElementList(element);
+        this.selectList = selectList;
         this.fromClause = fromClause;
     }
 
     public SelectStatement(
-            final Element element,
+            final ElementList selectList,
             final FromClause fromClause,
             final WhereClause whereClause) {
         super(SELECT_STATEMENT);
-        this.selectList = singleElementList(element);
+        this.selectList = selectList;
         this.fromClause = fromClause;
         this.whereClause = whereClause;
     }

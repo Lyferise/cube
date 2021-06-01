@@ -6,12 +6,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.lyferise.cube.lang.elements.ElementType.ELEMENT_LIST;
+import static java.util.Collections.addAll;
 
 public class ElementList extends Element {
     private final List<Element> elements = new ArrayList<>();
 
     public ElementList() {
         super(ELEMENT_LIST);
+    }
+
+    public ElementList(final Element... elements) {
+        super(ELEMENT_LIST);
+        addAll(this.elements, elements);
     }
 
     public void add(final Element element) {
@@ -25,11 +31,5 @@ public class ElementList extends Element {
             if (i > 0) formatter.write(", ");
             elements.get(i).format(formatter);
         }
-    }
-
-    public static ElementList singleElementList(final Element element) {
-        final var list = new ElementList();
-        list.add(element);
-        return list;
     }
 }
