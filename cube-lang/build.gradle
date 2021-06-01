@@ -20,6 +20,7 @@ dependencies {
     // implementation
     compileOnly "org.projectlombok:lombok:$lombokVersion"
     annotationProcessor "org.projectlombok:lombok:$lombokVersion"
+    implementation project(":cube-core")
 
     // test
     testCompileOnly "org.projectlombok:lombok:$lombokVersion"
