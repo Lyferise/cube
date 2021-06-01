@@ -3,6 +3,7 @@ plugins {
 }
 
 ext {
+    lombokVersion = "1.18.20"
     hamcrestVersion = "2.2"
     junitVersion = "5.7.2"
 }
@@ -15,6 +16,14 @@ repositories {
 }
 
 dependencies {
+
+    // implementation
+    compileOnly "org.projectlombok:lombok:$lombokVersion"
+    annotationProcessor "org.projectlombok:lombok:$lombokVersion"
+
+    // test
+    testCompileOnly "org.projectlombok:lombok:$lombokVersion"
+    testAnnotationProcessor "org.projectlombok:lombok:$lombokVersion"
     testImplementation "org.hamcrest:hamcrest:$hamcrestVersion"
     testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"

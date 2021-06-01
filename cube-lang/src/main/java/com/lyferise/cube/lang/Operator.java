@@ -8,7 +8,8 @@ public enum Operator {
     MODULO("%"),
     POSITIVE("+"),
     NEGATIVE("-"),
-    NOT("not");
+    NOT("not"),
+    EQUAL("=");
 
     private final String text;
 
