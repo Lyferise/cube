@@ -14,21 +14,24 @@ public class WalFileTest {
 
     @Test
     public void shouldWriteToWalFile() {
-
-        // delete
         final var file = new File("wal.dat");
-        file.delete();
-        assertThat(file.exists(), is(equalTo(false)));
+        try {
+            file.delete();
+            assertThat(file.exists(), is(equalTo(false)));
 
-        // write 100 entries
-        final var walFile = new WalFile(file);
-        final var entryCount = 100;
-        final var dataSize = 1000;
-        for (var i = 1; i <= entryCount; i++) {
-            walFile.append(new WalEntry(i, new byte[dataSize]));
+            // write 100 entries
+            final var walFile = new WalFile(file);
+            final var entryCount = 100;
+            final var dataSize = 1000;
+            for (var i = 1; i <= entryCount; i++) {
+                walFile.append(new WalEntry(i, new byte[dataSize]));
+            }
+
+            // verify
+            assertThat(file.length(), is(equalTo((long) (entryCount * (dataSize + 24)))));
+
+        } finally {
+            file.delete();
         }
-
-        // verify
-        assertThat(file.length(), is(equalTo((long) (entryCount * (dataSize + 24)))));
     }
 }
