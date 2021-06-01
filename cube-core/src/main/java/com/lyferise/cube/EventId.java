@@ -8,7 +8,7 @@ ID for a chat channel depends on where and when that channel was created.
 Generally, in computing and data processing, it is often desirable to associate a unique identifier to each entity or
 data item of interest, such as people, places or addresses. In distributed computing, unique identifiers can either be
 generated locally or via coordination with other nodes on the network. For scalability and to avoid coordination, Cube
-uses locally generated IDs that are guaranteed to sortable by time and decentralized in space.
+uses locally generated IDs that are guaranteed to be sortable in time and decentralized in space.
 
 In human-readable display form, an Event ID (e.g. a member ID or a chat message ID) is represented as three numbers
 formatted as 'a.b@T'. This indicates the location and time of the creation event globally, for example:
