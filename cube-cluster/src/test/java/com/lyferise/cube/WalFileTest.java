@@ -26,21 +26,17 @@ public class WalFileTest {
         assertThat(file.exists(), is(equalTo(false)));
 
         // write
-        final var writer = new WalFile(config);
-        final var entryCount = 100L;
+        final var walFile = new WalFile(config);
+        final var entryCount = 100;
         final var dataSize = 1000;
         for (var i = 1; i <= entryCount; i++) {
-            writer.write(new WalEntry(i, new byte[dataSize]));
+            walFile.write(new WalEntry(i, new byte[dataSize]));
         }
-        writer.flush();
+        walFile.flush();
 
         // read
-        final var reader = new WalFile(config);
-        WalEntry entry;
-        var sequence = 0L;
-        while ((entry = reader.next()) != null) {
-            assertThat(entry.getSequence(), is(equalTo(++sequence)));
+        for (var i = 1; i <= entryCount; i++) {
+            assertThat(walFile.read().getSequence(), is(equalTo((long) i)));
         }
-        assertThat(sequence, is(equalTo(entryCount)));
     }
 }

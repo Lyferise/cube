@@ -1,5 +1,6 @@
 package com.lyferise.cube.node.wal;
 
+import com.lyferise.cube.concurrency.RingBuffer;
 import com.lyferise.cube.node.configuration.WalConfiguration;
 import lombok.SneakyThrows;
 
@@ -8,31 +9,79 @@ import java.io.RandomAccessFile;
 
 public class WalFile {
     private final RandomAccessFile file;
+    private final RingBuffer<WalEntry> readQueue;
     private long readPosition;
     private long writePosition;
     private long entrySequence;
 
     @SneakyThrows
     public WalFile(final WalConfiguration config) {
-        final var file = new File(config.getPath());
-        final var newFile = file.createNewFile();
-        this.file = new RandomAccessFile(file, "rw");
-        this.readPosition = 16;
+
+        // file
+        final var f = new File(config.getPath());
+        final var newFile = f.createNewFile();
+        file = new RandomAccessFile(f, "rw");
+
+        // header
+        readPosition = 16;
         if (newFile) {
-            this.file.writeLong(0);
-            this.file.writeLong(8);
-            this.writePosition = 16;
+            file.writeLong(0);
+            file.writeLong(8);
+            writePosition = 16;
         } else {
-            this.entrySequence = this.file.readLong();
-            this.writePosition = this.file.readLong();
+            entrySequence = file.readLong();
+            writePosition = file.readLong();
+        }
+
+        // queue
+        readQueue = new RingBuffer<>(config.getReadQueueCapacity());
+        while (canRead()) {
+            if (!readQueue.offer(next())) {
+                throw new UnsupportedOperationException("WAL read queue full.");
+            }
         }
     }
 
     @SneakyThrows
-    public final WalEntry next() {
+    public WalEntry read() {
+        return readQueue.take();
+    }
+
+    @SneakyThrows
+    public void write(final WalEntry entry) {
+
+        // entry
+        entrySequence = entry.getSequence();
+        final var data = entry.getData();
+
+        // write
+        file.seek(writePosition);
+        file.writeLong(entrySequence);
+        file.writeLong(writePosition);
+        file.writeInt(data.length);
+        file.writeInt(entry.getCrc());
+        file.write(data);
+        writePosition = file.getFilePointer();
+
+        // header
+        file.seek(0);
+        file.writeLong(entrySequence);
+        file.writeLong(writePosition);
+
+        // queue
+        readQueue.put(entry);
+    }
+
+    @SneakyThrows
+    public void flush() {
+        file.getChannel().force(true);
+    }
+
+    @SneakyThrows
+    private WalEntry next() {
 
         // done?
-        if (readPosition >= writePosition) return null;
+        if (!canRead()) return null;
 
         // entry
         file.seek(readPosition);
@@ -60,30 +109,7 @@ public class WalFile {
         return entry;
     }
 
-    @SneakyThrows
-    public void write(final WalEntry entry) {
-
-        // entry
-        entrySequence = entry.getSequence();
-        final var data = entry.getData();
-
-        // write
-        file.seek(writePosition);
-        file.writeLong(entrySequence);
-        file.writeLong(writePosition);
-        file.writeInt(data.length);
-        file.writeInt(entry.getCrc());
-        file.write(data);
-        writePosition = file.getFilePointer();
-
-        // header
-        file.seek(0);
-        file.writeLong(entrySequence);
-        file.writeLong(writePosition);
-    }
-
-    @SneakyThrows
-    public void flush() {
-        file.getChannel().force(true);
+    private boolean canRead() {
+        return readPosition < writePosition;
     }
 }
