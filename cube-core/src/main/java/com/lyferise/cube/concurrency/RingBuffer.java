@@ -327,14 +327,6 @@ public class RingBuffer<T> implements BlockingQueue<T> {
         return head.sum() == tail.sum();
     }
 
-    public QueueCondition notFull() {
-        return notFull;
-    }
-
-    public QueueCondition notEmpty() {
-        return notEmpty;
-    }
-
     private static int getNextPowerOfTwo(final int value) {
         int k = 1;
         while (k < value) k <<= 1;

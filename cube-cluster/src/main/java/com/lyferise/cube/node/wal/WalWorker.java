@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class WalWorker extends Thread {
-    private static final long NANOSECONDS_PER_MILLISECOND = 1_000_000;
     private final Wal wal;
     private final List<WalEntry> entries = new ArrayList<>();
     private final int batchSize;
@@ -20,11 +19,15 @@ public class WalWorker extends Thread {
     @Override
     @SneakyThrows
     public void run() {
+        final var dataFile = wal.getDataFile();
+        final var ringBuffer = wal.getRingBuffer();
+        final var signal = wal.getSignal();
+
         while (true) {
             wal.execute(this::writeAndOrDispatch);
 
-            // if the ring buffer is empty, wait 50 milliseconds
-            wal.getRingBuffer().notEmpty().awaitNanos(50 * NANOSECONDS_PER_MILLISECOND);
+            // if there is nothing to dispatch and the ring buffer is empty, wait 50 milliseconds
+            if (!dataFile.canDispatch() && ringBuffer.isEmpty()) signal.await(50);
         }
     }
 
@@ -54,7 +57,7 @@ public class WalWorker extends Thread {
 
         // dispatch
         var dispatchCount = 0;
-        while (dataFile.getDispatchSequence() < dataFile.getWriteSequence() && dispatchCount < batchSize) {
+        while (dataFile.canDispatch() && dispatchCount < batchSize) {
 
             // entry
             final var sequence = dataFile.getDispatchSequence() + 1;

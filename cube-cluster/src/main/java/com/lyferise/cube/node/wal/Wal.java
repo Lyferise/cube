@@ -1,6 +1,7 @@
 package com.lyferise.cube.node.wal;
 
 import com.lyferise.cube.concurrency.RingBuffer;
+import com.lyferise.cube.concurrency.Signal;
 import com.lyferise.cube.node.configuration.WalConfiguration;
 import lombok.SneakyThrows;
 
@@ -9,6 +10,7 @@ import java.util.function.Supplier;
 
 public class Wal {
     private final ReentrantLock reentrantLock = new ReentrantLock();
+    private final Signal signal = new Signal();
     private final DataFile dataFile;
     private final IndexFile indexFile;
     private final RingBuffer<WalEntry> ringBuffer;
@@ -24,6 +26,10 @@ public class Wal {
         this.dispatcher = dispatcher;
         this.worker = new WalWorker(config, this);
         this.worker.start();
+    }
+
+    public Signal getSignal() {
+        return signal;
     }
 
     public DataFile getDataFile() {

@@ -31,6 +31,10 @@ public class DataFile {
         writePosition = file.length();
     }
 
+    public boolean canDispatch() {
+        return dispatchSequence < writeSequence;
+    }
+
     public long getWriteSequence() {
         return writeSequence;
     }
