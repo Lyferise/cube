@@ -12,7 +12,8 @@ public class Wal {
     private final IndexFile indexFile;
     private final RingBuffer<WalEntry> ringBuffer;
     private final WalDispatcher dispatcher;
-    private final WalWorker walWorker;
+    private final WalWorker worker;
+    private boolean closed;
 
     @SneakyThrows
     public Wal(final WalConfiguration config, final WalDispatcher dispatcher) {
@@ -20,8 +21,8 @@ public class Wal {
         this.indexFile = new IndexFile(config.getIndexFile());
         this.ringBuffer = new RingBuffer<>(config.getRingBufferCapacity());
         this.dispatcher = dispatcher;
-        this.walWorker = new WalWorker(config, this);
-        this.walWorker.start();
+        this.worker = new WalWorker(config, this);
+        this.worker.start();
     }
 
     public DataFile getDataFile() {
@@ -57,12 +58,16 @@ public class Wal {
 
     @SneakyThrows
     public void flush() {
+        if (closed) return;
         dataFile.flush();
         indexFile.flush();
     }
 
     @SneakyThrows
     public void close() {
+        if (closed) return;
+        closed = true;
+        flush();
         dataFile.close();
         indexFile.close();
     }

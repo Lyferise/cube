@@ -7,11 +7,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class WalWorker extends Thread {
+    private static final long NANOSECONDS_PER_MILLISECOND = 1_000_000;
     private final Wal wal;
     private final List<WalEntry> entries = new ArrayList<>();
     private final int batchSize;
 
-    public WalWorker(final WalConfiguration config, Wal wal) {
+    public WalWorker(final WalConfiguration config, final Wal wal) {
         this.batchSize = config.getBatchSize();
         this.wal = wal;
     }
@@ -21,6 +22,7 @@ public class WalWorker extends Thread {
     public void run() {
         while (true) {
             wal.execute(this::writeAndOrDispatch);
+            wal.getRingBuffer().notEmpty().awaitNanos(50 * NANOSECONDS_PER_MILLISECOND);
         }
     }
 
@@ -39,8 +41,8 @@ public class WalWorker extends Thread {
         var start = 0L;
         var end = 0L;
         if (!entries.isEmpty()) {
-            for (final WalEntry entry : entries) {
-                indexFile.append(entry.getSequence(), dataFile.write(entry));
+            for (final var entry : entries) {
+                indexFile.setPosition(entry.getSequence(), dataFile.write(entry));
             }
             start = entries.get(0).getSequence();
             end = entries.get(entries.size() - 1).getSequence();

@@ -1,9 +1,11 @@
 package com.lyferise.cube;
 
+import com.lyferise.cube.concurrency.Signal;
 import com.lyferise.cube.node.configuration.WalConfiguration;
 import com.lyferise.cube.node.wal.Wal;
 import com.lyferise.cube.node.wal.WalDispatcher;
 import com.lyferise.cube.node.wal.WalEntry;
+import com.lyferise.cube.time.Timer;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
@@ -23,24 +25,18 @@ public class WalTest {
 
         // write
         final var entryCount = 100;
-        final Object syncRoot = new Object();
+        final var signal = new Signal();
         final var entries = new ArrayList<WalEntry>();
         final var wal = createNewWal(e -> {
             entries.add(e);
-            if (e.getSequence() == entryCount) {
-                synchronized (syncRoot) {
-                    syncRoot.notify();
-                }
-            }
+            if (e.getSequence() == entryCount) signal.set();
         });
         for (var i = 1; i <= entryCount; i++) {
             wal.write(new WalEntry(i, new byte[1000]));
         }
 
         // verify
-        synchronized (syncRoot) {
-            syncRoot.wait(5000);
-        }
+        signal.await(5000);
         assertThat(entries.size(), is(equalTo(entryCount)));
         for (var i = 0; i < entryCount; i++) {
             assertThat(entries.get(i).getSequence(), is(equalTo(i + 1L)));
@@ -52,28 +48,22 @@ public class WalTest {
     public void shouldRestoreWal() {
 
         // write
+        final var timer = new Timer();
         final var entryCount = 100;
-        final Object syncRoot = new Object();
+        final var signal = new Signal();
         final var entries = new ArrayList<WalEntry>();
         final var wal = createNewWal(e -> {
-            if (e.getSequence() == 59) {
-                throw new UnsupportedOperationException();
-            }
+            if (e.getSequence() == 59) throw new UnsupportedOperationException();
             entries.add(e);
-            if (e.getSequence() == 58) {
-                synchronized (syncRoot) {
-                    syncRoot.notify();
-                }
-            }
+            if (e.getSequence() == 58) signal.set();
         });
         for (var i = 1; i <= entryCount; i++) {
             wal.write(new WalEntry(i, new byte[1000]));
         }
 
         // verify
-        synchronized (syncRoot) {
-            syncRoot.wait(5000);
-        }
+        signal.await(5000);
+        System.err.println("T1 = " + timer.getElapsedMilliseconds());
         wal.close();
         assertThat(entries.size(), is(equalTo(58)));
         for (var i = 0; i < 58; i++) {
@@ -84,17 +74,13 @@ public class WalTest {
         entries.clear();
         final var wal2 = getWal(e -> {
             entries.add(e);
-            if (e.getSequence() == 100) {
-                synchronized (syncRoot) {
-                    syncRoot.notify();
-                }
-            }
+            if (e.getSequence() == 100) signal.set();
         });
 
         // verify
-        synchronized (syncRoot) {
-            syncRoot.wait(5000);
-        }
+        timer.restart();
+        signal.await(5000);
+        System.err.println("T2 = " + timer.getElapsedMilliseconds());
         wal2.close();
         assertThat(entries.size(), is(equalTo(42)));
         for (var i = 0; i < 42; i++) {
