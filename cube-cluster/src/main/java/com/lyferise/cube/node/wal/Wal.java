@@ -45,7 +45,6 @@ public class Wal {
         try {
             reentrantLock.lock();
             action.run();
-            flush();
         } finally {
             reentrantLock.unlock();
         }

@@ -47,7 +47,6 @@ public class WalWorker extends Thread {
             start = entries.get(0).getSequence();
             end = entries.get(entries.size() - 1).getSequence();
         }
-        wal.flush();
 
         // dispatch
         var dispatchCount = 0;
@@ -75,5 +74,8 @@ public class WalWorker extends Thread {
             dataFile.setDispatched(entry);
             dispatchCount++;
         }
+
+        // done
+        if (entries.size() > 0 || dispatchCount > 0) wal.flush();
     }
 }
