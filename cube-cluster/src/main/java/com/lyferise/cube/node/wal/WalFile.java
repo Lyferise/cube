@@ -1,5 +1,6 @@
 package com.lyferise.cube.node.wal;
 
+import com.lyferise.cube.node.configuration.WalConfiguration;
 import lombok.SneakyThrows;
 
 import java.io.File;
@@ -11,13 +12,10 @@ public class WalFile {
     private long writePosition;
     private long entrySequence;
 
-    public WalFile(final String path) {
-        this(new File(path));
-    }
-
     @SneakyThrows
-    public WalFile(final File file) {
-        var newFile = file.createNewFile();
+    public WalFile(final WalConfiguration config) {
+        final var file = new File(config.getPath());
+        final var newFile = file.createNewFile();
         this.file = new RandomAccessFile(file, "rw");
         this.readPosition = 16;
         if (newFile) {

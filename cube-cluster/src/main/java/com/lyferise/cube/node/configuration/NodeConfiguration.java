@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class NodeConfiguration {
     long nodeId;
-    String walPath;
+    WalConfiguration wal = new WalConfiguration();
 }

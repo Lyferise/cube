@@ -1,5 +1,6 @@
 package com.lyferise.cube;
 
+import com.lyferise.cube.node.configuration.WalConfiguration;
 import com.lyferise.cube.node.wal.WalEntry;
 import com.lyferise.cube.node.wal.WalFile;
 import org.junit.jupiter.api.Test;
@@ -14,12 +15,18 @@ public class WalFileTest {
 
     @Test
     public void shouldWriteThenReadWalFile() {
-        final var file = new File(".wal");
+
+        // config
+        final var config = new WalConfiguration();
+        config.setPath(".wal");
+
+        // file
+        final var file = new File(config.getPath());
         file.delete();
         assertThat(file.exists(), is(equalTo(false)));
 
         // write
-        final var writer = new WalFile(file);
+        final var writer = new WalFile(config);
         final var entryCount = 100L;
         final var dataSize = 1000;
         for (var i = 1; i <= entryCount; i++) {
@@ -28,7 +35,7 @@ public class WalFileTest {
         writer.flush();
 
         // read
-        final var reader = new WalFile(file);
+        final var reader = new WalFile(config);
         WalEntry entry;
         var sequence = 0L;
         while ((entry = reader.next()) != null) {
