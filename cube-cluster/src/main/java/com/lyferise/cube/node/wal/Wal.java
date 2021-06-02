@@ -7,7 +7,7 @@ import lombok.SneakyThrows;
 import java.io.File;
 import java.io.RandomAccessFile;
 
-public class WalFile {
+public class Wal {
     private final RandomAccessFile dataFile;
     private final RingBuffer<WalEntry> readQueue;
     private long readPosition;
@@ -15,7 +15,7 @@ public class WalFile {
     private long entrySequence;
 
     @SneakyThrows
-    public WalFile(final WalConfiguration config) {
+    public Wal(final WalConfiguration config) {
 
         // file
         final var f = new File(config.getDataFile());
