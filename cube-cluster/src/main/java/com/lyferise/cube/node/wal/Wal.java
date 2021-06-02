@@ -6,11 +6,13 @@ import lombok.SneakyThrows;
 
 public class Wal {
     private final DataFile dataFile;
+    private final IndexFile indexFile;
     private final RingBuffer<WalEntry> readQueue;
 
     @SneakyThrows
     public Wal(final WalConfiguration config) {
         dataFile = new DataFile(config.getDataFile());
+        indexFile = new IndexFile(config.getIndexFile());
         readQueue = new RingBuffer<>(config.getReadQueueCapacity());
         while (dataFile.canRead()) {
             if (!readQueue.offer(dataFile.read())) {
@@ -33,10 +35,12 @@ public class Wal {
     @SneakyThrows
     public void flush() {
         dataFile.flush();
+        indexFile.flush();
     }
 
     @SneakyThrows
     public void close() {
         dataFile.close();
+        indexFile.close();
     }
 }

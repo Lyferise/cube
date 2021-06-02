@@ -78,7 +78,8 @@ public class WalTest {
 
     private static WalConfiguration getConfig() {
         final var config = new WalConfiguration();
-        config.setDataFile(".wal");
+        config.setDataFile(".wal.dat");
+        config.setIndexFile(".wal.idx");
         return config;
     }
 }
