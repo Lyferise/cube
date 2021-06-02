@@ -40,12 +40,16 @@ public class LocalCluster {
         final var config = new NodeConfiguration();
         config.setNodeId(nodeId);
 
-        // node path
+        // path
         final var nodePath = Paths.get(".cube/node" + nodeId);
         createDirectory(nodePath);
 
+        // wal
+        var wal = config.getWal();
+        wal.setDataFile(nodePath.resolve("wal.dat").toString());
+        wal.setIndexFile(nodePath.resolve("wal.idx").toString());
+
         // node
-        config.getWal().setDataFile(nodePath.resolve("wal.dat").toString());
         nodes.add(new ClusterNode(new CubeNode(config), nodePath));
     }
 

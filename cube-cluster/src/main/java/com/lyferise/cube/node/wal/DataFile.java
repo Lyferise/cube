@@ -103,7 +103,7 @@ public class DataFile {
         }
 
         // CRC
-        final WalEntry entry = new WalEntry(sequence, data);
+        final var entry = new WalEntry(sequence, data);
         if (entry.getCrc() != crc) {
             throw new UnsupportedOperationException("WAL CRC check failed");
         }
