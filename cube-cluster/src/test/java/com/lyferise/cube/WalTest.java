@@ -63,7 +63,6 @@ public class WalTest {
 
         // verify
         signal.await(5000);
-        System.err.println("T1 = " + timer.getElapsedMilliseconds());
         wal.close();
         assertThat(entries.size(), is(equalTo(58)));
         for (var i = 0; i < 58; i++) {
@@ -80,7 +79,6 @@ public class WalTest {
         // verify
         timer.restart();
         signal.await(5000);
-        System.err.println("T2 = " + timer.getElapsedMilliseconds());
         wal2.close();
         assertThat(entries.size(), is(equalTo(42)));
         for (var i = 0; i < 42; i++) {
