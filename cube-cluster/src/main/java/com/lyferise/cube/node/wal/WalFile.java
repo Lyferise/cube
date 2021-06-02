@@ -23,14 +23,16 @@ public class WalFile {
         file = new RandomAccessFile(f, "rw");
 
         // header
-        readPosition = 16;
         if (newFile) {
+            writePosition = 24;
+            readPosition = 24;
             file.writeLong(0);
-            file.writeLong(8);
-            writePosition = 16;
+            file.writeLong(writePosition);
+            file.writeLong(readPosition);
         } else {
             entrySequence = file.readLong();
             writePosition = file.readLong();
+            readPosition = file.readLong();
         }
 
         // queue
@@ -58,6 +60,7 @@ public class WalFile {
         file.seek(writePosition);
         file.writeLong(entrySequence);
         file.writeLong(writePosition);
+        file.skipBytes(4);
         file.writeInt(data.length);
         file.writeInt(entry.getCrc());
         file.write(data);
@@ -75,6 +78,11 @@ public class WalFile {
     @SneakyThrows
     public void flush() {
         file.getChannel().force(true);
+    }
+
+    @SneakyThrows
+    public void close() {
+        file.close();
     }
 
     @SneakyThrows
@@ -105,7 +113,11 @@ public class WalFile {
         if (entry.getCrc() != crc) {
             throw new UnsupportedOperationException("WAL CRC check failed");
         }
+
+        // header
         readPosition = file.getFilePointer();
+        file.seek(16);
+        file.writeLong(readPosition);
         return entry;
     }
 
