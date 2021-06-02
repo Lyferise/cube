@@ -7,6 +7,7 @@ import java.io.RandomAccessFile;
 
 public class WalFile {
     private final RandomAccessFile file;
+    private long readPosition;
     private long writePosition;
     private long entrySequence;
 
@@ -18,26 +19,51 @@ public class WalFile {
     public WalFile(final File file) {
         var newFile = file.createNewFile();
         this.file = new RandomAccessFile(file, "rw");
+        this.readPosition = 16;
         if (newFile) {
             this.file.writeLong(0);
             this.file.writeLong(8);
-            writePosition = 16;
+            this.writePosition = 16;
         } else {
             this.entrySequence = this.file.readLong();
             this.writePosition = this.file.readLong();
         }
     }
 
-    public long getWritePosition() {
-        return writePosition;
-    }
+    @SneakyThrows
+    public final WalEntry next() {
 
-    public long getEntrySequence() {
-        return entrySequence;
+        // done?
+        if (readPosition >= writePosition) return null;
+
+        // entry
+        file.seek(readPosition);
+        final var entrySequence = file.readLong();
+        final var checkPosition = file.readLong();
+        if (readPosition != checkPosition) {
+            throw new UnsupportedOperationException("WAL position check failed");
+        }
+        final var length = file.readInt();
+        final var crc = file.readInt();
+
+        // data
+        final var data = new byte[length];
+        var n = 0;
+        while (n < length) {
+            n += file.read(data, n, length - n);
+        }
+
+        // CRC
+        final WalEntry entry = new WalEntry(entrySequence, data);
+        if (entry.getCrc() != crc) {
+            throw new UnsupportedOperationException("WAL CRC check failed");
+        }
+        readPosition = file.getFilePointer();
+        return entry;
     }
 
     @SneakyThrows
-    public void append(final WalEntry entry) {
+    public void write(final WalEntry entry) {
 
         // entry
         entrySequence = entry.getSequence();

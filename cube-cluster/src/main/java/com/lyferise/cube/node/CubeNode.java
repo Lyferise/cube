@@ -22,6 +22,6 @@ public class CubeNode {
 
     public void accept(final byte[] data) {
         final var spacetimeId = spacetimeIdGenerator.next();
-        walFile.append(new WalEntry(spacetimeId.getSequence(), data));
+        walFile.write(new WalEntry(spacetimeId.getSequence(), data));
     }
 }

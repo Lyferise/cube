@@ -13,32 +13,27 @@ import static org.hamcrest.Matchers.is;
 public class WalFileTest {
 
     @Test
-    public void shouldWriteToWalFile() {
-        final var file = new File("wal.dat");
-        try {
-            file.delete();
-            assertThat(file.exists(), is(equalTo(false)));
+    public void shouldWriteThenReadWalFile() {
+        final var file = new File(".wal");
+        file.delete();
+        assertThat(file.exists(), is(equalTo(false)));
 
-            // write 100 entries
-            final var walFile = new WalFile(file);
-            final var entryCount = 100;
-            final var dataSize = 1000;
-            for (var i = 1; i <= entryCount; i++) {
-                walFile.append(new WalEntry(i, new byte[dataSize]));
-            }
-            walFile.flush();
-
-            // verify
-            final var length = 16L + entryCount * (dataSize + 24);
-            assertThat(file.length(), is(equalTo(length)));
-
-            // header
-            final var walFile2 = new WalFile(file);
-            assertThat(walFile2.getEntrySequence(), is(equalTo((long) entryCount)));
-            assertThat(walFile2.getWritePosition(), is(equalTo(length)));
-
-        } finally {
-            file.delete();
+        // write
+        final var writer = new WalFile(file);
+        final var entryCount = 100L;
+        final var dataSize = 1000;
+        for (var i = 1; i <= entryCount; i++) {
+            writer.write(new WalEntry(i, new byte[dataSize]));
         }
+        writer.flush();
+
+        // read
+        final var reader = new WalFile(file);
+        WalEntry entry;
+        var sequence = 0L;
+        while ((entry = reader.next()) != null) {
+            assertThat(entry.getSequence(), is(equalTo(++sequence)));
+        }
+        assertThat(sequence, is(equalTo(entryCount)));
     }
 }
