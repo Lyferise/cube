@@ -26,9 +26,16 @@ public class WalFileTest {
             for (var i = 1; i <= entryCount; i++) {
                 walFile.append(new WalEntry(i, new byte[dataSize]));
             }
+            walFile.flush();
 
             // verify
-            assertThat(file.length(), is(equalTo((long) (entryCount * (dataSize + 24)))));
+            final var length = 16L + entryCount * (dataSize + 24);
+            assertThat(file.length(), is(equalTo(length)));
+
+            // header
+            final var walFile2 = new WalFile(file);
+            assertThat(walFile2.getEntrySequence(), is(equalTo((long) entryCount)));
+            assertThat(walFile2.getWritePosition(), is(equalTo(length)));
 
         } finally {
             file.delete();

@@ -8,41 +8,58 @@ import java.io.RandomAccessFile;
 public class WalFile {
     private final RandomAccessFile file;
     private long writePosition;
+    private long entrySequence;
 
-    public WalFile(final String name) {
-        this(new File(name));
+    public WalFile(final String path) {
+        this(new File(path));
     }
 
     @SneakyThrows
     public WalFile(final File file) {
-        file.createNewFile();
+        var newFile = file.createNewFile();
         this.file = new RandomAccessFile(file, "rw");
+        if (newFile) {
+            this.file.writeLong(0);
+            this.file.writeLong(8);
+            writePosition = 16;
+        } else {
+            this.entrySequence = this.file.readLong();
+            this.writePosition = this.file.readLong();
+        }
+    }
+
+    public long getWritePosition() {
+        return writePosition;
+    }
+
+    public long getEntrySequence() {
+        return entrySequence;
     }
 
     @SneakyThrows
     public void append(final WalEntry entry) {
 
         // entry
-        final var sequence = entry.getSequence();
+        entrySequence = entry.getSequence();
         final var data = entry.getData();
 
         // write
-        file.writeLong(entry.getSequence());
+        file.seek(writePosition);
+        file.writeLong(entrySequence);
         file.writeLong(writePosition);
         file.writeInt(data.length);
         file.writeInt(entry.getCrc());
         file.write(data);
         writePosition = file.getFilePointer();
-        flush();
+
+        // header
+        file.seek(0);
+        file.writeLong(entrySequence);
+        file.writeLong(writePosition);
     }
 
     @SneakyThrows
-    public void close() {
-        file.close();
-    }
-
-    @SneakyThrows
-    private void flush() {
+    public void flush() {
         file.getChannel().force(true);
     }
 }
