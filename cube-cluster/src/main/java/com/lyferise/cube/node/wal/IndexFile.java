@@ -28,9 +28,7 @@ public class IndexFile {
     @SneakyThrows
     public long getPosition(final long sequence) {
         file.seek(getIndexPosition(sequence));
-        final var p = file.readLong();
-        System.err.println("index: " + sequence + " -> " + p);
-        return p;
+        return file.readLong();
     }
 
     @SneakyThrows
