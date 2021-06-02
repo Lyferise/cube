@@ -1,7 +1,7 @@
 package com.lyferise.cube;
 
-import com.lyferise.cube.wal.WalEntry;
-import com.lyferise.cube.wal.WalFile;
+import com.lyferise.cube.node.wal.WalEntry;
+import com.lyferise.cube.node.wal.WalFile;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;

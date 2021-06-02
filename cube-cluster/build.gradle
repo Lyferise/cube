@@ -40,6 +40,10 @@ dependencies {
     testImplementation "org.hamcrest:hamcrest:$hamcrestVersion"
     testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
+
+    // integrationTest
+    integrationTestCompileOnly "org.projectlombok:lombok:$lombokVersion"
+    integrationTestAnnotationProcessor "org.projectlombok:lombok:$lombokVersion"
 }
 
 java {

@@ -1,11 +1,11 @@
-package com.lyferise.cube;
+package com.lyferise.cube.node;
 
-import com.lyferise.cube.configuration.NodeConfiguration;
+import com.lyferise.cube.node.configuration.NodeConfiguration;
 import com.lyferise.cube.events.SpacetimeIdGenerator;
 import com.lyferise.cube.time.CubeClock;
 import com.lyferise.cube.time.SystemClock;
-import com.lyferise.cube.wal.WalEntry;
-import com.lyferise.cube.wal.WalFile;
+import com.lyferise.cube.node.wal.WalEntry;
+import com.lyferise.cube.node.wal.WalFile;
 
 public class CubeNode {
     private final WalFile walFile;

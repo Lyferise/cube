@@ -1,4 +1,4 @@
-package com.lyferise.cube.wal;
+package com.lyferise.cube.node.wal;
 
 import lombok.SneakyThrows;
 

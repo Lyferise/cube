@@ -1,4 +1,4 @@
-package com.lyferise.cube.configuration;
+package com.lyferise.cube.node.configuration;
 
 import lombok.Data;
 
