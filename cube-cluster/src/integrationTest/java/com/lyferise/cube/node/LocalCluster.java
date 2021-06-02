@@ -45,7 +45,7 @@ public class LocalCluster {
         createDirectory(nodePath);
 
         // node
-        config.setWalPath(nodePath.resolve("wal.dat").toString());
+        config.getWal().setPath(nodePath.resolve("wal.dat").toString());
         nodes.add(new ClusterNode(new CubeNode(config), nodePath));
     }
 
