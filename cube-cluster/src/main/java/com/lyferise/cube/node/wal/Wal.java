@@ -5,6 +5,7 @@ import com.lyferise.cube.node.configuration.WalConfiguration;
 import lombok.SneakyThrows;
 
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Supplier;
 
 public class Wal {
     private final ReentrantLock reentrantLock = new ReentrantLock();
@@ -41,11 +42,13 @@ public class Wal {
         return dispatcher;
     }
 
-    public void execute(final Runnable action) {
+    public void execute(final Supplier<Boolean> action) {
+        var modified = false;
         try {
             reentrantLock.lock();
-            action.run();
+            modified = action.get();
         } finally {
+            if (modified) flush();
             reentrantLock.unlock();
         }
     }

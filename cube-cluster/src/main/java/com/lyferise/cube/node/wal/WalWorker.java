@@ -22,11 +22,13 @@ public class WalWorker extends Thread {
     public void run() {
         while (true) {
             wal.execute(this::writeAndOrDispatch);
+
+            // if the ring buffer is empty, wait 50 milliseconds
             wal.getRingBuffer().notEmpty().awaitNanos(50 * NANOSECONDS_PER_MILLISECOND);
         }
     }
 
-    private void writeAndOrDispatch() {
+    private boolean writeAndOrDispatch() {
 
         // wal
         final var dataFile = wal.getDataFile();
@@ -36,6 +38,7 @@ public class WalWorker extends Thread {
         // drain
         entries.clear();
         wal.getRingBuffer().drainTo(entries, batchSize);
+        var modified = false;
 
         // write
         var start = 0L;
@@ -46,6 +49,7 @@ public class WalWorker extends Thread {
             }
             start = entries.get(0).getSequence();
             end = entries.get(entries.size() - 1).getSequence();
+            modified = true;
         }
 
         // dispatch
@@ -69,13 +73,14 @@ public class WalWorker extends Thread {
                 dispatcher.dispatch(entry);
             } catch (final Exception e) {
                 e.printStackTrace();
-                return;
+                return modified;
             }
             dataFile.setDispatched(entry);
+            modified = true;
             dispatchCount++;
         }
 
         // done
-        if (entries.size() > 0 || dispatchCount > 0) wal.flush();
+        return modified;
     }
 }
