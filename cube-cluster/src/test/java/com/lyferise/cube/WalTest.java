@@ -74,6 +74,7 @@ public class WalTest {
     @SneakyThrows
     private static void deleteWal(final WalConfiguration config) {
         deleteIfExists(Paths.get(config.getDataFile()));
+        deleteIfExists(Paths.get(config.getIndexFile()));
     }
 
     private static WalConfiguration getConfig() {

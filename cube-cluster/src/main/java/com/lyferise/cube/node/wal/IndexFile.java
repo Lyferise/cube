@@ -36,7 +36,9 @@ public class IndexFile {
 
         // index
         if (sequence != entryCount + 1) {
-            throw new UnsupportedOperationException("WAL index check failed.");
+            throw new UnsupportedOperationException(
+                    "WAL index check failed: next entry sequence = " + sequence
+                            + ", index count = " + entryCount);
         }
         file.seek(getIndexPosition(sequence));
         file.writeLong(position);

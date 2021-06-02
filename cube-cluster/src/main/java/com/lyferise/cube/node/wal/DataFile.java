@@ -70,14 +70,15 @@ public class DataFile {
     }
 
     @SneakyThrows
-    public void write(final WalEntry entry) {
+    public long write(final WalEntry entry) {
 
         // entry
         entrySequence = entry.getSequence();
         final var data = entry.getData();
 
         // write
-        file.seek(writePosition);
+        final var position = writePosition;
+        file.seek(position);
         file.writeLong(entrySequence);
         file.writeLong(writePosition);
         file.skipBytes(4);
@@ -90,6 +91,7 @@ public class DataFile {
         file.seek(0);
         file.writeLong(entrySequence);
         file.writeLong(writePosition);
+        return writePosition;
     }
 
     @SneakyThrows

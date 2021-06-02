@@ -28,7 +28,8 @@ public class Wal {
 
     @SneakyThrows
     public void write(final WalEntry entry) {
-        dataFile.write(entry);
+        var position = dataFile.write(entry);
+        indexFile.append(entry.getSequence(), position);
         readQueue.put(entry);
     }
 
