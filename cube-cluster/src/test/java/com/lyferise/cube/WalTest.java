@@ -1,13 +1,15 @@
 package com.lyferise.cube;
 
 import com.lyferise.cube.node.configuration.WalConfiguration;
-import com.lyferise.cube.node.wal.WalEntry;
 import com.lyferise.cube.node.wal.Wal;
+import com.lyferise.cube.node.wal.WalEntry;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
+import java.nio.file.Paths;
 
+import static java.nio.file.Files.deleteIfExists;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -69,10 +71,9 @@ public class WalTest {
         return new Wal(config);
     }
 
+    @SneakyThrows
     private static void deleteWal(final WalConfiguration config) {
-        final var file = new File(config.getDataFile());
-        file.delete();
-        assertThat(file.exists(), is(equalTo(false)));
+        deleteIfExists(Paths.get(config.getDataFile()));
     }
 
     private static WalConfiguration getConfig() {
