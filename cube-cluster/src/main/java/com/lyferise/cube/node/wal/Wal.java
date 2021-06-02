@@ -7,15 +7,18 @@ import lombok.SneakyThrows;
 public class Wal {
     private final DataFile dataFile;
     private final IndexFile indexFile;
-    private final RingBuffer<WalEntry> readQueue;
+    private final RingBuffer<WalEntry> dispatchQueue;
 
     @SneakyThrows
     public Wal(final WalConfiguration config) {
         dataFile = new DataFile(config.getDataFile());
         indexFile = new IndexFile(config.getIndexFile());
-        readQueue = new RingBuffer<>(config.getReadQueueCapacity());
-        while (dataFile.canRead()) {
-            if (!readQueue.offer(dataFile.read())) {
+        dispatchQueue = new RingBuffer<>(config.getDispatchQueueCapacity());
+
+        // read
+        for (var i = dataFile.getDispatchSequence(); i < dataFile.getWriteSequence(); i++) {
+            var readPosition = indexFile.getPosition(i);
+            if (!dispatchQueue.offer(dataFile.read(readPosition))) {
                 throw new UnsupportedOperationException("WAL read queue full.");
             }
         }
@@ -23,14 +26,16 @@ public class Wal {
 
     @SneakyThrows
     public WalEntry read() {
-        return readQueue.take();
+        final WalEntry entry = dispatchQueue.take();
+        dataFile.setDispatched(entry);
+        return entry;
     }
 
     @SneakyThrows
     public void write(final WalEntry entry) {
         var position = dataFile.write(entry);
         indexFile.append(entry.getSequence(), position);
-        readQueue.put(entry);
+        dispatchQueue.put(entry);
     }
 
     @SneakyThrows

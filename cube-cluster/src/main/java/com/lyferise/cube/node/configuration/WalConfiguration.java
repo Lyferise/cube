@@ -6,5 +6,5 @@ import lombok.Data;
 public class WalConfiguration {
     String dataFile;
     String indexFile;
-    int readQueueCapacity = 1024;
+    int dispatchQueueCapacity = 1024;
 }

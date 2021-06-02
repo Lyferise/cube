@@ -7,9 +7,9 @@ import java.io.RandomAccessFile;
 
 public class DataFile {
     private final RandomAccessFile file;
-    private long readPosition;
+    private long writeSequence;
     private long writePosition;
-    private long entrySequence;
+    private long dispatchSequence;
 
     @SneakyThrows
     public DataFile(final String path) {
@@ -21,65 +21,44 @@ public class DataFile {
 
         // header
         if (newFile) {
-            writePosition = 24;
-            readPosition = 24;
             file.writeLong(0);
-            file.writeLong(writePosition);
-            file.writeLong(readPosition);
+            file.writeLong(0);
+            flush();
         } else {
-            entrySequence = file.readLong();
-            writePosition = file.readLong();
-            readPosition = file.readLong();
+            writeSequence = file.readLong();
+            dispatchSequence = file.readLong();
         }
+        writePosition = file.length();
+    }
+
+    public long getWriteSequence() {
+        return writeSequence;
+    }
+
+    public long getDispatchSequence() {
+        return dispatchSequence;
     }
 
     @SneakyThrows
-    public WalEntry read() {
-
-        // done?
-        if (!canRead()) return null;
-
-        // entry
-        file.seek(readPosition);
-        final var entrySequence = file.readLong();
-        final var checkPosition = file.readLong();
-        if (readPosition != checkPosition) {
-            throw new UnsupportedOperationException("WAL position check failed");
+    public void setDispatched(final WalEntry entry) {
+        if (entry.getSequence() > dispatchSequence) {
+            file.seek(8);
+            file.writeLong(entry.getSequence());
+            dispatchSequence = entry.getSequence();
         }
-        final var length = file.readInt();
-        final var crc = file.readInt();
-
-        // data
-        final var data = new byte[length];
-        var n = 0;
-        while (n < length) {
-            n += file.read(data, n, length - n);
-        }
-
-        // CRC
-        final WalEntry entry = new WalEntry(entrySequence, data);
-        if (entry.getCrc() != crc) {
-            throw new UnsupportedOperationException("WAL CRC check failed");
-        }
-
-        // header
-        readPosition = file.getFilePointer();
-        file.seek(16);
-        file.writeLong(readPosition);
-        return entry;
     }
 
     @SneakyThrows
     public long write(final WalEntry entry) {
 
         // entry
-        entrySequence = entry.getSequence();
+        writeSequence = entry.getSequence();
         final var data = entry.getData();
 
         // write
         final var position = writePosition;
         file.seek(position);
-        file.writeLong(entrySequence);
+        file.writeLong(writeSequence);
         file.writeLong(writePosition);
         file.skipBytes(4);
         file.writeInt(data.length);
@@ -89,8 +68,7 @@ public class DataFile {
 
         // header
         file.seek(0);
-        file.writeLong(entrySequence);
-        file.writeLong(writePosition);
+        file.writeLong(writeSequence);
         return writePosition;
     }
 
@@ -104,8 +82,31 @@ public class DataFile {
         file.close();
     }
 
-    // TODO: scope
-    public boolean canRead() {
-        return readPosition < writePosition;
+    @SneakyThrows
+    public WalEntry read(final long position) {
+
+        // entry
+        file.seek(position);
+        var sequence = file.readLong();
+        final var checkPosition = file.readLong();
+        if (position != checkPosition) {
+            throw new UnsupportedOperationException("WAL position check failed");
+        }
+        final var length = file.readInt();
+        final var crc = file.readInt();
+
+        // data
+        final var data = new byte[length];
+        var n = 0;
+        while (n < length) {
+            n += file.read(data, n, length - n);
+        }
+
+        // CRC
+        final WalEntry entry = new WalEntry(sequence, data);
+        if (entry.getCrc() != crc) {
+            throw new UnsupportedOperationException("WAL CRC check failed");
+        }
+        return entry;
     }
 }

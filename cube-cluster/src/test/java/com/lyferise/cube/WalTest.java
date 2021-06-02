@@ -4,7 +4,6 @@ import com.lyferise.cube.node.configuration.WalConfiguration;
 import com.lyferise.cube.node.wal.Wal;
 import com.lyferise.cube.node.wal.WalEntry;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Paths;
@@ -34,7 +33,6 @@ public class WalTest {
     }
 
     @Test
-    @Disabled
     public void shouldRestoreWal() {
 
         // write
