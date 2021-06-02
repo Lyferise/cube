@@ -16,7 +16,8 @@ public class CubeNode {
     }
 
     public CubeNode(final NodeConfiguration config, final CubeClock clock) {
-        this.wal = new Wal(config.getWal());
+        this.wal = new Wal(config.getWal(), e -> {
+        });
         this.spacetimeIdGenerator = new SpacetimeIdGenerator(config.getNodeId(), clock);
     }
 

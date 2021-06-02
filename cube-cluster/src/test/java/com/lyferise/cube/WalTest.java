@@ -2,11 +2,13 @@ package com.lyferise.cube;
 
 import com.lyferise.cube.node.configuration.WalConfiguration;
 import com.lyferise.cube.node.wal.Wal;
+import com.lyferise.cube.node.wal.WalDispatcher;
 import com.lyferise.cube.node.wal.WalEntry;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Paths;
+import java.util.ArrayList;
 
 import static java.nio.file.Files.deleteIfExists;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -16,57 +18,98 @@ import static org.hamcrest.Matchers.is;
 public class WalTest {
 
     @Test
+    @SneakyThrows
     public void shouldWriteThenReadWal() {
 
         // write
-        final var wal = createNewWal();
         final var entryCount = 100;
+        final Object syncRoot = new Object();
+        final var entries = new ArrayList<WalEntry>();
+        final var wal = createNewWal(e -> {
+            entries.add(e);
+            if (e.getSequence() == entryCount) {
+                synchronized (syncRoot) {
+                    syncRoot.notify();
+                }
+            }
+        });
         for (var i = 1; i <= entryCount; i++) {
             wal.write(new WalEntry(i, new byte[1000]));
         }
-        wal.flush();
 
-        // read
-        for (var i = 1; i <= entryCount; i++) {
-            assertThat(wal.read().getSequence(), is(equalTo((long) i)));
+        // verify
+        synchronized (syncRoot) {
+            syncRoot.wait(5000);
+        }
+        assertThat(entries.size(), is(equalTo(entryCount)));
+        for (var i = 0; i < entryCount; i++) {
+            assertThat(entries.get(i).getSequence(), is(equalTo(i + 1L)));
         }
     }
 
     @Test
+    @SneakyThrows
     public void shouldRestoreWal() {
 
         // write
-        final var wal = createNewWal();
-        final var writeCount = 100;
-        for (var i = 1; i <= writeCount; i++) {
+        final var entryCount = 100;
+        final Object syncRoot = new Object();
+        final var entries = new ArrayList<WalEntry>();
+        final var wal = createNewWal(e -> {
+            if (e.getSequence() == 59) {
+                throw new UnsupportedOperationException();
+            }
+            entries.add(e);
+            if (e.getSequence() == 58) {
+                synchronized (syncRoot) {
+                    syncRoot.notify();
+                }
+            }
+        });
+        for (var i = 1; i <= entryCount; i++) {
             wal.write(new WalEntry(i, new byte[1000]));
         }
-        wal.flush();
 
-        // read
-        final var readCount = 58;
-        var sequence = 0L;
-        for (var i = 1; i <= readCount; i++) {
-            assertThat(wal.read().getSequence(), is(equalTo(++sequence)));
+        // verify
+        synchronized (syncRoot) {
+            syncRoot.wait(5000);
         }
-        wal.flush();
         wal.close();
+        assertThat(entries.size(), is(equalTo(58)));
+        for (var i = 0; i < 58; i++) {
+            assertThat(entries.get(i).getSequence(), is(equalTo(i + 1L)));
+        }
 
         // restore
-        final var wal2 = getWal();
-        for (var i = 1; i <= writeCount - readCount; i++) {
-            assertThat(wal2.read().getSequence(), is(equalTo(++sequence)));
+        entries.clear();
+        final var wal2 = getWal(e -> {
+            entries.add(e);
+            if (e.getSequence() == 100) {
+                synchronized (syncRoot) {
+                    syncRoot.notify();
+                }
+            }
+        });
+
+        // verify
+        synchronized (syncRoot) {
+            syncRoot.wait(5000);
+        }
+        wal2.close();
+        assertThat(entries.size(), is(equalTo(42)));
+        for (var i = 0; i < 42; i++) {
+            assertThat(entries.get(i).getSequence(), is(equalTo(i + 59L)));
         }
     }
 
-    private static Wal getWal() {
-        return new Wal(getConfig());
+    private static Wal getWal(final WalDispatcher dispatcher) {
+        return new Wal(getConfig(), dispatcher);
     }
 
-    private static Wal createNewWal() {
+    private static Wal createNewWal(final WalDispatcher dispatcher) {
         final var config = getConfig();
         deleteWal(config);
-        return new Wal(config);
+        return new Wal(config, dispatcher);
     }
 
     @SneakyThrows

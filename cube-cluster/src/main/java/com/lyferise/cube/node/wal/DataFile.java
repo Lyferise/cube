@@ -69,7 +69,7 @@ public class DataFile {
         // header
         file.seek(0);
         file.writeLong(writeSequence);
-        return writePosition;
+        return position;
     }
 
     @SneakyThrows

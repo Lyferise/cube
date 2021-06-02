@@ -4,38 +4,55 @@ import com.lyferise.cube.concurrency.RingBuffer;
 import com.lyferise.cube.node.configuration.WalConfiguration;
 import lombok.SneakyThrows;
 
+import java.util.concurrent.locks.ReentrantLock;
+
 public class Wal {
+    private final ReentrantLock reentrantLock = new ReentrantLock();
     private final DataFile dataFile;
     private final IndexFile indexFile;
-    private final RingBuffer<WalEntry> dispatchQueue;
+    private final RingBuffer<WalEntry> ringBuffer;
+    private final WalDispatcher dispatcher;
+    private final WalWorker walWorker;
 
     @SneakyThrows
-    public Wal(final WalConfiguration config) {
-        dataFile = new DataFile(config.getDataFile());
-        indexFile = new IndexFile(config.getIndexFile());
-        dispatchQueue = new RingBuffer<>(config.getDispatchQueueCapacity());
+    public Wal(final WalConfiguration config, final WalDispatcher dispatcher) {
+        this.dataFile = new DataFile(config.getDataFile());
+        this.indexFile = new IndexFile(config.getIndexFile());
+        this.ringBuffer = new RingBuffer<>(config.getRingBufferCapacity());
+        this.dispatcher = dispatcher;
+        this.walWorker = new WalWorker(config, this);
+        this.walWorker.start();
+    }
 
-        // read
-        for (var i = dataFile.getDispatchSequence(); i < dataFile.getWriteSequence(); i++) {
-            var readPosition = indexFile.getPosition(i);
-            if (!dispatchQueue.offer(dataFile.read(readPosition))) {
-                throw new UnsupportedOperationException("WAL read queue full.");
-            }
+    public DataFile getDataFile() {
+        return dataFile;
+    }
+
+    public IndexFile getIndexFile() {
+        return indexFile;
+    }
+
+    public RingBuffer<WalEntry> getRingBuffer() {
+        return ringBuffer;
+    }
+
+    public WalDispatcher getDispatcher() {
+        return dispatcher;
+    }
+
+    public void execute(final Runnable action) {
+        try {
+            reentrantLock.lock();
+            action.run();
+            flush();
+        } finally {
+            reentrantLock.unlock();
         }
     }
 
     @SneakyThrows
-    public WalEntry read() {
-        final WalEntry entry = dispatchQueue.take();
-        dataFile.setDispatched(entry);
-        return entry;
-    }
-
-    @SneakyThrows
     public void write(final WalEntry entry) {
-        var position = dataFile.write(entry);
-        indexFile.append(entry.getSequence(), position);
-        dispatchQueue.put(entry);
+        ringBuffer.put(entry);
     }
 
     @SneakyThrows
