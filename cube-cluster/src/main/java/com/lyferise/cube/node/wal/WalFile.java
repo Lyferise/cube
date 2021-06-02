@@ -8,7 +8,7 @@ import java.io.File;
 import java.io.RandomAccessFile;
 
 public class WalFile {
-    private final RandomAccessFile file;
+    private final RandomAccessFile dataFile;
     private final RingBuffer<WalEntry> readQueue;
     private long readPosition;
     private long writePosition;
@@ -18,21 +18,21 @@ public class WalFile {
     public WalFile(final WalConfiguration config) {
 
         // file
-        final var f = new File(config.getPath());
+        final var f = new File(config.getDataFile());
         final var newFile = f.createNewFile();
-        file = new RandomAccessFile(f, "rw");
+        dataFile = new RandomAccessFile(f, "rw");
 
         // header
         if (newFile) {
             writePosition = 24;
             readPosition = 24;
-            file.writeLong(0);
-            file.writeLong(writePosition);
-            file.writeLong(readPosition);
+            dataFile.writeLong(0);
+            dataFile.writeLong(writePosition);
+            dataFile.writeLong(readPosition);
         } else {
-            entrySequence = file.readLong();
-            writePosition = file.readLong();
-            readPosition = file.readLong();
+            entrySequence = dataFile.readLong();
+            writePosition = dataFile.readLong();
+            readPosition = dataFile.readLong();
         }
 
         // queue
@@ -57,19 +57,19 @@ public class WalFile {
         final var data = entry.getData();
 
         // write
-        file.seek(writePosition);
-        file.writeLong(entrySequence);
-        file.writeLong(writePosition);
-        file.skipBytes(4);
-        file.writeInt(data.length);
-        file.writeInt(entry.getCrc());
-        file.write(data);
-        writePosition = file.getFilePointer();
+        dataFile.seek(writePosition);
+        dataFile.writeLong(entrySequence);
+        dataFile.writeLong(writePosition);
+        dataFile.skipBytes(4);
+        dataFile.writeInt(data.length);
+        dataFile.writeInt(entry.getCrc());
+        dataFile.write(data);
+        writePosition = dataFile.getFilePointer();
 
         // header
-        file.seek(0);
-        file.writeLong(entrySequence);
-        file.writeLong(writePosition);
+        dataFile.seek(0);
+        dataFile.writeLong(entrySequence);
+        dataFile.writeLong(writePosition);
 
         // queue
         readQueue.put(entry);
@@ -77,12 +77,12 @@ public class WalFile {
 
     @SneakyThrows
     public void flush() {
-        file.getChannel().force(true);
+        dataFile.getChannel().force(true);
     }
 
     @SneakyThrows
     public void close() {
-        file.close();
+        dataFile.close();
     }
 
     @SneakyThrows
@@ -92,20 +92,20 @@ public class WalFile {
         if (!canRead()) return null;
 
         // entry
-        file.seek(readPosition);
-        final var entrySequence = file.readLong();
-        final var checkPosition = file.readLong();
+        dataFile.seek(readPosition);
+        final var entrySequence = dataFile.readLong();
+        final var checkPosition = dataFile.readLong();
         if (readPosition != checkPosition) {
             throw new UnsupportedOperationException("WAL position check failed");
         }
-        final var length = file.readInt();
-        final var crc = file.readInt();
+        final var length = dataFile.readInt();
+        final var crc = dataFile.readInt();
 
         // data
         final var data = new byte[length];
         var n = 0;
         while (n < length) {
-            n += file.read(data, n, length - n);
+            n += dataFile.read(data, n, length - n);
         }
 
         // CRC
@@ -115,9 +115,9 @@ public class WalFile {
         }
 
         // header
-        readPosition = file.getFilePointer();
-        file.seek(16);
-        file.writeLong(readPosition);
+        readPosition = dataFile.getFilePointer();
+        dataFile.seek(16);
+        dataFile.writeLong(readPosition);
         return entry;
     }
 

@@ -70,14 +70,14 @@ public class WalFileTest {
     }
 
     private static void deleteWalFile(final WalConfiguration config) {
-        final var file = new File(config.getPath());
+        final var file = new File(config.getDataFile());
         file.delete();
         assertThat(file.exists(), is(equalTo(false)));
     }
 
     private static WalConfiguration getConfig() {
         final var config = new WalConfiguration();
-        config.setPath(".wal");
+        config.setDataFile(".wal");
         return config;
     }
 }

@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class WalConfiguration {
-    String path;
+    String dataFile;
     int readQueueCapacity = 1024;
 }
