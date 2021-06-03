@@ -1,8 +1,6 @@
 package com.lyferise.cube.node.wal;
 
 import com.lyferise.cube.events.SpacetimeId;
-import com.lyferise.cube.internet.EndpointAddress;
-import com.lyferise.cube.internet.IpAddress;
 import lombok.SneakyThrows;
 
 import java.io.File;
@@ -69,11 +67,6 @@ public class DataFile {
         file.writeLong(spacetimeId.getSpace());
         file.writeLong(spacetimeId.getTime());
 
-        // address
-        final var address = entry.getAddress();
-        file.write(address.getIpAddress().toByteArray(), 0, 16);
-        file.writeShort(address.getPort());
-
         // session key
         final var sessionKey = entry.getSessionKey();
         file.writeLong(sessionKey.getMostSignificantBits());
@@ -116,9 +109,6 @@ public class DataFile {
         // spacetime id
         final var spacetimeId = new SpacetimeId(file.readLong(), file.readLong());
 
-        // address
-        final var address = new EndpointAddress(new IpAddress(read(16)), file.readShort());
-
         // session key
         final var sessionKey = new UUID(file.readLong(), file.readLong());
 
@@ -127,7 +117,7 @@ public class DataFile {
 
         // crc
         final var crc = file.readInt();
-        final var entry = new WalEntry(spacetimeId, address, sessionKey, data);
+        final var entry = new WalEntry(spacetimeId, sessionKey, data);
         if (entry.getCrc() != crc) {
             throw new UnsupportedOperationException("WAL CRC check failed");
         }
