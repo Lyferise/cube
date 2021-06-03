@@ -16,11 +16,11 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 
 import static com.lyferise.cube.components.ComponentState.*;
-import static com.lyferise.cube.node.websockets.ConnectionKey.connectionKey;
+import static java.util.UUID.randomUUID;
 
 @Slf4j
 public class WebSocketsServer extends WebSocketServer {
-    private final ConnectionManager connectionManager;
+    private final SessionManager sessionManager;
     private final Wal wal;
     private final SpacetimeIdGenerator spacetimeIdGenerator;
     private final Signal startSignal = new Signal();
@@ -28,12 +28,12 @@ public class WebSocketsServer extends WebSocketServer {
 
     public WebSocketsServer(
             final WebSocketsConfiguration config,
-            final ConnectionManager connectionManager,
+            final SessionManager sessionManager,
             final Wal wal,
             final SpacetimeIdGenerator spacetimeIdGenerator) {
 
         super(new InetSocketAddress(config.getPort()));
-        this.connectionManager = connectionManager;
+        this.sessionManager = sessionManager;
         this.wal = wal;
         this.spacetimeIdGenerator = spacetimeIdGenerator;
         startBlocking();
@@ -47,33 +47,33 @@ public class WebSocketsServer extends WebSocketServer {
     }
 
     @Override
-    public void onOpen(final WebSocket connection, final ClientHandshake handshake) {
-        final var key = connectionKey(connection);
+    public void onOpen(final WebSocket webSocket, final ClientHandshake handshake) {
+        final var key = randomUUID();
         log.info("client {} connected", key);
-        connectionManager.add(new Connection(key, connection));
+        sessionManager.add(new Session(key, webSocket));
     }
 
     @Override
-    public void onClose(final WebSocket connection, int code, final String reason, final boolean remote) {
-        final var key = connectionKey(connection);
-        log.info("client {} disconnected", key);
-        connectionManager.remove(key);
+    public void onClose(final WebSocket webSocket, int code, final String reason, final boolean remote) {
+        log.info("client {} disconnected", webSocket);
+        sessionManager.remove(webSocket);
     }
 
     @Override
-    public void onMessage(final WebSocket connection, final String message) {
-        log.info("client {} message {}", connectionKey(connection), message);
+    public void onMessage(final WebSocket webSocket, final String message) {
+        final var session = sessionManager.get(webSocket);
+        log.info("client {} message {}", session.getAddress(), message);
     }
 
     @Override
-    public void onMessage(final WebSocket connection, final ByteBuffer message) {
+    public void onMessage(final WebSocket webSocket, final ByteBuffer message) {
         final byte[] data = new byte[message.remaining()];
         message.get(data);
         wal.enqueue(new WalEntry(spacetimeIdGenerator.next(), data));
     }
 
     @Override
-    public void onError(final WebSocket connection, final Exception e) {
+    public void onError(final WebSocket webSocket, final Exception e) {
 
         // failed to start?
         if (state == CREATED) {
@@ -82,7 +82,8 @@ public class WebSocketsServer extends WebSocketServer {
             return;
         }
 
-        log.error("client {} error", connectionKey(connection), e);
+        final var session = sessionManager.get(webSocket);
+        log.error("client {} error", session.getAddress(), e);
     }
 
     @Override
