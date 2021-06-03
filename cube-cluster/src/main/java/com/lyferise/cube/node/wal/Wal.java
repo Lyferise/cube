@@ -54,7 +54,7 @@ public class Wal {
     }
 
     @SneakyThrows
-    public void write(final WalEntry entry) {
+    public void enqueue(final WalEntry entry) {
         ringBuffer.put(entry);
     }
 

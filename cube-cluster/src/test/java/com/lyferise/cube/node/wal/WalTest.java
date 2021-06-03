@@ -30,7 +30,7 @@ public class WalTest {
             if (e.getSequence() == entryCount) signal.set();
         });
         for (var i = 1; i <= entryCount; i++) {
-            wal.write(new WalEntry(new SpacetimeId(i, 0), new byte[1000]));
+            wal.enqueue(new WalEntry(new SpacetimeId(i, 0), new byte[1000]));
         }
 
         // verify
@@ -56,7 +56,7 @@ public class WalTest {
             if (e.getSequence() == 58) signal.set();
         });
         for (var i = 1; i <= entryCount; i++) {
-            wal.write(new WalEntry(new SpacetimeId(i, 0), new byte[1000]));
+            wal.enqueue(new WalEntry(new SpacetimeId(i, 0), new byte[1000]));
         }
 
         // verify
