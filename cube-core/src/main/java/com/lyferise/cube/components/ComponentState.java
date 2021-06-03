@@ -1,8 +1,5 @@
-package com.lyferise.cube.node;
+package com.lyferise.cube.components;
 
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
 public enum ComponentState {
     CREATED,
     STARTED,

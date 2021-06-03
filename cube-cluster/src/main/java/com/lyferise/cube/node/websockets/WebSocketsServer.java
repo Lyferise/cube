@@ -1,8 +1,8 @@
 package com.lyferise.cube.node.websockets;
 
+import com.lyferise.cube.components.ComponentState;
 import com.lyferise.cube.concurrency.Signal;
 import com.lyferise.cube.events.SpacetimeIdGenerator;
-import com.lyferise.cube.node.ComponentState;
 import com.lyferise.cube.node.configuration.WebSocketsConfiguration;
 import com.lyferise.cube.node.wal.Wal;
 import com.lyferise.cube.node.wal.WalEntry;
@@ -15,7 +15,7 @@ import org.java_websocket.server.WebSocketServer;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 
-import static com.lyferise.cube.node.ComponentState.*;
+import static com.lyferise.cube.components.ComponentState.*;
 import static com.lyferise.cube.node.websockets.ConnectionKey.connectionKey;
 
 @Slf4j
