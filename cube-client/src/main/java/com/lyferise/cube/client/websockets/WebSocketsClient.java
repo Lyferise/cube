@@ -1,4 +1,4 @@
-package com.lyferise.cube.node.websockets;
+package com.lyferise.cube.client.websockets;
 
 import lombok.extern.slf4j.Slf4j;
 import org.java_websocket.client.WebSocketClient;

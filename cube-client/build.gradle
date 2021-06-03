@@ -3,8 +3,10 @@ plugins {
 }
 
 ext {
+    lombokVersion = "1.18.20"
     hamcrestVersion = "2.2"
     junitVersion = "5.7.2"
+    webSocketVersion = "1.5.2"
 }
 
 version = "1.0"
@@ -15,6 +17,13 @@ repositories {
 }
 
 dependencies {
+
+    // implementation
+    compileOnly "org.projectlombok:lombok:$lombokVersion"
+    annotationProcessor "org.projectlombok:lombok:$lombokVersion"
+    implementation "org.java-websocket:Java-WebSocket:$webSocketVersion"
+
+    // test
     testImplementation "org.hamcrest:hamcrest:$hamcrestVersion"
     testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"

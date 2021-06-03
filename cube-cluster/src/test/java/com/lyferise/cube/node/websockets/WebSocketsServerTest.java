@@ -1,5 +1,6 @@
 package com.lyferise.cube.node.websockets;
 
+import com.lyferise.cube.client.websockets.WebSocketsClient;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 

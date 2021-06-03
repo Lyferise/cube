@@ -44,6 +44,7 @@ dependencies {
     testImplementation "org.hamcrest:hamcrest:$hamcrestVersion"
     testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
+    testImplementation project(':cube-client')
 
     // integrationTest
     integrationTestCompileOnly "org.projectlombok:lombok:$lombokVersion"
