@@ -1,6 +1,7 @@
 package com.lyferise.cube.node.wal;
 
 import com.lyferise.cube.concurrency.Signal;
+import com.lyferise.cube.events.SpacetimeId;
 import com.lyferise.cube.node.configuration.WalConfiguration;
 import com.lyferise.cube.time.Timer;
 import lombok.SneakyThrows;
@@ -29,7 +30,7 @@ public class WalTest {
             if (e.getSequence() == entryCount) signal.set();
         });
         for (var i = 1; i <= entryCount; i++) {
-            wal.write(new WalEntry(i, new byte[1000]));
+            wal.write(new WalEntry(new SpacetimeId(i, 0), new byte[1000]));
         }
 
         // verify
@@ -55,7 +56,7 @@ public class WalTest {
             if (e.getSequence() == 58) signal.set();
         });
         for (var i = 1; i <= entryCount; i++) {
-            wal.write(new WalEntry(i, new byte[1000]));
+            wal.write(new WalEntry(new SpacetimeId(i, 0), new byte[1000]));
         }
 
         // verify

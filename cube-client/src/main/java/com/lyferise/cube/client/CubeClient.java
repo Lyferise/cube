@@ -16,8 +16,8 @@ public class CubeClient {
         }
     }
 
-    public void send(final String message) {
-        client.send(message);
+    public void send(final byte[] data) {
+        client.send(data);
     }
 
     @SneakyThrows

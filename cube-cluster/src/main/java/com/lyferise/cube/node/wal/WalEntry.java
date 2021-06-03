@@ -1,23 +1,22 @@
 package com.lyferise.cube.node.wal;
 
-import lombok.AllArgsConstructor;
+import com.lyferise.cube.events.SpacetimeId;
 import lombok.Value;
 
 import java.util.zip.CRC32;
 
 @Value
-@AllArgsConstructor
 public class WalEntry {
-    long sequence;
+    SpacetimeId spacetimeId;
     byte[] data;
-    int crc;
 
-    public WalEntry(final long sequence, byte[] data) {
-        this(sequence, data, getCrc(sequence, data));
+    public long getSequence() {
+        return spacetimeId.getSequence();
     }
 
-    private static int getCrc(final long sequence, final byte[] data) {
+    public int getCrc() {
         final var crc = new CRC32();
+        final var sequence = getSequence();
         crc.update((int) (sequence >> 32));
         crc.update((int) sequence);
         crc.update(data, 0, data.length);

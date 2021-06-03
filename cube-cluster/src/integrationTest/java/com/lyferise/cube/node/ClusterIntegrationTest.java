@@ -1,5 +1,6 @@
 package com.lyferise.cube.node;
 
+import com.lyferise.cube.client.CubeClient;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -16,7 +17,15 @@ public class ClusterIntegrationTest {
         final var cluster = new LocalCluster(nodeCount);
         assertThat(cluster.getNodeCount(), is(equalTo(nodeCount)));
 
-        // write
-        cluster.getNode(0).accept(new byte[1000]);
+        // clients
+        for (var i = 0; i < 3; i++) {
+            final var port = cluster.getNode(i).getConfig().getWebSockets().getPort();
+            final var client = new CubeClient("ws://localhost:" + port);
+            client.send(new byte[1000]);
+            client.close();
+        }
+
+        // stop
+        cluster.stop();
     }
 }

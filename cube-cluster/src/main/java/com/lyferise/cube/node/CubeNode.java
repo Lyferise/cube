@@ -7,31 +7,40 @@ import com.lyferise.cube.time.CubeClock;
 import com.lyferise.cube.time.SystemClock;
 import com.lyferise.cube.node.wal.WalEntry;
 import com.lyferise.cube.node.wal.Wal;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class CubeNode {
-    private final Wal wal;
-    private final SpacetimeIdGenerator spacetimeIdGenerator;
+    private final NodeConfiguration config;
     private final WebSocketsServer webSocketsServer;
+    private final Wal wal;
 
     public CubeNode(final NodeConfiguration config) {
         this(config, new SystemClock());
     }
 
     public CubeNode(final NodeConfiguration config, final CubeClock clock) {
+        this.config = config;
+
+        // wal
         this.wal = new Wal(config.getWal(), this::dispatch);
-        this.spacetimeIdGenerator = new SpacetimeIdGenerator(config.getNodeId(), clock);
-        this.webSocketsServer = new WebSocketsServer(config.getWebSockets());
+        final var sequence = wal.getDataFile().getWriteSequence();
+        final var spacetimeIdGenerator = new SpacetimeIdGenerator(config.getNodeId(), clock, sequence);
+
+        // start websockets
+        this.webSocketsServer = new WebSocketsServer(config.getWebSockets(), wal, spacetimeIdGenerator);
     }
 
-    public void accept(final byte[] data) {
-        final var spacetimeId = spacetimeIdGenerator.next();
-        wal.write(new WalEntry(spacetimeId.getSequence(), data));
+    public NodeConfiguration getConfig() {
+        return config;
     }
 
     public void stop() {
+        webSocketsServer.stop();
         wal.close();
     }
 
     private void dispatch(final WalEntry entry) {
+        log.info("CubeNode::dispatch {}", entry.getSequence());
     }
 }

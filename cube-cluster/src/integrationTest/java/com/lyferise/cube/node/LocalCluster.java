@@ -9,6 +9,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.lyferise.cube.internet.EphemeralPort.getEphemeralPort;
 import static java.nio.file.Files.*;
 import static java.util.Comparator.reverseOrder;
 
@@ -32,6 +33,12 @@ public class LocalCluster {
         return nodes.size();
     }
 
+    public void stop() {
+        for (final var node : nodes) {
+            node.getCubeNode().stop();
+        }
+    }
+
     @SneakyThrows
     private void addNode() {
 
@@ -39,6 +46,7 @@ public class LocalCluster {
         final var nodeId = 1782 + 913L * nodes.size();
         final var config = new NodeConfiguration();
         config.setNodeId(nodeId);
+        config.getWebSockets().setPort(getEphemeralPort());
 
         // path
         final var nodePath = Paths.get(".cube/node" + nodeId);

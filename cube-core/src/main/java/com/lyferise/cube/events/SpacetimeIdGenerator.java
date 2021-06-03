@@ -9,12 +9,13 @@ public class SpacetimeIdGenerator {
     private long sequence;
 
     public SpacetimeIdGenerator(final long node) {
-        this(node, new SystemClock());
+        this(node, new SystemClock(), 0);
     }
 
-    public SpacetimeIdGenerator(final long node, final CubeClock clock) {
+    public SpacetimeIdGenerator(final long node, final CubeClock clock, final long sequence) {
         this.node = node;
         this.clock = clock;
+        this.sequence = sequence;
     }
 
     public SpacetimeId next() {

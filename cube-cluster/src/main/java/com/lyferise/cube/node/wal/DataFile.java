@@ -1,5 +1,6 @@
 package com.lyferise.cube.node.wal;
 
+import com.lyferise.cube.events.SpacetimeId;
 import lombok.SneakyThrows;
 
 import java.io.File;
@@ -56,13 +57,15 @@ public class DataFile {
     public long write(final WalEntry entry) {
 
         // entry
-        writeSequence = entry.getSequence();
+        final var spacetimeId = entry.getSpacetimeId();
+        writeSequence = spacetimeId.getSequence();
         final var data = entry.getData();
 
         // write
         final var position = writePosition;
         file.seek(position);
-        file.writeLong(writeSequence);
+        file.writeLong(spacetimeId.getSpace());
+        file.writeLong(spacetimeId.getTime());
         file.writeLong(writePosition);
         file.skipBytes(4);
         file.writeInt(data.length);
@@ -91,7 +94,11 @@ public class DataFile {
 
         // entry
         file.seek(position);
-        var sequence = file.readLong();
+
+        var space = file.readLong();
+        var time = file.readLong();
+        var spacetimeId = new SpacetimeId(space, time);
+
         final var checkPosition = file.readLong();
         if (position != checkPosition) {
             throw new UnsupportedOperationException("WAL position check failed");
@@ -107,7 +114,7 @@ public class DataFile {
         }
 
         // CRC
-        final var entry = new WalEntry(sequence, data);
+        final var entry = new WalEntry(spacetimeId, data);
         if (entry.getCrc() != crc) {
             throw new UnsupportedOperationException("WAL CRC check failed");
         }
