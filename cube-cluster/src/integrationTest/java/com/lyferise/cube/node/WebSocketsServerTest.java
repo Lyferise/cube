@@ -1,6 +1,7 @@
 package com.lyferise.cube.node;
 
 import com.lyferise.cube.client.websockets.WebSocketsClient;
+import com.lyferise.cube.node.configuration.WebSocketsConfiguration;
 import com.lyferise.cube.node.websockets.WebSocketsServer;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
@@ -21,15 +22,18 @@ public class WebSocketsServerTest {
     public void shouldStartThenStopWebSocketsServers() {
         for (var i = 0; i < 3; i++) {
 
+            // config
+            final var config = new WebSocketsConfiguration();
+            config.setPort(getEphemeralPort());
+
             // server
-            final var port = getEphemeralPort();
-            final var server = new WebSocketsServer(port);
+            final var server = new WebSocketsServer(config);
             server.start();
             assertThat(server.getStartSignal().await(5000), is(equalTo(true)));
             assertThat(server.getState(), is(equalTo(STARTED)));
 
             // client
-            final var address = new URI("ws://localhost:" + port);
+            final var address = new URI("ws://localhost:" + config.getPort());
             final var client = new WebSocketsClient(address);
             assertThat(client.connectBlocking(), is(equalTo(true)));
 

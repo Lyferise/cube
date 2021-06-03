@@ -1,6 +1,7 @@
 package com.lyferise.cube.node.websockets;
 
 import com.lyferise.cube.concurrency.Signal;
+import com.lyferise.cube.node.configuration.WebSocketsConfiguration;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.java_websocket.WebSocket;
@@ -16,8 +17,8 @@ public class WebSocketsServer extends WebSocketServer {
     private final Signal startSignal = new Signal();
     private ServerState state = CREATED;
 
-    public WebSocketsServer(final int port) {
-        super(new InetSocketAddress(port));
+    public WebSocketsServer(final WebSocketsConfiguration config) {
+        super(new InetSocketAddress(config.getPort()));
     }
 
     @Override
