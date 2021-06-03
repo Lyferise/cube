@@ -61,7 +61,6 @@ public class WebSocketsServer extends WebSocketServer {
     public void onMessage(final WebSocket connection, final ByteBuffer message) {
         final byte[] data = new byte[message.remaining()];
         message.get(data);
-        log.info("WebSocketsServer::onMessage: " + data.length);
         wal.write(new WalEntry(spacetimeIdGenerator.next(), data));
     }
 
