@@ -2,6 +2,7 @@ package com.lyferise.cube.node;
 
 import com.lyferise.cube.events.SpacetimeIdGenerator;
 import com.lyferise.cube.node.configuration.NodeConfiguration;
+import com.lyferise.cube.node.security.DefaultAuthenticator;
 import com.lyferise.cube.node.wal.Wal;
 import com.lyferise.cube.node.websockets.SessionManager;
 import com.lyferise.cube.node.websockets.WebSocketsServer;
@@ -24,7 +25,8 @@ public class CubeNode {
 
         // dispatcher
         final var sessionManager = new SessionManager();
-        final var dispatcher = new Dispatcher(sessionManager);
+        final var authenticator = new DefaultAuthenticator(sessionManager);
+        final var dispatcher = new Dispatcher(sessionManager, authenticator);
 
         // wal
         this.wal = new Wal(config.getWal(), dispatcher);
