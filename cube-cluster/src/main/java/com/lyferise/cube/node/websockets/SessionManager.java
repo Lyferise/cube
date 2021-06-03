@@ -1,5 +1,6 @@
 package com.lyferise.cube.node.websockets;
 
+import lombok.extern.slf4j.Slf4j;
 import org.java_websocket.WebSocket;
 
 import java.util.HashMap;
@@ -7,6 +8,9 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import static java.util.UUID.randomUUID;
+
+@Slf4j
 public class SessionManager {
     private final Object lock = new Object();
     private final Map<UUID, Session> sessions = new HashMap<>();
@@ -24,17 +28,21 @@ public class SessionManager {
         }
     }
 
-    public void add(final Session session) {
+    public Session add(final WebSocket webSocket) {
         synchronized (lock) {
-            sessions.put(session.getKey(), session);
+            final var key = randomUUID();
+            final var session = new Session(key, webSocket);
+            sessions.put(key, session);
             wekSockets.put(session.getWebSocket(), session);
+            return session;
         }
     }
 
-    public void remove(final WebSocket webSocket) {
+    public Session remove(final WebSocket webSocket) {
         synchronized (lock) {
             final var session = wekSockets.remove(webSocket);
             sessions.remove(session.getKey());
+            return session;
         }
     }
 }

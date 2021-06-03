@@ -14,4 +14,9 @@ public class EndpointAddress {
     public EndpointAddress(final InetSocketAddress socketAddress) {
         this(new IpAddress(socketAddress.getAddress()), socketAddress.getPort());
     }
+
+    @Override
+    public String toString() {
+        return ipAddress.toString() + ':' + port;
+    }
 }

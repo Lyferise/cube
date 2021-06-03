@@ -16,7 +16,6 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 
 import static com.lyferise.cube.components.ComponentState.*;
-import static java.util.UUID.randomUUID;
 
 @Slf4j
 public class WebSocketsServer extends WebSocketServer {
@@ -48,15 +47,14 @@ public class WebSocketsServer extends WebSocketServer {
 
     @Override
     public void onOpen(final WebSocket webSocket, final ClientHandshake handshake) {
-        final var key = randomUUID();
-        log.info("client {} connected", key);
-        sessionManager.add(new Session(key, webSocket));
+        final var session = sessionManager.add(webSocket);
+        log.info("client {} connected", session.getAddress());
     }
 
     @Override
     public void onClose(final WebSocket webSocket, int code, final String reason, final boolean remote) {
-        log.info("client {} disconnected", webSocket);
-        sessionManager.remove(webSocket);
+        final var session = sessionManager.remove(webSocket);
+        log.info("client {} disconnected", session.getAddress());
     }
 
     @Override
