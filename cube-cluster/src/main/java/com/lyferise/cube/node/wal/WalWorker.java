@@ -20,6 +20,7 @@ public class WalWorker extends Thread {
     @Override
     @SneakyThrows
     public void run() {
+        setName("WalWorker-" + getId());
         final var dataFile = wal.getDataFile();
         final var ringBuffer = wal.getRingBuffer();
 
