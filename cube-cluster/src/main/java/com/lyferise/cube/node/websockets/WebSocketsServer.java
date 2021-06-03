@@ -58,15 +58,17 @@ public class WebSocketsServer extends WebSocketServer {
     }
 
     @Override
-    public void onMessage(final WebSocket webSocket, final String message) {
+    public void onMessage(final WebSocket webSocket, final String text) {
         final var session = sessionManager.get(webSocket);
-        log.info("client {} message {}", session.getAddress(), message);
+        log.info("client {} message {}", session.getAddress(), text);
     }
 
     @Override
-    public void onMessage(final WebSocket webSocket, final ByteBuffer message) {
-        final byte[] data = new byte[message.remaining()];
-        message.get(data);
+    public void onMessage(final WebSocket webSocket, final ByteBuffer buffer) {
+        final var session = sessionManager.get(webSocket);
+        final byte[] data = new byte[buffer.remaining()];
+        buffer.get(data);
+        log.info("client {} message {}", session.getAddress(), data.length);
         wal.enqueue(new WalEntry(spacetimeIdGenerator.next(), data));
     }
 
