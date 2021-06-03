@@ -23,6 +23,7 @@ public class CubeClient {
         if (!client.connectBlocking()) {
             throw new UnsupportedOperationException("Failed to connect to " + address);
         }
+        authenticate(email, password);
     }
 
     @SneakyThrows
@@ -54,6 +55,7 @@ public class CubeClient {
         final MessageWriter writer = new MessageWriter(AUTH);
         writer.write(email);
         writer.write(password);
+        log.info("AUTH {}", email);
         client.send(writer.toByteArray());
         if (!authSignal.await(5000)) {
             throw new UnsupportedOperationException("Auth timeout");
