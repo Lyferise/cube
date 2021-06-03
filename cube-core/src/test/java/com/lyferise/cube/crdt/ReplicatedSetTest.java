@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static com.lyferise.cube.crdt.Delta.randomize;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -41,10 +42,10 @@ public class ReplicatedSetTest {
         assertThat(set2.getValues(), containsInAnyOrder("A", "C"));
 
         // eventual consistency
-        set1.merge(deltas2);
+        set1.merge(randomize(deltas2));
         assertThat(set1.getValues(), containsInAnyOrder("A", "B", "C"));
 
-        set2.merge(deltas1);
+        set2.merge(randomize(deltas1));
         assertThat(set2.getValues(), containsInAnyOrder("A", "B", "C"));
     }
 }

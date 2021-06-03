@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static com.lyferise.cube.crdt.Delta.randomize;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -46,10 +47,10 @@ public class ReplicatedCounterTest {
         assertThat(counter2.get(), is(equalTo(4L)));
 
         // eventual consistency
-        counter1.merge(deltas2);
+        counter1.merge(randomize(deltas2));
         assertThat(counter1.get(), is(equalTo(6L)));
 
-        counter2.merge(deltas1);
+        counter2.merge(randomize(deltas1));
         assertThat(counter2.get(), is(equalTo(6L)));
     }
 }
