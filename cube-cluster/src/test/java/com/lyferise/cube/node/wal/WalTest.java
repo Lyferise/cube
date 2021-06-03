@@ -3,6 +3,7 @@ package com.lyferise.cube.node.wal;
 import com.lyferise.cube.concurrency.Signal;
 import com.lyferise.cube.events.SpacetimeId;
 import com.lyferise.cube.internet.EndpointAddress;
+import com.lyferise.cube.internet.IpAddress;
 import com.lyferise.cube.node.configuration.WalConfiguration;
 import com.lyferise.cube.time.Timer;
 import lombok.SneakyThrows;
@@ -11,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
-import static com.lyferise.cube.internet.IpAddress.getLocalhost;
+import static java.net.InetAddress.getByName;
 import static java.nio.file.Files.deleteIfExists;
 import static java.util.UUID.randomUUID;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -111,9 +112,10 @@ public class WalTest {
         return config;
     }
 
+    @SneakyThrows
     private static WalEntry createNewWalEntry(final int sequence) {
         final var spacetimeId = new SpacetimeId(sequence, 0);
-        final var address = new EndpointAddress(getLocalhost(), 37812);
+        final var address = new EndpointAddress(new IpAddress(getByName("127.0.0.1")), 37812);
         return new WalEntry(spacetimeId, address, randomUUID(), new byte[1000]);
     }
 }

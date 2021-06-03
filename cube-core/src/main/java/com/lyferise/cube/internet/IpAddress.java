@@ -1,7 +1,5 @@
 package com.lyferise.cube.internet;
 
-import lombok.SneakyThrows;
-
 import java.net.InetAddress;
 
 import static java.lang.Integer.toHexString;
@@ -17,11 +15,6 @@ public class IpAddress {
         this(address.getAddress());
     }
 
-    @SneakyThrows
-    public static IpAddress getLocalhost() {
-        return new IpAddress(InetAddress.getLocalHost());
-    }
-
     public byte[] toByteArray() {
         return data;
     }
@@ -29,7 +22,7 @@ public class IpAddress {
     @Override
     public String toString() {
         final var text = new StringBuilder();
-        if (isMapIPv4Address()) {
+        if (isIPv4MappedAddress(data)) {
             for (var i = 0; i < 4; i++) {
                 if (i > 0) text.append('.');
                 text.append(data[i + 12] & 0xFF);
@@ -41,10 +34,6 @@ public class IpAddress {
             }
         }
         return text.toString();
-    }
-
-    public boolean isMapIPv4Address() {
-        return isIPv4MappedAddress(data);
     }
 
     private static byte[] mapIPv4Address(final byte[] data) {
