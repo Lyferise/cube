@@ -18,7 +18,7 @@ operation of a CRDT must be associative, commutative and idempotent:
 For this reason, CRDT deltas must also be associative, commutative and idempotent:
 
   associative and commutative: deltas can be merged from different nodes in any order
-  idempotent: delta should not cause a state change
+  idempotent: duplicate deltas should not cause state changes
 */
 public interface DeltaCrdt {
 
