@@ -20,6 +20,7 @@ import static com.lyferise.cube.node.websockets.ConnectionKey.connectionKey;
 
 @Slf4j
 public class WebSocketsServer extends WebSocketServer {
+    private final ConnectionManager connectionManager;
     private final Wal wal;
     private final SpacetimeIdGenerator spacetimeIdGenerator;
     private final Signal startSignal = new Signal();
@@ -27,10 +28,12 @@ public class WebSocketsServer extends WebSocketServer {
 
     public WebSocketsServer(
             final WebSocketsConfiguration config,
+            final ConnectionManager connectionManager,
             final Wal wal,
             final SpacetimeIdGenerator spacetimeIdGenerator) {
 
         super(new InetSocketAddress(config.getPort()));
+        this.connectionManager = connectionManager;
         this.wal = wal;
         this.spacetimeIdGenerator = spacetimeIdGenerator;
         startBlocking();
@@ -45,20 +48,21 @@ public class WebSocketsServer extends WebSocketServer {
 
     @Override
     public void onOpen(final WebSocket connection, final ClientHandshake handshake) {
-        final var connectionKey = connectionKey(connection);
-        log.info("client {} connected", connectionKey);
+        final var key = connectionKey(connection);
+        log.info("client {} connected", key);
+        connectionManager.add(new Connection(key, connection));
     }
 
     @Override
     public void onClose(final WebSocket connection, int code, final String reason, final boolean remote) {
-        final var connectionKey = connectionKey(connection);
-        log.info("client {} disconnected", connectionKey);
+        final var key = connectionKey(connection);
+        log.info("client {} disconnected", key);
+        connectionManager.remove(key);
     }
 
     @Override
     public void onMessage(final WebSocket connection, final String message) {
-        final var connectionKey = connectionKey(connection);
-        log.info("client {} message {}", connectionKey, message);
+        log.info("client {} message {}", connectionKey(connection), message);
     }
 
     @Override
@@ -78,8 +82,7 @@ public class WebSocketsServer extends WebSocketServer {
             return;
         }
 
-        final var connectionKey = connectionKey(connection);
-        log.error("client {} error", connectionKey, e);
+        log.error("client {} error", connectionKey(connection), e);
     }
 
     @Override
