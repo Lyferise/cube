@@ -15,21 +15,19 @@ public class WebSocketsClient extends WebSocketClient {
 
     @Override
     public void onOpen(final ServerHandshake handshakeData) {
-        log.info("onOpen");
     }
 
     @Override
     public void onMessage(final String message) {
-        log.info("onMessage {}", message);
+        log.info("message {}", message);
     }
 
     @Override
     public void onClose(final int code, final String reason, final boolean remote) {
-        log.info("onClose");
     }
 
     @Override
     public void onError(final Exception e) {
-        log.error("onError", e);
+        log.error("error", e);
     }
 }

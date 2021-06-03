@@ -37,24 +37,24 @@ public class WebSocketsServer extends WebSocketServer {
 
     @Override
     public void onStart() {
-        log.info("Started on port {}", getPort());
+        log.info("started on port {}", getPort());
         state = STARTED;
         startSignal.set();
     }
 
     @Override
     public void onOpen(final WebSocket connection, final ClientHandshake handshake) {
-        log.info("onOpen {}", connection.getRemoteSocketAddress());
+        log.info("client {} connected", connection.getRemoteSocketAddress());
     }
 
     @Override
     public void onClose(final WebSocket connection, int code, final String reason, final boolean remote) {
-        log.info("onOpen {}", connection.getRemoteSocketAddress());
+        log.info("client {} disconnected", connection.getRemoteSocketAddress());
     }
 
     @Override
     public void onMessage(final WebSocket connection, final String message) {
-        log.info("onMessage {}" + message);
+        log.info("client {} message {}", connection.getRemoteSocketAddress(), message);
     }
 
     @Override
@@ -74,15 +74,15 @@ public class WebSocketsServer extends WebSocketServer {
             return;
         }
 
-        log.error("onError", e);
+        log.error("client {} error", connection.getRemoteSocketAddress(), e);
     }
 
     @Override
     @SneakyThrows
     public void stop() {
-        log.info("Stopping");
+        log.info("stopping");
         super.stop();
-        log.info("Stopped");
+        log.info("stopped");
         state = STOPPED;
     }
 
