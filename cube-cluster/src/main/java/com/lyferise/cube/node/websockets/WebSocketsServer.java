@@ -16,6 +16,7 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 
 import static com.lyferise.cube.node.ComponentState.*;
+import static com.lyferise.cube.node.websockets.ConnectionKey.connectionKey;
 
 @Slf4j
 public class WebSocketsServer extends WebSocketServer {
@@ -44,17 +45,20 @@ public class WebSocketsServer extends WebSocketServer {
 
     @Override
     public void onOpen(final WebSocket connection, final ClientHandshake handshake) {
-        log.info("client {} connected", connection.getRemoteSocketAddress());
+        final var connectionKey = connectionKey(connection);
+        log.info("client {} connected", connectionKey);
     }
 
     @Override
     public void onClose(final WebSocket connection, int code, final String reason, final boolean remote) {
-        log.info("client {} disconnected", connection.getRemoteSocketAddress());
+        final var connectionKey = connectionKey(connection);
+        log.info("client {} disconnected", connectionKey);
     }
 
     @Override
     public void onMessage(final WebSocket connection, final String message) {
-        log.info("client {} message {}", connection.getRemoteSocketAddress(), message);
+        final var connectionKey = connectionKey(connection);
+        log.info("client {} message {}", connectionKey, message);
     }
 
     @Override
@@ -74,7 +78,8 @@ public class WebSocketsServer extends WebSocketServer {
             return;
         }
 
-        log.error("client {} error", connection.getRemoteSocketAddress(), e);
+        final var connectionKey = connectionKey(connection);
+        log.error("client {} error", connectionKey, e);
     }
 
     @Override
