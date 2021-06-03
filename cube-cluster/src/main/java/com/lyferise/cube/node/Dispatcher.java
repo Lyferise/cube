@@ -2,6 +2,7 @@ package com.lyferise.cube.node;
 
 import com.lyferise.cube.node.wal.WalDispatcher;
 import com.lyferise.cube.node.wal.WalEntry;
+import com.lyferise.cube.node.websockets.SessionManager;
 import com.lyferise.cube.protocol.MessageReader;
 import com.lyferise.cube.protocol.MessageWriter;
 import lombok.extern.slf4j.Slf4j;
@@ -11,10 +12,10 @@ import static com.lyferise.cube.protocol.MessageCode.AUTH_SUCCESS;
 
 @Slf4j
 public class Dispatcher implements WalDispatcher {
-    private final MessagePublisher messagePublisher;
+    private final SessionManager sessionManager;
 
-    public Dispatcher(final MessagePublisher messagePublisher) {
-        this.messagePublisher = messagePublisher;
+    public Dispatcher(final SessionManager sessionManager) {
+        this.sessionManager = sessionManager;
     }
 
     @Override
@@ -24,7 +25,7 @@ public class Dispatcher implements WalDispatcher {
             case AUTH -> {
                 log.info("AUTH {}", entry.getSessionKey());
                 var writer = new MessageWriter(AUTH_SUCCESS);
-                messagePublisher.send(entry.getSessionKey(), writer.toByteArray());
+                sessionManager.send(entry.getSessionKey(), writer.toByteArray());
             }
             default -> log.info("dispatch {}", reader.getMessageCode());
         }
