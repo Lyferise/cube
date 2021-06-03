@@ -11,7 +11,7 @@ generated locally or via coordination with other nodes on the network. For scala
 uses locally generated IDs that are guaranteed to be sortable in time and decentralized in space.
 
 In human-readable display form, a Spacetime ID (e.g. a member ID or a chat message ID) is represented as three numbers
-formatted as 'a.b@T'. This indicates the location and time of the creation event globally, for example:
+formatted as 'a.b@T'. This indicates the location and time of the creation event universally, for example:
 
     4.789128@96889928348
 
