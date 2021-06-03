@@ -9,6 +9,7 @@ public class WalWorker extends Thread {
     private final Wal wal;
     private final WalEntry[] entries;
     private final int batchSize;
+    private volatile boolean closed;
 
     public WalWorker(final WalConfiguration config, final Wal wal) {
         this.batchSize = config.getBatchSize();
@@ -27,7 +28,7 @@ public class WalWorker extends Thread {
                 try {
                     return writeAndOrDispatch();
                 } catch (final Exception e) {
-                    log.error("WAL worker exception", e);
+                    if (!closed) log.error("WAL worker exception", e);
                     return false;
                 }
             });
@@ -35,6 +36,10 @@ public class WalWorker extends Thread {
             // if there is nothing to dispatch and the ring buffer is empty, wait 50 milliseconds
             if (!dataFile.canDispatch() && ringBuffer.isEmpty()) sleep(50);
         }
+    }
+
+    public void close() {
+        closed = true;
     }
 
     private boolean writeAndOrDispatch() {

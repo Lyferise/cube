@@ -1,8 +1,10 @@
 package com.lyferise.cube.node;
 
+import com.lyferise.cube.client.CubeClient;
 import com.lyferise.cube.node.configuration.NodeConfiguration;
 import lombok.SneakyThrows;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -13,7 +15,7 @@ import static com.lyferise.cube.internet.EphemeralPort.getEphemeralPort;
 import static java.nio.file.Files.*;
 import static java.util.Comparator.reverseOrder;
 
-public class LocalCluster {
+public class LocalCluster implements Closeable {
     private final List<ClusterNode> nodes = new ArrayList<>();
     private final Path rootPath = Paths.get(".cube");
 
@@ -29,11 +31,17 @@ public class LocalCluster {
         return nodes.get(index).getCubeNode();
     }
 
+    public CubeClient connectToNode(final int index) {
+        final var port = getNode(index).getConfig().getWebSockets().getPort();
+        return new CubeClient("ws://localhost:" + port);
+    }
+
     public int getNodeCount() {
         return nodes.size();
     }
 
-    public void stop() {
+    @Override
+    public void close() {
         for (final var node : nodes) {
             node.getCubeNode().stop();
         }

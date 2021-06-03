@@ -21,6 +21,11 @@ public class CubeClient {
     }
 
     @SneakyThrows
+    public void reconnect() {
+        client.reconnectBlocking();
+    }
+
+    @SneakyThrows
     public void close() {
         client.closeBlocking();
     }

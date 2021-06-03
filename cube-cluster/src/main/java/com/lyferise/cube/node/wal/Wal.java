@@ -70,6 +70,7 @@ public class Wal {
         if (closed) return;
         closed = true;
         flush();
+        worker.close();
         dataFile.close();
         indexFile.close();
     }
