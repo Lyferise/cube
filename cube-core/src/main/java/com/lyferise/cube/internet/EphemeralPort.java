@@ -7,7 +7,7 @@ import java.net.ServerSocket;
 /*
 This class returns ephemeral ports, used to support allocating endpoint addresses automatically. Note that
 sockets may not be released until TIME_WAIT is passed. On macOS, the default timeout for TIME_WAIT is 15 seconds.
-You can see which sockets are in TIME_WAIT state using netstat:
+You can see which sockets are in a TIME_WAIT state using netstat:
 
 netstat -ant | grep TIME_WAIT
 */
