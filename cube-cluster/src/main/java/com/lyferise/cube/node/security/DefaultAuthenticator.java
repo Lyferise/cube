@@ -3,7 +3,6 @@ package com.lyferise.cube.node.security;
 import com.lyferise.cube.node.messages.Message;
 import com.lyferise.cube.node.messages.MessageProcessor;
 import com.lyferise.cube.node.messages.MessagePublisher;
-import com.lyferise.cube.protocol.MessageReader;
 import com.lyferise.cube.protocol.MessageWriter;
 import lombok.extern.slf4j.Slf4j;
 
