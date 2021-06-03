@@ -41,6 +41,6 @@ public class CubeNode {
     }
 
     private void dispatch(final WalEntry entry) {
-        log.info("CubeNode::dispatch {}", entry.getSequence());
+        log.info("dispatch {}", entry.getSequence());
     }
 }

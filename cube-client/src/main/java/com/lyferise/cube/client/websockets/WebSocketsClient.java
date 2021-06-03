@@ -9,27 +9,27 @@ import java.net.URI;
 @Slf4j
 public class WebSocketsClient extends WebSocketClient {
 
-    public WebSocketsClient(final URI serverUri) {
-        super(serverUri);
+    public WebSocketsClient(final URI address) {
+        super(address);
     }
 
     @Override
     public void onOpen(final ServerHandshake handshakeData) {
-        log.info("WebSocketsClient::onOpen");
+        log.info("onOpen");
     }
 
     @Override
     public void onMessage(final String message) {
-        log.info("WebSocketsClient::onMessage");
+        log.info("onMessage {}", message);
     }
 
     @Override
     public void onClose(final int code, final String reason, final boolean remote) {
-        log.info("WebSocketsClient::onClose");
+        log.info("onClose");
     }
 
     @Override
     public void onError(final Exception e) {
-        log.info("WebSocketsClient::onError");
+        log.error("onError", e);
     }
 }
