@@ -5,8 +5,8 @@ import java.util.List;
 /*
 // https://arxiv.org/pdf/1603.01529.pdf
 
-A CRDT is a replicated set. Mathematically, the the state of a delta CRDT is a join-semilattice; a partially ordered
-set with a join operation (a least upper bound for any non-empty finite subset).
+A CRDT is a replicated set. Mathematically, the state of a delta CRDT is a join-semilattice; a partially ordered set
+with a join operation (a least upper bound for any non-empty finite subset).
 
 The join (+) of two elements in the CRDT is their least upper bound,, according to the set's partial order. The join
 operation of a CRDT must be associative, commutative and idempotent:
