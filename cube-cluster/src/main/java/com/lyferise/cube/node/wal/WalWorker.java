@@ -2,7 +2,9 @@ package com.lyferise.cube.node.wal;
 
 import com.lyferise.cube.node.configuration.WalConfiguration;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class WalWorker extends Thread {
     private final Wal wal;
     private final WalEntry[] entries;
@@ -21,7 +23,14 @@ public class WalWorker extends Thread {
         final var ringBuffer = wal.getRingBuffer();
 
         while (true) {
-            wal.execute(this::writeAndOrDispatch);
+            wal.execute(() -> {
+                try {
+                    return writeAndOrDispatch();
+                } catch (final Exception e) {
+                    log.error("WAL worker exception", e);
+                    return false;
+                }
+            });
 
             // if there is nothing to dispatch and the ring buffer is empty, wait 50 milliseconds
             if (!dataFile.canDispatch() && ringBuffer.isEmpty()) sleep(50);
