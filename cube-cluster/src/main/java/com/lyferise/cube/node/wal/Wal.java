@@ -1,11 +1,11 @@
 package com.lyferise.cube.node.wal;
 
 import com.lyferise.cube.concurrency.RingBuffer;
+import com.lyferise.cube.functions.Condition;
 import com.lyferise.cube.node.configuration.WalConfiguration;
 import lombok.SneakyThrows;
 
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Supplier;
 
 public class Wal {
     private final ReentrantLock reentrantLock = new ReentrantLock();
@@ -42,11 +42,11 @@ public class Wal {
         return dispatcher;
     }
 
-    public void execute(final Supplier<Boolean> action) {
+    public void execute(final Condition action) {
         var modified = false;
         try {
             reentrantLock.lock();
-            modified = action.get();
+            modified = action.test();
         } finally {
             if (modified) flush();
             reentrantLock.unlock();

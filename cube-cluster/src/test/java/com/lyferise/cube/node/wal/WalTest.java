@@ -1,10 +1,7 @@
-package com.lyferise.cube;
+package com.lyferise.cube.node.wal;
 
 import com.lyferise.cube.concurrency.Signal;
 import com.lyferise.cube.node.configuration.WalConfiguration;
-import com.lyferise.cube.node.wal.Wal;
-import com.lyferise.cube.node.wal.WalDispatcher;
-import com.lyferise.cube.node.wal.WalEntry;
 import com.lyferise.cube.time.Timer;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;

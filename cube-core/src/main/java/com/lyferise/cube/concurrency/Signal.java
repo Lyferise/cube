@@ -2,6 +2,8 @@ package com.lyferise.cube.concurrency;
 
 import lombok.SneakyThrows;
 
+import java.util.function.Supplier;
+
 public class Signal {
     private final Object syncRoot = new Object();
 
@@ -16,5 +18,9 @@ public class Signal {
         synchronized (syncRoot) {
             syncRoot.wait(timeoutMillis);
         }
+    }
+
+    public void waitFor(final Supplier<Boolean> condition) {
+
     }
 }

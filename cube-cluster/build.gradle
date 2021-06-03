@@ -6,6 +6,8 @@ ext {
     lombokVersion = "1.18.20"
     hamcrestVersion = "2.2"
     junitVersion = "5.7.2"
+    webSocketVersion = "1.5.2"
+    logbackVersion = "1.2.3"
 }
 
 version = "1.0"
@@ -32,6 +34,8 @@ dependencies {
     // implementation
     compileOnly "org.projectlombok:lombok:$lombokVersion"
     annotationProcessor "org.projectlombok:lombok:$lombokVersion"
+    implementation "org.java-websocket:Java-WebSocket:$webSocketVersion"
+    implementation "ch.qos.logback:logback-classic:$logbackVersion"
     implementation project(":cube-core")
 
     // test

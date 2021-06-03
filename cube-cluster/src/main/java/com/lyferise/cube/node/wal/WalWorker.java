@@ -24,7 +24,7 @@ public class WalWorker extends Thread {
             wal.execute(this::writeAndOrDispatch);
 
             // if there is nothing to dispatch and the ring buffer is empty, wait 50 milliseconds
-            if (!dataFile.canDispatch() && ringBuffer.isEmpty()) Thread.sleep(50);
+            if (!dataFile.canDispatch() && ringBuffer.isEmpty()) sleep(50);
         }
     }
 

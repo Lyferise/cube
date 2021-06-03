@@ -1,11 +1,12 @@
 package com.lyferise.cube.concurrency;
 
-import java.util.concurrent.locks.Condition;
+import com.lyferise.cube.functions.Condition;
+
 import java.util.concurrent.locks.ReentrantLock;
 
-public abstract class QueueCondition {
+public abstract class QueueCondition implements Condition {
     private final ReentrantLock lock = new ReentrantLock();
-    private final Condition condition = lock.newCondition();
+    private final java.util.concurrent.locks.Condition condition = lock.newCondition();
 
     public abstract boolean test();
 
