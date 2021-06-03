@@ -10,7 +10,7 @@ public class ClusterIntegrationTest {
             final var client = cluster.connectToNode(0);
             client.close();
             client.reconnect();
-            client.send(new byte[50]);
+            client.authenticate("test", "test");
         }
     }
 
@@ -20,7 +20,7 @@ public class ClusterIntegrationTest {
         try (final var cluster = new LocalCluster(nodeCount)) {
             for (var i = 0; i < nodeCount; i++) {
                 final var client = cluster.connectToNode(i);
-                client.send(new byte[1000]);
+                client.authenticate("test", "test");
                 client.close();
             }
         }

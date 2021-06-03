@@ -22,6 +22,7 @@ dependencies {
     compileOnly "org.projectlombok:lombok:$lombokVersion"
     annotationProcessor "org.projectlombok:lombok:$lombokVersion"
     implementation "org.java-websocket:Java-WebSocket:$webSocketVersion"
+    implementation project(":cube-core")
 
     // test
     testImplementation "org.hamcrest:hamcrest:$hamcrestVersion"

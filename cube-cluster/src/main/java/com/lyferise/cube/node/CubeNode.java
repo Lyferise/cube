@@ -4,6 +4,7 @@ import com.lyferise.cube.node.configuration.NodeConfiguration;
 import com.lyferise.cube.events.SpacetimeIdGenerator;
 import com.lyferise.cube.node.websockets.SessionManager;
 import com.lyferise.cube.node.websockets.WebSocketsServer;
+import com.lyferise.cube.protocol.MessageReader;
 import com.lyferise.cube.time.CubeClock;
 import com.lyferise.cube.time.SystemClock;
 import com.lyferise.cube.node.wal.WalEntry;
@@ -48,5 +49,7 @@ public class CubeNode {
 
     private void dispatch(final WalEntry entry) {
         log.info("dispatch {}", entry.getSequence());
+        final var reader = new MessageReader(entry.getData());
+        log.info("message code {}", reader.getMessageCode());
     }
 }
