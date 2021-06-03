@@ -1,7 +1,5 @@
 package com.lyferise.cube.crdt;
 
-import java.util.ArrayList;
-
 // https://arxiv.org/pdf/1603.01529.pdf
 public interface DeltaCrdt {
 
