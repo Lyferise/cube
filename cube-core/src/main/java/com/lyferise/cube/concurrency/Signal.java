@@ -2,19 +2,19 @@ package com.lyferise.cube.concurrency;
 
 import lombok.SneakyThrows;
 
+import java.util.concurrent.CountDownLatch;
+
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
 public class Signal {
-    private final Object syncRoot = new Object();
+    private final CountDownLatch countDownLatch = new CountDownLatch(1);
 
     public void set() {
-        synchronized (syncRoot) {
-            syncRoot.notify();
-        }
+        countDownLatch.countDown();
     }
 
     @SneakyThrows
-    public void await(final long timeoutMillis) {
-        synchronized (syncRoot) {
-            syncRoot.wait(timeoutMillis);
-        }
+    public boolean await(final long timeoutMillis) {
+        return countDownLatch.await(timeoutMillis, MILLISECONDS);
     }
 }
