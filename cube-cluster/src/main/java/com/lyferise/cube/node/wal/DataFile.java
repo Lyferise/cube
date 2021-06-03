@@ -1,10 +1,13 @@
 package com.lyferise.cube.node.wal;
 
 import com.lyferise.cube.events.SpacetimeId;
+import com.lyferise.cube.internet.EndpointAddress;
+import com.lyferise.cube.internet.IpAddress;
 import lombok.SneakyThrows;
 
 import java.io.File;
 import java.io.RandomAccessFile;
+import java.util.UUID;
 
 public class DataFile {
     private final RandomAccessFile file;
@@ -56,24 +59,35 @@ public class DataFile {
     @SneakyThrows
     public long write(final WalEntry entry) {
 
-        // entry
-        final var spacetimeId = entry.getSpacetimeId();
-        writeSequence = spacetimeId.getSequence();
-        final var data = entry.getData();
-
-        // write
+        // check position
         final var position = writePosition;
         file.seek(position);
+        file.writeLong(writePosition);
+
+        // spacetime id
+        final var spacetimeId = entry.getSpacetimeId();
         file.writeLong(spacetimeId.getSpace());
         file.writeLong(spacetimeId.getTime());
-        file.writeLong(writePosition);
-        file.skipBytes(4);
-        file.writeInt(data.length);
-        file.writeInt(entry.getCrc());
-        file.write(data);
-        writePosition = file.getFilePointer();
 
-        // header
+        // address
+        final var address = entry.getAddress();
+        file.write(address.getIpAddress().toByteArray(), 0, 16);
+        file.writeShort(address.getPort());
+
+        // session key
+        final var sessionKey = entry.getSessionKey();
+        file.writeLong(sessionKey.getMostSignificantBits());
+        file.writeLong(sessionKey.getLeastSignificantBits());
+
+        // data
+        final var data = entry.getData();
+        file.writeInt(data.length);
+        file.write(data);
+        file.writeInt(entry.getCrc());
+
+        // done
+        writePosition = file.getFilePointer();
+        writeSequence = spacetimeId.getSequence();
         file.seek(0);
         file.writeLong(writeSequence);
         return position;
@@ -92,32 +106,41 @@ public class DataFile {
     @SneakyThrows
     public WalEntry read(final long position) {
 
-        // entry
+        // check position
         file.seek(position);
-
-        var space = file.readLong();
-        var time = file.readLong();
-        var spacetimeId = new SpacetimeId(space, time);
-
         final var checkPosition = file.readLong();
         if (position != checkPosition) {
             throw new UnsupportedOperationException("WAL position check failed");
         }
-        final var length = file.readInt();
-        final var crc = file.readInt();
+
+        // spacetime id
+        final var spacetimeId = new SpacetimeId(file.readLong(), file.readLong());
+
+        // address
+        final var address = new EndpointAddress(new IpAddress(read(16)), file.readShort());
+
+        // session key
+        final var sessionKey = new UUID(file.readLong(), file.readLong());
 
         // data
+        final var data = read(file.readInt());
+
+        // crc
+        final var crc = file.readInt();
+        final var entry = new WalEntry(spacetimeId, address, sessionKey, data);
+        if (entry.getCrc() != crc) {
+            throw new UnsupportedOperationException("WAL CRC check failed");
+        }
+        return entry;
+    }
+
+    @SneakyThrows
+    private byte[] read(final int length) {
         final var data = new byte[length];
         var n = 0;
         while (n < length) {
             n += file.read(data, n, length - n);
         }
-
-        // CRC
-        final var entry = new WalEntry(spacetimeId, data);
-        if (entry.getCrc() != crc) {
-            throw new UnsupportedOperationException("WAL CRC check failed");
-        }
-        return entry;
+        return data;
     }
 }

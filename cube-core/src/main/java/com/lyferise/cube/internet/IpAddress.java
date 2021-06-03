@@ -1,5 +1,7 @@
 package com.lyferise.cube.internet;
 
+import lombok.SneakyThrows;
+
 import java.net.InetAddress;
 
 import static java.lang.Integer.toHexString;
@@ -13,6 +15,11 @@ public class IpAddress {
 
     public IpAddress(final InetAddress address) {
         this(address.getAddress());
+    }
+
+    @SneakyThrows
+    public static IpAddress getLocalhost() {
+        return new IpAddress(InetAddress.getLocalHost());
     }
 
     public byte[] toByteArray() {

@@ -1,13 +1,17 @@
 package com.lyferise.cube.node.wal;
 
 import com.lyferise.cube.events.SpacetimeId;
+import com.lyferise.cube.internet.EndpointAddress;
 import lombok.Value;
 
+import java.util.UUID;
 import java.util.zip.CRC32;
 
 @Value
 public class WalEntry {
     SpacetimeId spacetimeId;
+    EndpointAddress address;
+    UUID sessionKey;
     byte[] data;
 
     public long getSequence() {

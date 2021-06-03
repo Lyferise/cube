@@ -69,7 +69,7 @@ public class WebSocketsServer extends WebSocketServer {
         final byte[] data = new byte[buffer.remaining()];
         buffer.get(data);
         log.info("client {} message {}", session.getAddress(), data.length);
-        wal.enqueue(new WalEntry(spacetimeIdGenerator.next(), data));
+        wal.enqueue(new WalEntry(spacetimeIdGenerator.next(), session.getAddress(), session.getKey(), data));
     }
 
     @Override

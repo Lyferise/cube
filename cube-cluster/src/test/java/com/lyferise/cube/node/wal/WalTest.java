@@ -2,6 +2,7 @@ package com.lyferise.cube.node.wal;
 
 import com.lyferise.cube.concurrency.Signal;
 import com.lyferise.cube.events.SpacetimeId;
+import com.lyferise.cube.internet.EndpointAddress;
 import com.lyferise.cube.node.configuration.WalConfiguration;
 import com.lyferise.cube.time.Timer;
 import lombok.SneakyThrows;
@@ -10,7 +11,9 @@ import org.junit.jupiter.api.Test;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
+import static com.lyferise.cube.internet.IpAddress.getLocalhost;
 import static java.nio.file.Files.deleteIfExists;
+import static java.util.UUID.randomUUID;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -30,7 +33,7 @@ public class WalTest {
             if (e.getSequence() == entryCount) signal.set();
         });
         for (var i = 1; i <= entryCount; i++) {
-            wal.enqueue(new WalEntry(new SpacetimeId(i, 0), new byte[1000]));
+            wal.enqueue(createNewWalEntry(i));
         }
 
         // verify
@@ -56,7 +59,7 @@ public class WalTest {
             if (e.getSequence() == 58) signal.set();
         });
         for (var i = 1; i <= entryCount; i++) {
-            wal.enqueue(new WalEntry(new SpacetimeId(i, 0), new byte[1000]));
+            wal.enqueue(createNewWalEntry(i));
         }
 
         // verify
@@ -106,5 +109,11 @@ public class WalTest {
         config.setDataFile(".wal.dat");
         config.setIndexFile(".wal.idx");
         return config;
+    }
+
+    private static WalEntry createNewWalEntry(final int sequence) {
+        final var spacetimeId = new SpacetimeId(sequence, 0);
+        final var address = new EndpointAddress(getLocalhost(), 37812);
+        return new WalEntry(spacetimeId, address, randomUUID(), new byte[1000]);
     }
 }
