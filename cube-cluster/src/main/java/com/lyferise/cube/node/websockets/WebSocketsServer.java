@@ -1,6 +1,7 @@
 package com.lyferise.cube.node.websockets;
 
 import com.lyferise.cube.concurrency.Signal;
+import com.lyferise.cube.node.ServerState;
 import com.lyferise.cube.node.configuration.WebSocketsConfiguration;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +11,7 @@ import org.java_websocket.server.WebSocketServer;
 
 import java.net.InetSocketAddress;
 
-import static com.lyferise.cube.node.websockets.ServerState.*;
+import static com.lyferise.cube.node.ServerState.*;
 
 @Slf4j
 public class WebSocketsServer extends WebSocketServer {
@@ -19,6 +20,10 @@ public class WebSocketsServer extends WebSocketServer {
 
     public WebSocketsServer(final WebSocketsConfiguration config) {
         super(new InetSocketAddress(config.getPort()));
+        start();
+        if (!startSignal.await(5000) || state != STARTED) {
+            throw new UnsupportedOperationException("Failed to start WebSockets server.");
+        }
     }
 
     @Override
@@ -30,10 +35,6 @@ public class WebSocketsServer extends WebSocketServer {
 
     public ServerState getState() {
         return state;
-    }
-
-    public Signal getStartSignal() {
-        return startSignal;
     }
 
     @Override

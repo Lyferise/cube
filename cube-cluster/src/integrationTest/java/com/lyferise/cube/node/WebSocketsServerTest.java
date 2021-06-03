@@ -9,8 +9,6 @@ import org.junit.jupiter.api.Test;
 import java.net.URI;
 
 import static com.lyferise.cube.internet.EphemeralPort.getEphemeralPort;
-import static com.lyferise.cube.node.websockets.ServerState.STARTED;
-import static com.lyferise.cube.node.websockets.ServerState.STOPPED;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -28,9 +26,6 @@ public class WebSocketsServerTest {
 
             // server
             final var server = new WebSocketsServer(config);
-            server.start();
-            assertThat(server.getStartSignal().await(5000), is(equalTo(true)));
-            assertThat(server.getState(), is(equalTo(STARTED)));
 
             // client
             final var address = new URI("ws://localhost:" + config.getPort());
@@ -46,7 +41,6 @@ public class WebSocketsServerTest {
 
             // stop
             server.stop();
-            assertThat(server.getState(), is(equalTo(STOPPED)));
         }
     }
 }

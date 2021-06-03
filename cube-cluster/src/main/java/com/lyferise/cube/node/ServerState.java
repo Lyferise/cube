@@ -1,4 +1,4 @@
-package com.lyferise.cube.node.websockets;
+package com.lyferise.cube.node;
 
 import lombok.extern.slf4j.Slf4j;
 
