@@ -9,19 +9,19 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
-public class UniversalCounterTest {
+public class ReplicatedCounterTest {
 
     @Test
-    public void shouldReplicateUniversalCounter() {
+    public void shouldReplicateCounter() {
 
-        final var counter1 = new UniversalCounter();
-        final var counter2 = new UniversalCounter();
+        final var counter1 = new ReplicatedCounter();
+        final var counter2 = new ReplicatedCounter();
 
         final var nodeId1 = 8912;
         final var nodeId2 = 7901;
 
-        final var incrementNode1 = new UniversalCounter.Increment(nodeId1);
-        final var incrementNode2 = new UniversalCounter.Increment(nodeId2);
+        final var incrementNode1 = new ReplicatedCounter.Increment(nodeId1);
+        final var incrementNode2 = new ReplicatedCounter.Increment(nodeId2);
 
         final List<Mutator> mutators1 = asList(
                 incrementNode1,

@@ -5,7 +5,7 @@ import lombok.Value;
 import java.util.HashMap;
 import java.util.Map;
 
-public class UniversalCounter extends AbstractDeltaCrdt {
+public class ReplicatedCounter extends AbstractDeltaCrdt {
     private final Map<Long, Long> nodeIdToCounter = new HashMap<>();
 
     public long get() {
