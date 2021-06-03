@@ -31,9 +31,9 @@ public class LocalCluster implements Closeable {
         return nodes.get(index).getCubeNode();
     }
 
-    public CubeClient connectToNode(final int index) {
+    public CubeClient connectToNode(final int index, final String email, final String password) {
         final var port = getNode(index).getConfig().getWebSockets().getPort();
-        return new CubeClient("ws://localhost:" + port);
+        return new CubeClient("ws://localhost:" + port, email, password);
     }
 
     public int getNodeCount() {

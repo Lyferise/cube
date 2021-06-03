@@ -23,7 +23,8 @@ public class CubeNode {
         this.config = config;
 
         // dispatcher
-        final var dispatcher = new Dispatcher();
+        final var sessionManager = new SessionManager();
+        final var dispatcher = new Dispatcher(sessionManager);
 
         // wal
         this.wal = new Wal(config.getWal(), dispatcher);
@@ -31,7 +32,6 @@ public class CubeNode {
         final var spacetimeIdGenerator = new SpacetimeIdGenerator(config.getNodeId(), clock, sequence);
 
         // start websockets
-        final var sessionManager = new SessionManager();
         this.webSocketsServer = new WebSocketsServer(
                 config.getWebSockets(),
                 sessionManager,

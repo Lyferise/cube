@@ -1,5 +1,6 @@
 package com.lyferise.cube.node.websockets;
 
+import com.lyferise.cube.node.MessagePublisher;
 import org.java_websocket.WebSocket;
 
 import java.util.HashMap;
@@ -9,7 +10,7 @@ import java.util.UUID;
 
 import static java.util.UUID.randomUUID;
 
-public class SessionManager {
+public class SessionManager implements MessagePublisher {
     private final Object lock = new Object();
     private final Map<UUID, Session> sessions = new HashMap<>();
     private final IdentityHashMap<WebSocket, Session> wekSockets = new IdentityHashMap<>();
@@ -42,5 +43,11 @@ public class SessionManager {
             sessions.remove(session.getKey());
             return session;
         }
+    }
+
+    @Override
+    public void send(final UUID sessionKey, final byte[] data) {
+        final var session = get(sessionKey);
+        if (session != null) session.getWebSocket().send(data);
     }
 }

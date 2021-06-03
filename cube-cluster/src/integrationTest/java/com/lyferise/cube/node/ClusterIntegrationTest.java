@@ -7,10 +7,9 @@ public class ClusterIntegrationTest {
     @Test
     public void shouldReconnectClient() {
         try (final var cluster = new LocalCluster(1)) {
-            final var client = cluster.connectToNode(0);
+            final var client = cluster.connectToNode(0, "test", "test");
             client.close();
-            client.reconnect();
-            client.authenticate("test", "test");
+            client.reconnect("test", "test");
         }
     }
 
@@ -19,8 +18,7 @@ public class ClusterIntegrationTest {
         final var nodeCount = 3;
         try (final var cluster = new LocalCluster(nodeCount)) {
             for (var i = 0; i < nodeCount; i++) {
-                final var client = cluster.connectToNode(i);
-                client.authenticate("test", "test");
+                final var client = cluster.connectToNode(i, "test", "test");
                 client.close();
             }
         }
