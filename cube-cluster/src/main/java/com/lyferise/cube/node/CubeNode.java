@@ -1,14 +1,12 @@
 package com.lyferise.cube.node;
 
-import com.lyferise.cube.node.configuration.NodeConfiguration;
 import com.lyferise.cube.events.SpacetimeIdGenerator;
+import com.lyferise.cube.node.configuration.NodeConfiguration;
+import com.lyferise.cube.node.wal.Wal;
 import com.lyferise.cube.node.websockets.SessionManager;
 import com.lyferise.cube.node.websockets.WebSocketsServer;
-import com.lyferise.cube.protocol.MessageReader;
 import com.lyferise.cube.time.CubeClock;
 import com.lyferise.cube.time.SystemClock;
-import com.lyferise.cube.node.wal.WalEntry;
-import com.lyferise.cube.node.wal.Wal;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -24,8 +22,11 @@ public class CubeNode {
     public CubeNode(final NodeConfiguration config, final CubeClock clock) {
         this.config = config;
 
+        // dispatcher
+        final var dispatcher = new Dispatcher();
+
         // wal
-        this.wal = new Wal(config.getWal(), this::dispatch);
+        this.wal = new Wal(config.getWal(), dispatcher);
         final var sequence = wal.getDataFile().getWriteSequence();
         final var spacetimeIdGenerator = new SpacetimeIdGenerator(config.getNodeId(), clock, sequence);
 
@@ -45,11 +46,5 @@ public class CubeNode {
     public void stop() {
         webSocketsServer.stop();
         wal.close();
-    }
-
-    private void dispatch(final WalEntry entry) {
-        log.info("dispatch {}", entry.getSequence());
-        final var reader = new MessageReader(entry.getData());
-        log.info("message code {}", reader.getMessageCode());
     }
 }
