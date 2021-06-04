@@ -8,8 +8,8 @@ import java.util.List;
 A CRDT is a replicated set. Mathematically, the state of a delta CRDT is a join-semilattice; a partially ordered set
 with a join operation (a least upper bound for any non-empty finite subset).
 
-The join (+) of two elements in the CRDT is their least upper bound,, according to the set's partial order. The join
-operation of a CRDT must be associative, commutative and idempotent:
+The join (+) of two elements in the CRDT is their least upper bound, according to the set's partial order. The join
+operation of a CRDT must be associative, commutative and idempotent.
 
   associative: x + (y + z) = (x + y) + z
   commutative: x + y = y + x
