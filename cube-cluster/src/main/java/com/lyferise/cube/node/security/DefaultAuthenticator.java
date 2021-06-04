@@ -3,7 +3,7 @@ package com.lyferise.cube.node.security;
 import com.lyferise.cube.node.messages.Message;
 import com.lyferise.cube.node.messages.MessageProcessor;
 import com.lyferise.cube.node.messages.MessagePublisher;
-import com.lyferise.cube.protocol.MessageWriter;
+import com.lyferise.cube.serialization.ByteArrayWriter;
 import lombok.extern.slf4j.Slf4j;
 
 import static com.lyferise.cube.protocol.MessageCode.AUTH_SUCCESS;
@@ -28,7 +28,8 @@ public class DefaultAuthenticator implements MessageProcessor {
         if (authenticate(username, password)) {
             final var sessionKey = message.getSessionKey();
             log.info("AUTH {}", sessionKey);
-            var writer = new MessageWriter(AUTH_SUCCESS);
+            var writer = new ByteArrayWriter();
+            writer.writeShort(AUTH_SUCCESS);
             messagePublisher.send(sessionKey, writer.toByteArray());
         }
     }

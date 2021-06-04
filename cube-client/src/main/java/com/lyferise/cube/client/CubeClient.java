@@ -2,8 +2,8 @@ package com.lyferise.cube.client;
 
 import com.lyferise.cube.client.websockets.WebSocketsClient;
 import com.lyferise.cube.concurrency.Signal;
-import com.lyferise.cube.protocol.MessageReader;
-import com.lyferise.cube.protocol.MessageWriter;
+import com.lyferise.cube.serialization.ByteArrayReader;
+import com.lyferise.cube.serialization.ByteArrayWriter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -40,19 +40,21 @@ public class CubeClient {
     }
 
     private void dispatch(final byte[] data) {
-        final var reader = new MessageReader(data);
-        switch (reader.getMessageCode()) {
+        final var reader = new ByteArrayReader(data);
+        final var messageCode = reader.readShort();
+        switch (messageCode) {
             case AUTH_SUCCESS -> {
                 log.info("AUTH_SUCCESS");
                 authSignal.set();
             }
-            default -> log.info("dispatch {}", reader.getMessageCode());
+            default -> log.info("dispatch {}", messageCode);
         }
     }
 
     private void authenticate(final String email, final String password) {
         authSignal = new Signal();
-        final MessageWriter writer = new MessageWriter(AUTH);
+        final var writer = new ByteArrayWriter();
+        writer.writeShort(AUTH);
         writer.write(email);
         writer.write(password);
         log.info("AUTH {}", email);

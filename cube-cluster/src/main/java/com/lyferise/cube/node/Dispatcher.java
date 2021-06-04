@@ -5,7 +5,7 @@ import com.lyferise.cube.node.messages.MessageProcessor;
 import com.lyferise.cube.node.wal.WalDispatcher;
 import com.lyferise.cube.node.wal.WalEntry;
 import com.lyferise.cube.node.websockets.SessionManager;
-import com.lyferise.cube.protocol.MessageReader;
+import com.lyferise.cube.serialization.ByteArrayReader;
 import lombok.extern.slf4j.Slf4j;
 
 import static com.lyferise.cube.protocol.MessageCode.AUTH;
@@ -22,11 +22,12 @@ public class Dispatcher implements WalDispatcher {
 
     @Override
     public void dispatch(final WalEntry entry) {
-        final var reader = new MessageReader(entry.getData());
+        final var reader = new ByteArrayReader(entry.getData());
         final var message = new Message(entry.getSpacetimeId(), entry.getSessionKey(), reader);
-        switch (message.getMessageCode()) {
+        final var messageCode = reader.readShort();
+        switch (messageCode) {
             case AUTH -> authenticator.process(message);
-            default -> log.info("dispatch {}", reader.getMessageCode());
+            default -> log.info("dispatch {}", messageCode);
         }
     }
 }
