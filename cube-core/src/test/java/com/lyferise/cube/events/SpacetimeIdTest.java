@@ -3,9 +3,10 @@ package com.lyferise.cube.events;
 import org.junit.jupiter.api.Test;
 
 import static com.lyferise.cube.events.SpacetimeId.parseSpacetimeId;
+import static java.util.Arrays.asList;
+import static java.util.Collections.sort;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 
 public class SpacetimeIdTest {
 
@@ -34,5 +35,19 @@ public class SpacetimeIdTest {
         assertThat(spacetimeId.getNode(), is(equalTo(81723L)));
         assertThat(spacetimeId.getSequence(), is(equalTo(9018902834912L)));
         assertThat(spacetimeId.getTime(), is(equalTo(67836382932L)));
+    }
+
+    @Test
+    public void shouldCompareSpacetimeIds() {
+
+        // spacetime ids
+        final var spacetimeId1 = parseSpacetimeId("81723.9018902834913@67836382933");
+        final var spacetimeId2 = parseSpacetimeId("81723.9018902834913@67836382932");
+        final var spacetimeId3 = parseSpacetimeId("81723.9018902834912@67836382932");
+
+        // sort
+        final var list = asList(spacetimeId1, spacetimeId2, spacetimeId3);
+        sort(list);
+        assertThat(list, contains(spacetimeId3, spacetimeId2, spacetimeId1));
     }
 }

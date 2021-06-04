@@ -31,10 +31,11 @@ years) and allows for 2^44 unique messages per node (> 17 trillion messages per 
  */
 
 import static java.lang.Integer.parseInt;
+import static java.lang.Long.compare;
 import static java.lang.Long.parseLong;
 import static java.lang.String.valueOf;
 
-public class SpacetimeId {
+public class SpacetimeId implements Comparable<SpacetimeId> {
     private final long space;
     private final long time;
 
@@ -87,5 +88,17 @@ public class SpacetimeId {
         // time
         var time = parseLong(text.substring(p + 1));
         return new SpacetimeId(node, sequence, time);
+    }
+
+    @Override
+    public int compareTo(final SpacetimeId spacetimeId) {
+
+        // time
+        final var time = spacetimeId.time;
+        if (this.time < time) return -1;
+        if (this.time > time) return 1;
+
+        // space
+        return compare(this.space, spacetimeId.space);
     }
 }
