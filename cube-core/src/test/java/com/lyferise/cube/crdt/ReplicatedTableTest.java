@@ -1,7 +1,6 @@
 package com.lyferise.cube.crdt;
 
 import com.lyferise.cube.tables.Row;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -16,7 +15,6 @@ import static org.hamcrest.Matchers.is;
 
 public class ReplicatedTableTest {
 
-    @Disabled
     @Test
     public void shouldReplicateTable() {
 
@@ -69,7 +67,7 @@ public class ReplicatedTableTest {
                 is(equalTo(true)));
 
         final var deltas2 = table2.mutate(mutators2);
-        final var df2 = table1.select("email", "name");
+        final var df2 = table2.select("email", "name");
         assertThat(df2.getRowCount(), is(equalTo(1)));
         assertThat(
                 df2.contains(r -> r.get("email").equals("test@culture") && r.get("name").equals("Bob")),
@@ -77,9 +75,23 @@ public class ReplicatedTableTest {
 
         // eventual consistency
         table1.merge(randomize(deltas2));
-        // ...
+        final var df3 = table1.select("email", "name");
+        assertThat(df3.getRowCount(), is(equalTo(2)));
+        assertThat(
+                df3.contains(r -> r.get("email").equals("alice@culture") && r.get("name").equals("Alice")),
+                is(equalTo(true)));
+        assertThat(
+                df3.contains(r -> r.get("email").equals("test@culture") && r.get("name").equals("Bob")),
+                is(equalTo(true)));
 
         table2.merge(randomize(deltas1));
-        // ...
+        final var df4 = table2.select("email", "name");
+        assertThat(df4.getRowCount(), is(equalTo(2)));
+        assertThat(
+                df4.contains(r -> r.get("email").equals("alice@culture") && r.get("name").equals("Alice")),
+                is(equalTo(true)));
+        assertThat(
+                df4.contains(r -> r.get("email").equals("test@culture") && r.get("name").equals("Bob")),
+                is(equalTo(true)));
     }
 }

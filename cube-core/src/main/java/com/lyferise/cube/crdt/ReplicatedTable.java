@@ -116,6 +116,7 @@ public class ReplicatedTable extends AbstractDeltaCrdt {
             // upsert
             if (cell.updated == null || cell.updated.compareTo(updated) < 0) {
                 cell.value = e.getValue();
+                cell.updated = updated;
             }
         }
     }
