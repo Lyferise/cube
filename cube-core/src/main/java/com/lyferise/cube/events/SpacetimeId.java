@@ -65,6 +65,31 @@ public class SpacetimeId implements Comparable<SpacetimeId> {
     }
 
     @Override
+    public int hashCode() {
+        final var hash64 = space ^ time;
+        return ((int) (hash64 >> 32)) ^ (int) hash64;
+    }
+
+    @Override
+    public boolean equals(final Object object) {
+        if (!(object instanceof SpacetimeId)) return false;
+        final var spacetimeId = (SpacetimeId) object;
+        return (space == spacetimeId.space && time == spacetimeId.time);
+    }
+
+    @Override
+    public int compareTo(final SpacetimeId spacetimeId) {
+
+        // time
+        final var time = spacetimeId.time;
+        if (this.time < time) return -1;
+        if (this.time > time) return 1;
+
+        // space
+        return compare(this.space, spacetimeId.space);
+    }
+
+    @Override
     public String toString() {
         return valueOf(getNode()) + '.' + getSequence() + '@' + time;
     }
@@ -88,17 +113,5 @@ public class SpacetimeId implements Comparable<SpacetimeId> {
         // time
         var time = parseLong(text.substring(p + 1));
         return new SpacetimeId(node, sequence, time);
-    }
-
-    @Override
-    public int compareTo(final SpacetimeId spacetimeId) {
-
-        // time
-        final var time = spacetimeId.time;
-        if (this.time < time) return -1;
-        if (this.time > time) return 1;
-
-        // space
-        return compare(this.space, spacetimeId.space);
     }
 }

@@ -12,7 +12,6 @@ public class SpacetimeIdTest {
 
     @Test
     public void shouldGetNodeAndSequence() {
-
         final var node = 81723L;
         final var sequence = 9018902834912L;
         final var time = 67836382932L;
@@ -38,14 +37,22 @@ public class SpacetimeIdTest {
     }
 
     @Test
-    public void shouldCompareSpacetimeIds() {
-
-        // spacetime ids
+    public void shouldGetHashCode() {
         final var spacetimeId1 = parseSpacetimeId("81723.9018902834913@67836382933");
         final var spacetimeId2 = parseSpacetimeId("81723.9018902834913@67836382932");
         final var spacetimeId3 = parseSpacetimeId("81723.9018902834912@67836382932");
 
-        // sort
+        assertThat(spacetimeId1.hashCode(), is(equalTo(953243656)));
+        assertThat(spacetimeId2.hashCode(), is(equalTo(953243657)));
+        assertThat(spacetimeId3.hashCode(), is(equalTo(953243656)));
+    }
+
+    @Test
+    public void shouldCompareSpacetimeIds() {
+        final var spacetimeId1 = parseSpacetimeId("81723.9018902834913@67836382933");
+        final var spacetimeId2 = parseSpacetimeId("81723.9018902834913@67836382932");
+        final var spacetimeId3 = parseSpacetimeId("81723.9018902834912@67836382932");
+
         final var list = asList(spacetimeId1, spacetimeId2, spacetimeId3);
         sort(list);
         assertThat(list, contains(spacetimeId3, spacetimeId2, spacetimeId1));
