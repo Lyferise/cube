@@ -67,14 +67,14 @@ public class SpacetimeId implements Comparable<SpacetimeId> {
     @Override
     public int hashCode() {
         final var hash64 = space ^ time;
-        return ((int) (hash64 >> 32)) ^ (int) hash64;
+        return (int) (hash64 >> 32) ^ (int) hash64;
     }
 
     @Override
     public boolean equals(final Object object) {
         if (!(object instanceof SpacetimeId)) return false;
         final var spacetimeId = (SpacetimeId) object;
-        return (space == spacetimeId.space && time == spacetimeId.time);
+        return space == spacetimeId.space && time == spacetimeId.time;
     }
 
     @Override
