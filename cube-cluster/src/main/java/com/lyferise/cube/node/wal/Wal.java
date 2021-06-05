@@ -5,9 +5,10 @@ import com.lyferise.cube.functions.Condition;
 import com.lyferise.cube.node.configuration.WalConfiguration;
 import lombok.SneakyThrows;
 
+import java.io.Closeable;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class Wal {
+public class Wal implements Closeable {
     private final ReentrantLock reentrantLock = new ReentrantLock();
     private final DataFile dataFile;
     private final IndexFile indexFile;
@@ -65,6 +66,7 @@ public class Wal {
         indexFile.flush();
     }
 
+    @Override
     @SneakyThrows
     public void close() {
         if (closed) return;

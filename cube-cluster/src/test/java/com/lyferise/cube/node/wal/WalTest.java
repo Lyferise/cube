@@ -26,22 +26,21 @@ public class WalTest {
         final var entryCount = 100;
         final var signal = new Signal();
         final var entries = new ArrayList<WalEntry>();
-        final var wal = createNewWal(e -> {
+        try (final var wal = createNewWal(e -> {
             entries.add(e);
             if (e.getSequence() == entryCount) signal.set();
-        });
-        for (var i = 1; i <= entryCount; i++) {
-            wal.enqueue(createNewWalEntry(i));
-        }
+        })) {
+            for (var i = 1; i <= entryCount; i++) {
+                wal.enqueue(createNewWalEntry(i));
+            }
 
-        // verify
-        assertThat(signal.await(5000), is(true));
-        assertThat(entries.size(), is(equalTo(entryCount)));
-        for (var i = 0; i < entryCount; i++) {
-            assertThat(entries.get(i).getSequence(), is(equalTo(i + 1L)));
+            // verify
+            assertThat(signal.await(5000), is(true));
+            assertThat(entries.size(), is(equalTo(entryCount)));
+            for (var i = 0; i < entryCount; i++) {
+                assertThat(entries.get(i).getSequence(), is(equalTo(i + 1L)));
+            }
         }
-
-        wal.close();
     }
 
     @Test
@@ -53,18 +52,18 @@ public class WalTest {
         final var entryCount = 100;
         final var signal = new Signal();
         final var entries = new ArrayList<WalEntry>();
-        final var wal = createNewWal(e -> {
+        try (final var wal = createNewWal(e -> {
             if (e.getSequence() == 59) throw new UnsupportedOperationException();
             entries.add(e);
             if (e.getSequence() == 58) signal.set();
-        });
-        for (var i = 1; i <= entryCount; i++) {
-            wal.enqueue(createNewWalEntry(i));
-        }
+        })) {
+            for (var i = 1; i <= entryCount; i++) {
+                wal.enqueue(createNewWalEntry(i));
+            }
 
-        // verify
-        assertThat(signal.await(5000), is(true));
-        wal.close();
+            // verify
+            assertThat(signal.await(5000), is(true));
+        }
         assertThat(entries.size(), is(equalTo(58)));
         for (var i = 0; i < 58; i++) {
             assertThat(entries.get(i).getSequence(), is(equalTo(i + 1L)));
@@ -73,15 +72,15 @@ public class WalTest {
         // restore
         final var signal2 = new Signal();
         entries.clear();
-        final var wal2 = getWal(e -> {
+        try (final var wal2 = getWal(e -> {
             entries.add(e);
             if (e.getSequence() == 100) signal2.set();
-        });
+        })) {
 
-        // verify
-        timer.restart();
-        assertThat(signal2.await(5000), is(true));
-        wal2.close();
+            // verify
+            timer.restart();
+            assertThat(signal2.await(5000), is(true));
+        }
         assertThat(entries.size(), is(equalTo(42)));
         for (var i = 0; i < 42; i++) {
             assertThat(entries.get(i).getSequence(), is(equalTo(i + 59L)));
