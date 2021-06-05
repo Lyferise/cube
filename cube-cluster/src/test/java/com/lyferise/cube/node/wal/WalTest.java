@@ -40,6 +40,8 @@ public class WalTest {
         for (var i = 0; i < entryCount; i++) {
             assertThat(entries.get(i).getSequence(), is(equalTo(i + 1L)));
         }
+
+        wal.close();
     }
 
     @Test
