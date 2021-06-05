@@ -8,6 +8,7 @@ ext {
     junitVersion = "5.7.2"
     webSocketVersion = "1.5.2"
     logbackVersion = "1.2.3"
+    jacksonVersion = "2.12.3"
 }
 
 version = "1.0"
@@ -36,6 +37,7 @@ dependencies {
     annotationProcessor "org.projectlombok:lombok:$lombokVersion"
     implementation "org.java-websocket:Java-WebSocket:$webSocketVersion"
     implementation "ch.qos.logback:logback-classic:$logbackVersion"
+    implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$jacksonVersion"
     implementation project(":cube-core")
 
     // test

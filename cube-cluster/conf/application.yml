@@ -1,0 +1,6 @@
+nodeId: 1
+webSockets:
+  port: 7812
+wal:
+  dataFile: data/wal.log
+  indexFile: data/wal.idx
