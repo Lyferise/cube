@@ -9,12 +9,12 @@ public class ByteArrayWriter extends DataOutputWriter {
     private final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
 
     public ByteArrayWriter() {
-        stream = new DataOutputStream(byteStream);
+        out = new DataOutputStream(byteStream);
     }
 
     @SneakyThrows
     public byte[] toByteArray() {
-        stream.flush();
+        ((DataOutputStream) out).flush();
         return byteStream.toByteArray();
     }
 }

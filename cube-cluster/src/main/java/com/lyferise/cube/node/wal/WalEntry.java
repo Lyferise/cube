@@ -1,13 +1,20 @@
 package com.lyferise.cube.node.wal;
 
 import com.lyferise.cube.events.SpacetimeId;
-import lombok.Value;
+import com.lyferise.cube.serialization.BinaryReader;
+import com.lyferise.cube.serialization.BinarySerializable;
+import com.lyferise.cube.serialization.BinaryWriter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 import java.util.zip.CRC32;
 
-@Value
-public class WalEntry {
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class WalEntry implements BinarySerializable {
     SpacetimeId spacetimeId;
     UUID sessionKey;
     byte[] data;
@@ -16,7 +23,38 @@ public class WalEntry {
         return spacetimeId.getSequence();
     }
 
-    public int getCrc() {
+    @Override
+    public void read(final BinaryReader reader) {
+
+        // entry
+        spacetimeId = new SpacetimeId(reader.readLong(), reader.readLong());
+        sessionKey = new UUID(reader.readLong(), reader.readLong());
+        data = reader.readByteArray();
+
+        // crc
+        final var crc = reader.readInt();
+        if (getCrc() != crc) {
+            throw new UnsupportedOperationException("WAL CRC check failed");
+        }
+    }
+
+    @Override
+    public void write(final BinaryWriter writer) {
+
+        // spacetime id
+        writer.writeLong(spacetimeId.getSpace());
+        writer.writeLong(spacetimeId.getTime());
+
+        // session key
+        writer.writeLong(sessionKey.getMostSignificantBits());
+        writer.writeLong(sessionKey.getLeastSignificantBits());
+
+        // data
+        writer.write(data);
+        writer.writeInt(getCrc());
+    }
+
+    private int getCrc() {
         final var crc = new CRC32();
         final var sequence = getSequence();
         crc.update((int) (sequence >> 32));
