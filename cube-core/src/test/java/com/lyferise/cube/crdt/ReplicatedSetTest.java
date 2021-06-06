@@ -1,22 +1,20 @@
 package com.lyferise.cube.crdt;
 
-import org.junit.jupiter.api.Test;
-
 import java.util.List;
 
-import static com.lyferise.cube.crdt.Delta.randomize;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 
-public class ReplicatedSetTest {
+public class ReplicatedSetTest extends AbstractCrdtTest<ReplicatedSet<String>> {
 
-    @Test
-    public void shouldReplicateSet() {
+    @Override
+    protected ReplicatedSet<String> createCrdt() {
+        return new ReplicatedSet<>();
+    }
 
-        final var set1 = new ReplicatedSet<String>();
-        final var set2 = new ReplicatedSet<String>();
-
+    @Override
+    protected List<List<Mutator>> getMutators() {
         final var addA = new ReplicatedSet.AddElement("A");
         final var addB = new ReplicatedSet.AddElement("B");
         final var addC = new ReplicatedSet.AddElement("C");
@@ -34,18 +32,21 @@ public class ReplicatedSetTest {
                 addC
         );
 
-        // mutate locally
-        final var deltas1 = set1.mutate(mutators1);
-        assertThat(set1.getValues(), containsInAnyOrder("A", "B"));
+        return asList(mutators1, mutators2);
+    }
 
-        final var deltas2 = set2.mutate(mutators2);
-        assertThat(set2.getValues(), containsInAnyOrder("A", "C"));
+    @Override
+    protected void verifyCrdtHasMutators1(final ReplicatedSet<String> crdt) {
+        assertThat(crdt.getValues(), containsInAnyOrder("A", "B"));
+    }
 
-        // eventual consistency
-        set1.merge(randomize(deltas2));
-        assertThat(set1.getValues(), containsInAnyOrder("A", "B", "C"));
+    @Override
+    protected void verifyCrdtHasMutators2(final ReplicatedSet<String> crdt) {
+        assertThat(crdt.getValues(), containsInAnyOrder("A", "C"));
+    }
 
-        set2.merge(randomize(deltas1));
-        assertThat(set2.getValues(), containsInAnyOrder("A", "B", "C"));
+    @Override
+    protected void verifyConvergence(final ReplicatedSet<String> crdt) {
+        assertThat(crdt.getValues(), containsInAnyOrder("A", "B", "C"));
     }
 }

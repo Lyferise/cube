@@ -1,23 +1,21 @@
 package com.lyferise.cube.crdt;
 
-import org.junit.jupiter.api.Test;
-
 import java.util.List;
 
-import static com.lyferise.cube.crdt.Delta.randomize;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
-public class ReplicatedCounterTest {
+public class ReplicatedCounterTest extends AbstractCrdtTest<ReplicatedCounter> {
 
-    @Test
-    public void shouldReplicateCounter() {
+    @Override
+    protected ReplicatedCounter createCrdt() {
+        return new ReplicatedCounter();
+    }
 
-        final var counter1 = new ReplicatedCounter();
-        final var counter2 = new ReplicatedCounter();
-
+    @Override
+    protected List<List<Mutator>> getMutators() {
         final var nodeId1 = 8912;
         final var nodeId2 = 7901;
 
@@ -39,18 +37,21 @@ public class ReplicatedCounterTest {
                 incrementNode1
         );
 
-        // mutate locally
-        final var deltas1 = counter1.mutate(mutators1);
-        assertThat(counter1.get(), is(equalTo(5L)));
+        return asList(mutators1, mutators2);
+    }
 
-        final var deltas2 = counter2.mutate(mutators2);
-        assertThat(counter2.get(), is(equalTo(4L)));
+    @Override
+    protected void verifyCrdtHasMutators1(final ReplicatedCounter crdt) {
+        assertThat(crdt.get(), is(equalTo(5L)));
+    }
 
-        // eventual consistency
-        counter1.merge(randomize(deltas2));
-        assertThat(counter1.get(), is(equalTo(6L)));
+    @Override
+    protected void verifyCrdtHasMutators2(final ReplicatedCounter crdt) {
+        assertThat(crdt.get(), is(equalTo(4L)));
+    }
 
-        counter2.merge(randomize(deltas1));
-        assertThat(counter2.get(), is(equalTo(6L)));
+    @Override
+    protected void verifyConvergence(final ReplicatedCounter crdt) {
+        assertThat(crdt.get(), is(equalTo(6L)));
     }
 }
