@@ -2,6 +2,8 @@ package com.lyferise.cube.serialization;
 
 public interface BinaryReader {
 
+    boolean readBoolean();
+
     int readShort();
 
     int readInt();

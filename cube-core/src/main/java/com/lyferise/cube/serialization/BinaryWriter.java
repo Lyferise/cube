@@ -2,6 +2,8 @@ package com.lyferise.cube.serialization;
 
 public interface BinaryWriter {
 
+    void writeBoolean(boolean value);
+
     void writeShort(int value);
 
     void writeInt(int value);

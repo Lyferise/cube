@@ -16,6 +16,12 @@ public abstract class DataInputReader implements BinaryReader {
 
     @Override
     @SneakyThrows
+    public boolean readBoolean() {
+        return in.readBoolean();
+    }
+
+    @Override
+    @SneakyThrows
     public int readShort() {
         return in.readShort();
     }

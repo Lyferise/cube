@@ -18,6 +18,12 @@ public class DataOutputWriter implements BinaryWriter {
 
     @Override
     @SneakyThrows
+    public void writeBoolean(final boolean value) {
+        out.writeBoolean(value);
+    }
+
+    @Override
+    @SneakyThrows
     public void writeShort(final int value) {
         out.writeShort(value);
     }
