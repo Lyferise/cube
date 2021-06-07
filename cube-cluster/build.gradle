@@ -9,6 +9,7 @@ ext {
     webSocketVersion = "1.5.2"
     logbackVersion = "1.2.3"
     jacksonVersion = "2.12.3"
+    mysqlConnectorVersion = "8.0.25"
 }
 
 version = "1.0"
@@ -51,6 +52,7 @@ dependencies {
     // integrationTest
     integrationTestCompileOnly "org.projectlombok:lombok:$lombokVersion"
     integrationTestAnnotationProcessor "org.projectlombok:lombok:$lombokVersion"
+    implementation group: 'mysql', name: 'mysql-connector-java', version: "$mysqlConnectorVersion"
 }
 
 java {
