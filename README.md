@@ -14,3 +14,4 @@ This is a Git [monorepo](https://en.wikipedia.org/wiki/Monorepo) for Cube, struc
 
 - [JDK 14.0.2](https://www.oracle.com/java/technologies/javase/jdk14-archive-downloads.html)
 - [Gradle 7.0](https://gradle.org/releases)
+- [MySQL 8.0.25](https://dev.mysql.com/downloads/mysql/)
