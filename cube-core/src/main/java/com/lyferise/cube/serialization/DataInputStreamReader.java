@@ -10,6 +10,10 @@ public class DataInputStreamReader extends DataInputReader {
         super(stream);
     }
 
+    public DataInputStreamReader(final TypeMap typeMap, final DataInputStream stream) {
+        super(typeMap, stream);
+    }
+
     @Override
     @SneakyThrows
     public byte[] readByteArray() {

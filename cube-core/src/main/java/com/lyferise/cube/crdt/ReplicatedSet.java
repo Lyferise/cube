@@ -1,5 +1,7 @@
 package com.lyferise.cube.crdt;
 
+import com.lyferise.cube.serialization.BinaryReader;
+import com.lyferise.cube.serialization.BinaryWriter;
 import lombok.Value;
 
 import java.util.ArrayList;
@@ -46,5 +48,15 @@ public class ReplicatedSet<T> extends AbstractDeltaCrdt {
     @Value
     public static class AddElement implements Mutator, Delta {
         Object value;
+
+        @Override
+        public void read(final BinaryReader reader) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void write(final BinaryWriter writer) {
+            throw new UnsupportedOperationException();
+        }
     }
 }

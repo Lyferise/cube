@@ -1,5 +1,10 @@
 package com.lyferise.cube.crdt;
 
+import com.lyferise.cube.serialization.BinaryReader;
+import com.lyferise.cube.serialization.BinaryWriter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.Value;
 
 import java.util.HashMap;
@@ -57,9 +62,23 @@ public class ReplicatedCounter extends AbstractDeltaCrdt {
         long nodeId;
     }
 
-    @Value
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class NodeCounter implements Delta {
         long nodeId;
         long value;
+
+        @Override
+        public void read(final BinaryReader reader) {
+            nodeId = reader.readLong();
+            value = reader.readLong();
+        }
+
+        @Override
+        public void write(final BinaryWriter writer) {
+            writer.writeLong(nodeId);
+            writer.writeLong(value);
+        }
     }
 }

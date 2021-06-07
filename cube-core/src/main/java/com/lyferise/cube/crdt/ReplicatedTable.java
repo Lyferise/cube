@@ -1,6 +1,8 @@
 package com.lyferise.cube.crdt;
 
 import com.lyferise.cube.events.SpacetimeId;
+import com.lyferise.cube.serialization.BinaryReader;
+import com.lyferise.cube.serialization.BinaryWriter;
 import com.lyferise.cube.tables.Column;
 import com.lyferise.cube.tables.DataFrame;
 import com.lyferise.cube.tables.Row;
@@ -82,6 +84,16 @@ public class ReplicatedTable extends AbstractDeltaCrdt {
         SpacetimeId updated;
         SpacetimeId primaryKey;
         Row row;
+
+        @Override
+        public void read(final BinaryReader reader) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void write(final BinaryWriter writer) {
+            throw new UnsupportedOperationException();
+        }
     }
 
     private void upsert(final UpsertRow upsertRow) {

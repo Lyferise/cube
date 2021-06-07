@@ -1,5 +1,7 @@
 package com.lyferise.cube.crdt;
 
+import com.lyferise.cube.serialization.ByteArrayReader;
+import com.lyferise.cube.serialization.ByteArrayWriter;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -44,10 +46,26 @@ public abstract class AbstractCrdtTest<T extends DeltaCrdt> {
     protected abstract void verifyConvergence(T crdt);
 
     private static List<Delta> randomize(final List<Delta> deltas) {
+
+        // duplicate
         final var copy = new ArrayList<Delta>();
         copy.addAll(deltas);
         copy.addAll(deltas);
+
+        // shuffle
         shuffle(copy);
-        return copy;
+
+        // deserialize
+        final var typeMap = new CrdtTypeMap();
+        final var writer = new ByteArrayWriter(typeMap);
+        for (final var delta : copy) {
+            writer.write(delta);
+        }
+        final var reader = new ByteArrayReader(typeMap, writer.toByteArray());
+        final var deserialized = new ArrayList<Delta>();
+        for (var i = 0; i < copy.size(); i++) {
+            deserialized.add((Delta) reader.readSerializable());
+        }
+        return deserialized;
     }
 }

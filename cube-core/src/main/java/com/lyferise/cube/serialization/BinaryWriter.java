@@ -13,4 +13,6 @@ public interface BinaryWriter {
     void write(String text);
 
     void write(byte[] data);
+
+    void write(BinarySerializable value);
 }

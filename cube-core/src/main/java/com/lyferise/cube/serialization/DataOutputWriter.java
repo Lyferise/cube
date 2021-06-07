@@ -7,12 +7,15 @@ import java.io.DataOutput;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class DataOutputWriter implements BinaryWriter {
+    private final TypeMap typeMap;
     protected DataOutput out;
 
-    protected DataOutputWriter() {
+    public DataOutputWriter(final DataOutput out) {
+        this(TypeMap.EMPTY, out);
     }
 
-    public DataOutputWriter(final DataOutput out) {
+    public DataOutputWriter(final TypeMap typeMap, final DataOutput out) {
+        this.typeMap = typeMap;
         this.out = out;
     }
 
@@ -50,5 +53,14 @@ public class DataOutputWriter implements BinaryWriter {
     public void write(final byte[] data) {
         out.writeInt(data.length);
         out.write(data);
+    }
+
+    @Override
+    public void write(final BinarySerializable value) {
+        final var type = value.getClass();
+        final var name = typeMap.nameOf(type);
+        if (name == null) throw new UnsupportedOperationException("Unrecognized type " + type);
+        write(name);
+        value.write(this);
     }
 }

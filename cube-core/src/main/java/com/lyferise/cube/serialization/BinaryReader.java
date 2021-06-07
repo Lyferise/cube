@@ -13,4 +13,6 @@ public interface BinaryReader {
     String readString();
 
     byte[] readByteArray();
+
+    BinarySerializable readSerializable();
 }

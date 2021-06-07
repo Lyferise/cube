@@ -9,6 +9,11 @@ public class ByteArrayWriter extends DataOutputWriter {
     private final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
 
     public ByteArrayWriter() {
+        this(null);
+    }
+
+    public ByteArrayWriter(final TypeMap typeMap) {
+        super(typeMap, null);
         out = new DataOutputStream(byteStream);
     }
 

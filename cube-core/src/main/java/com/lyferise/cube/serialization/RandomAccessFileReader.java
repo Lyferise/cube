@@ -10,6 +10,10 @@ public class RandomAccessFileReader extends DataInputReader {
         super(file);
     }
 
+    public RandomAccessFileReader(final TypeMap typeMap, final RandomAccessFile file) {
+        super(typeMap, file);
+    }
+
     @Override
     @SneakyThrows
     public byte[] readByteArray() {
