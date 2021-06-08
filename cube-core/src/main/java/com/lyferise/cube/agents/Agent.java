@@ -1,6 +1,7 @@
 package com.lyferise.cube.agents;
 
 import com.lyferise.cube.components.ComponentState;
+import lombok.SneakyThrows;
 
 import static com.lyferise.cube.components.ComponentState.STARTED;
 import static com.lyferise.cube.components.ComponentState.STOPPED;
@@ -18,8 +19,11 @@ public abstract class Agent {
         return state;
     }
 
+    @SneakyThrows
     public void stop() {
         state = STOPPED;
+        thread.interrupt();
+        thread.join();
     }
 
     protected abstract void execute();

@@ -13,18 +13,21 @@ import static java.lang.Thread.sleep;
 public class DeltaLogAgent extends Agent {
     private final RingBuffer<DeltaLogQuery> readQueue = new RingBuffer<>();
     private final RingBuffer<DeltaLogRecordGroup> appendQueue = new RingBuffer<>();
-    private final Consumer<DeltaLogQueryResult> resultHandler;
+    private final Consumer<DeltaLogQueryResult> onRead;
+    private final Consumer<DeltaLogRecordGroup> onAppend;
     private final DeltaLog deltaLog;
     private final int batchSize;
 
     public DeltaLogAgent(
             final DeltaLog deltaLog,
             final int batchSize,
-            final Consumer<DeltaLogQueryResult> resultHandler) {
+            final Consumer<DeltaLogQueryResult> onRead,
+            final Consumer<DeltaLogRecordGroup> onAppend) {
 
         this.deltaLog = deltaLog;
         this.batchSize = batchSize;
-        this.resultHandler = resultHandler;
+        this.onRead = onRead;
+        this.onAppend = onAppend;
     }
 
     @SneakyThrows
@@ -42,10 +45,11 @@ public class DeltaLogAgent extends Agent {
 
         // write
         var writeCount = 0;
-        DeltaLogRecordGroup writeGroup;
-        while (writeCount < batchSize && (writeGroup = appendQueue.poll()) != null) {
-            deltaLog.append(writeGroup);
-            writeCount += writeGroup.getRecords().size();
+        DeltaLogRecordGroup recordGroup;
+        while (writeCount < batchSize && (recordGroup = appendQueue.poll()) != null) {
+            deltaLog.append(recordGroup);
+            onAppend.accept(recordGroup);
+            writeCount += recordGroup.getRecords().size();
         }
 
         // read
@@ -53,7 +57,7 @@ public class DeltaLogAgent extends Agent {
         DeltaLogQuery query;
         while (readCount < batchSize && (query = readQueue.poll()) != null) {
             final var records = deltaLog.read(query).getRecords();
-            resultHandler.accept(new DeltaLogQueryResult(query.getQueryId(), records));
+            onRead.accept(new DeltaLogQueryResult(query.getQueryId(), records));
             readCount += records.size();
         }
     }

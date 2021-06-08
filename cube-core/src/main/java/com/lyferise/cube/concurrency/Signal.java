@@ -13,6 +13,10 @@ public class Signal {
         countDownLatch.countDown();
     }
 
+    public boolean isSet() {
+        return countDownLatch.getCount() == 0;
+    }
+
     @SneakyThrows
     public boolean await(final long timeoutMillis) {
         return countDownLatch.await(timeoutMillis, MILLISECONDS);

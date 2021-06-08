@@ -4,6 +4,6 @@ import lombok.Value;
 
 @Value
 public class DeltaLogRecord {
-    long longSequenceNumber;
+    long logSequenceNumber;
     byte[] data;
 }
