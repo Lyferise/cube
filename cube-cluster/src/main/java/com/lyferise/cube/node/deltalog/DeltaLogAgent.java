@@ -56,7 +56,9 @@ public class DeltaLogAgent extends Agent {
         var readCount = 0;
         DeltaLogQuery query;
         while (readCount < batchSize && (query = readQueue.poll()) != null) {
-            final var records = deltaLog.read(query).getRecords();
+            final var records = deltaLog
+                    .read(query.getLogSequenceNumberStart(), query.getLogSequenceNumberEnd())
+                    .getRecords();
             onRead.accept(new DeltaLogQueryResult(query.getQueryId(), records));
             readCount += records.size();
         }

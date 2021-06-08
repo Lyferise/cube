@@ -6,8 +6,11 @@ import java.util.List;
 public class DeltaLog {
     private final List<DeltaLogRecord> records = new ArrayList<>();
 
-    public DeltaLogRecordGroup read(final DeltaLogQuery query) {
-        throw new UnsupportedOperationException();
+    public DeltaLogRecordGroup read(final long logSequenceNumberStart, final long logSequenceNumberEnd) {
+        return new DeltaLogRecordGroup(
+                records.subList(
+                        (int) (logSequenceNumberStart - 1),
+                        (int) (logSequenceNumberEnd)));
     }
 
     public void append(final DeltaLogRecordGroup recordGroup) {

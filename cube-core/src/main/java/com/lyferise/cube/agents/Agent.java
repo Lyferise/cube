@@ -38,11 +38,15 @@ public abstract class Agent {
         while (true) {
             try {
                 execute();
+                waitForSignal();
             } catch (final Exception e) {
-                if (state == STARTED) onError(e);
+                switch (state) {
+                    case STARTED -> onError(e);
+                    case STOPPED -> {
+                        return;
+                    }
+                }
             }
-
-            waitForSignal();
         }
     }
 }

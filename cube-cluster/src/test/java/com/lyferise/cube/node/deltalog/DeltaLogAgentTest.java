@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static com.lyferise.cube.components.ComponentState.STARTED;
 import static com.lyferise.cube.components.ComponentState.STOPPED;
+import static com.lyferise.cube.math.RandomBytes.randomBytes;
 import static java.lang.Thread.sleep;
 import static java.util.UUID.randomUUID;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -60,17 +61,22 @@ public class DeltaLogAgentTest {
                 recordGroup -> onWrite.set());
 
         // write
-        final var record = new DeltaLogRecord(1, new byte[1000]);
-        deltaLog.append(new DeltaLogRecordGroup(record));
+        final var data = randomBytes(1000);
+        final var record = new DeltaLogRecord(1, data);
+        deltaLogAgent.enqueue(new DeltaLogRecordGroup(record));
         assertThat(onWrite.await(5000), is(true));
 
         // read
         final var queryId = randomUUID();
         final var query = new DeltaLogQuery(queryId, 1, 1);
-        deltaLog.read(query);
+        deltaLogAgent.enqueue(query);
         assertThat(onRead.await(5000), is(true));
         final var queryResult = result.get();
+        assertThat(queryResult.getQueryId(), is(equalTo(queryId)));
         assertThat(queryResult.getRecords().size(), is(equalTo(1)));
+        final var record2 = queryResult.getRecords().get(0);
+        assertThat(record2.getLogSequenceNumber(), is(equalTo(1L)));
+        assertThat(record2.getData(), is(equalTo(data)));
 
         // stop
         deltaLogAgent.stop();
