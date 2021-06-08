@@ -5,18 +5,26 @@ import com.lyferise.cube.concurrency.RingBuffer;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.function.Consumer;
+
 import static java.lang.Thread.sleep;
 
 @Slf4j
 public class DeltaLogAgent extends Agent {
     private final RingBuffer<DeltaLogQuery> readQueue = new RingBuffer<>();
     private final RingBuffer<DeltaLogRecordGroup> appendQueue = new RingBuffer<>();
+    private final Consumer<DeltaLogQueryResult> resultHandler;
     private final DeltaLog deltaLog;
     private final int batchSize;
 
-    public DeltaLogAgent(final DeltaLog deltaLog, final int batchSize) {
+    public DeltaLogAgent(
+            final DeltaLog deltaLog,
+            final int batchSize,
+            final Consumer<DeltaLogQueryResult> resultHandler) {
+
         this.deltaLog = deltaLog;
         this.batchSize = batchSize;
+        this.resultHandler = resultHandler;
     }
 
     @SneakyThrows
@@ -44,8 +52,9 @@ public class DeltaLogAgent extends Agent {
         var readCount = 0;
         DeltaLogQuery query;
         while (readCount < batchSize && (query = readQueue.poll()) != null) {
-            final var readGroup = deltaLog.read(query);
-            readCount += readGroup.getRecords().size();
+            final var records = deltaLog.read(query).getRecords();
+            resultHandler.accept(new DeltaLogQueryResult(query.getQueryId(), records));
+            readCount += records.size();
         }
     }
 

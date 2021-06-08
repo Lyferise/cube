@@ -14,6 +14,10 @@ public abstract class Agent {
         state = STARTED;
     }
 
+    public ComponentState getState() {
+        return state;
+    }
+
     public void stop() {
         state = STOPPED;
     }
