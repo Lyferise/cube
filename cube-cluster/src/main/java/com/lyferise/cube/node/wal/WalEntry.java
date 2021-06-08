@@ -42,8 +42,7 @@ public class WalEntry implements BinarySerializable {
     public void write(final BinaryWriter writer) {
 
         // spacetime id
-        writer.writeLong(spacetimeId.getSpace());
-        writer.writeLong(spacetimeId.getTime());
+        writer.write(spacetimeId);
 
         // session key
         writer.writeLong(sessionKey.getMostSignificantBits());

@@ -1,5 +1,6 @@
 package com.lyferise.cube.serialization;
 
+import com.lyferise.cube.events.SpacetimeId;
 import lombok.SneakyThrows;
 
 import java.io.DataInput;
@@ -7,10 +8,10 @@ import java.io.DataInput;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public abstract class DataInputReader implements BinaryReader {
+    private final static TypeCode[] TYPE_CODES = TypeCode.values();
     protected final TypeMap typeMap;
     protected final DataInput in;
 
-    @SneakyThrows
     public DataInputReader(final DataInput in) {
         this(TypeMap.EMPTY, in);
     }
@@ -19,6 +20,12 @@ public abstract class DataInputReader implements BinaryReader {
     public DataInputReader(final TypeMap typeMap, final DataInput in) {
         this.typeMap = typeMap;
         this.in = in;
+    }
+
+    @Override
+    @SneakyThrows
+    public byte readByte() {
+        return in.readByte();
     }
 
     @Override
@@ -62,5 +69,29 @@ public abstract class DataInputReader implements BinaryReader {
         final var value = (BinarySerializable) type.getDeclaredConstructor().newInstance();
         value.read(this);
         return value;
+    }
+
+    @Override
+    @SneakyThrows
+    public Object readObject() {
+        final var typeCode = TYPE_CODES[in.readByte()];
+        return switch (typeCode) {
+            case NONE -> null;
+            case BYTE -> in.readByte();
+            case SHORT -> in.readShort();
+            case INT -> in.readInt();
+            case LONG -> in.readLong();
+            case FLOAT -> in.readFloat();
+            case DOUBLE -> in.readDouble();
+            case BOOLEAN -> in.readBoolean();
+            case STRING -> readString();
+            case OBJECT -> readSerializable();
+        };
+    }
+
+    @Override
+    @SneakyThrows
+    public SpacetimeId readSpacetimeId() {
+        return new SpacetimeId(in.readLong(), in.readLong());
     }
 }

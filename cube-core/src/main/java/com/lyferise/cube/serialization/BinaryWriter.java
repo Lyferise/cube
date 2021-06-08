@@ -1,5 +1,7 @@
 package com.lyferise.cube.serialization;
 
+import com.lyferise.cube.events.SpacetimeId;
+
 public interface BinaryWriter {
 
     void writeBoolean(boolean value);
@@ -15,4 +17,8 @@ public interface BinaryWriter {
     void write(byte[] data);
 
     void write(BinarySerializable value);
+
+    void writeObject(Object value);
+
+    void write(SpacetimeId spacetimeId);
 }

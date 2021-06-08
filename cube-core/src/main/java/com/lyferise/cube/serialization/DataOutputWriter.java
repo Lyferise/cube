@@ -1,9 +1,11 @@
 package com.lyferise.cube.serialization;
 
+import com.lyferise.cube.events.SpacetimeId;
 import lombok.SneakyThrows;
 
 import java.io.DataOutput;
 
+import static com.lyferise.cube.serialization.TypeCode.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class DataOutputWriter implements BinaryWriter {
@@ -62,5 +64,75 @@ public class DataOutputWriter implements BinaryWriter {
         if (name == null) throw new UnsupportedOperationException("Unrecognized type " + type);
         write(name);
         value.write(this);
+    }
+
+    @Override
+    @SneakyThrows
+    public void writeObject(final Object value) {
+
+        if (value == null) {
+            out.writeByte(NONE.ordinal());
+            return;
+        }
+
+        if (value instanceof BinarySerializable) {
+            out.writeByte(OBJECT.ordinal());
+            write((BinarySerializable) value);
+            return;
+        }
+
+        if (value instanceof Integer) {
+            out.writeByte(INT.ordinal());
+            out.writeInt(((Integer) value));
+            return;
+        }
+
+        if (value instanceof Long) {
+            out.writeByte(LONG.ordinal());
+            out.writeLong(((Long) value));
+            return;
+        }
+
+        if (value instanceof Float) {
+            out.writeByte(FLOAT.ordinal());
+            out.writeFloat(((Float) value));
+            return;
+        }
+
+        if (value instanceof Double) {
+            out.writeByte(DOUBLE.ordinal());
+            out.writeDouble(((Double) value));
+            return;
+        }
+
+        if (value instanceof Boolean) {
+            out.writeByte(BOOLEAN.ordinal());
+            out.writeBoolean(((Boolean) value));
+            return;
+        }
+
+        if (value instanceof String) {
+            out.writeByte(STRING.ordinal());
+            write(((String) value));
+            return;
+        }
+
+        if (value instanceof Byte) {
+            out.writeByte(BYTE.ordinal());
+            out.writeByte(((Byte) value));
+            return;
+        }
+
+        if (value instanceof Short) {
+            out.writeByte(SHORT.ordinal());
+            out.writeShort(((Short) value));
+        }
+    }
+
+    @Override
+    @SneakyThrows
+    public void write(final SpacetimeId spacetimeId) {
+        out.writeLong(spacetimeId.getSpace());
+        out.writeLong(spacetimeId.getTime());
     }
 }

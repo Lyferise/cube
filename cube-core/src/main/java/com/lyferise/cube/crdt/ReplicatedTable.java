@@ -6,6 +6,9 @@ import com.lyferise.cube.serialization.BinaryWriter;
 import com.lyferise.cube.tables.Column;
 import com.lyferise.cube.tables.DataFrame;
 import com.lyferise.cube.tables.Row;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.Value;
 
 import java.util.HashMap;
@@ -79,7 +82,9 @@ public class ReplicatedTable extends AbstractDeltaCrdt {
         DataFrame dataFrame;
     }
 
-    @Value
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class UpsertRow implements Mutator, Delta {
         SpacetimeId updated;
         SpacetimeId primaryKey;
@@ -87,12 +92,17 @@ public class ReplicatedTable extends AbstractDeltaCrdt {
 
         @Override
         public void read(final BinaryReader reader) {
-            throw new UnsupportedOperationException();
+            updated = reader.readSpacetimeId();
+            primaryKey = reader.readSpacetimeId();
+            row = new Row();
+            row.read(reader);
         }
 
         @Override
         public void write(final BinaryWriter writer) {
-            throw new UnsupportedOperationException();
+            writer.write(updated);
+            writer.write(primaryKey);
+            row.write(writer);
         }
     }
 

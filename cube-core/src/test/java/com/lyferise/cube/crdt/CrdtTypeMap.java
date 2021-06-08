@@ -6,5 +6,7 @@ public class CrdtTypeMap extends TypeMap {
 
     public CrdtTypeMap() {
         add("node-counter", ReplicatedCounter.NodeCounter.class);
+        add("add-element", ReplicatedSet.AddElement.class);
+        add("upsert-row", ReplicatedTable.UpsertRow.class);
     }
 }

@@ -10,5 +10,5 @@ public enum TypeCode {
     DOUBLE,
     BOOLEAN,
     STRING,
-    OBJECT
+    OBJECT;
 }
