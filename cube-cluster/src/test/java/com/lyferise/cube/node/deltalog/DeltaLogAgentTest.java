@@ -23,7 +23,7 @@ public class DeltaLogAgentTest {
     public void shouldStartThenStopAgent() {
 
         // start
-        final var deltaLog = new DeltaLog();
+        final var deltaLog = new InMemoryDeltaLog();
         final var agent = new DeltaLogAgent(
                 deltaLog,
                 BATCH_SIZE,
@@ -50,7 +50,7 @@ public class DeltaLogAgentTest {
         final var result = new AtomicReference<DeltaLogQueryResult>();
 
         // start
-        final var deltaLog = new DeltaLog();
+        final var deltaLog = new InMemoryDeltaLog();
         final var deltaLogAgent = new DeltaLogAgent(
                 deltaLog,
                 BATCH_SIZE,
