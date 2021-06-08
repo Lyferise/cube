@@ -2,11 +2,11 @@ package com.lyferise.cube.node.deltalog;
 
 import lombok.Value;
 
-import java.util.function.Consumer;
+import java.util.UUID;
 
 @Value
 public class DeltaLogQuery {
+    UUID queryId;
     long logSequenceNumberStart;
     long logSequenceNumberEnd;
-    Consumer<DeltaLogRecordGroup> handleDeltaLogRecordGroup;
 }

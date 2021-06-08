@@ -2,10 +2,11 @@ package com.lyferise.cube.node.deltalog;
 
 public class DeltaLog {
 
-    public DeltaLogRecordGroup read(final long logSequenceNumberStart, final long logSequenceNumberEnd) {
+    public DeltaLogRecordGroup read(final DeltaLogQuery query) {
         throw new UnsupportedOperationException();
     }
 
-    public void append(final DeltaLogRecord[] records, final int recordCount) {
+    public void append(final DeltaLogRecordGroup recordGroup) {
+        throw new UnsupportedOperationException();
     }
 }
