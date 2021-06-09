@@ -14,6 +14,10 @@ public class DeltaLogRecord implements BinarySerializable {
     long logSequenceNumber;
     byte[] data;
 
+    public DeltaLogRecord(final byte[] data) {
+        this.data = data;
+    }
+
     @Override
     public void read(final BinaryReader reader) {
         logSequenceNumber = reader.readLong();

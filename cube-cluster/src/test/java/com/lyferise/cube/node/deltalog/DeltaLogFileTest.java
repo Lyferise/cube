@@ -23,7 +23,7 @@ public class DeltaLogFileTest {
         final var recordCount = 100;
         final var records = new ArrayList<DeltaLogRecord>();
         for (var i = 0; i < recordCount; i++) {
-            records.add(new DeltaLogRecord(i + 1, randomBytes(1000)));
+            records.add(new DeltaLogRecord(randomBytes(1000)));
         }
 
         // file

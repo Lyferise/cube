@@ -62,7 +62,7 @@ public class DeltaLogAgentTest {
 
         // write
         final var data = randomBytes(1000);
-        final var record = new DeltaLogRecord(1, data);
+        final var record = new DeltaLogRecord(data);
         deltaLogAgent.enqueue(new DeltaLogRecordGroup(record));
         assertThat(onWrite.await(5000), is(true));
 

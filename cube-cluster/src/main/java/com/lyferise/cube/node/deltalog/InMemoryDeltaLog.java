@@ -24,7 +24,7 @@ public class InMemoryDeltaLog implements DeltaLog {
     }
 
     private void append(final DeltaLogRecord record) {
-        verifySequenceNumber(record.getLogSequenceNumber(), records.size() + 1);
+        record.setLogSequenceNumber(records.size() + 1);
         records.add(record);
     }
 }

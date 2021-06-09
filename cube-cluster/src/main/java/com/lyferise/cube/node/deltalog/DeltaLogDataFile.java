@@ -60,19 +60,16 @@ public class DeltaLogDataFile {
     @SneakyThrows
     public long write(final DeltaLogRecord record) {
 
-        // sequence
-        verifySequenceNumber(record.getLogSequenceNumber(), writeSequence + 1);
-
         // position
         final var position = writePosition;
         file.seek(position);
 
         // record
+        record.setLogSequenceNumber(++writeSequence);
         record.write(writer);
 
         // header
         writePosition = file.getFilePointer();
-        writeSequence = record.getLogSequenceNumber();
         file.seek(0);
         file.writeLong(writeSequence);
         return position;

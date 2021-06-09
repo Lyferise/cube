@@ -27,7 +27,8 @@ public class DeltaLogFile implements DeltaLog, Closeable {
     @Override
     public void append(final DeltaLogRecordGroup recordGroup) {
         for (final DeltaLogRecord record : recordGroup.getRecords()) {
-            indexFile.setPosition(record.getLogSequenceNumber(), dataFile.write(record));
+            final var position = dataFile.write(record);
+            indexFile.setPosition(record.getLogSequenceNumber(), position);
         }
     }
 
