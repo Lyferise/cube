@@ -11,7 +11,7 @@ import java.io.File;
 public class NodeConfiguration {
     long nodeId;
     WebSocketsConfiguration webSockets = new WebSocketsConfiguration();
-    WalConfiguration wal = new WalConfiguration();
+    DataConfiguration data = new DataConfiguration();
 
     @SneakyThrows
     public static NodeConfiguration readConfiguration(final String path) {

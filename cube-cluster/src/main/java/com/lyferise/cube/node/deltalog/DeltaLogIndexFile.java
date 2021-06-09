@@ -1,6 +1,5 @@
 package com.lyferise.cube.node.deltalog;
 
-import com.lyferise.cube.node.wal.IndexPage;
 import lombok.SneakyThrows;
 
 import java.io.File;
@@ -9,7 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static com.lyferise.cube.events.SequenceNumber.verifySequenceNumber;
-import static com.lyferise.cube.node.wal.IndexPage.PAGE_SIZE;
+import static com.lyferise.cube.node.deltalog.DeltaLogIndexPage.PAGE_SIZE;
 import static java.lang.Math.min;
 
 public class DeltaLogIndexFile {
@@ -17,9 +16,9 @@ public class DeltaLogIndexFile {
     private long recordCount;
     private final RandomAccessFile file;
 
-    private final Map<Integer, IndexPage> pages = new LinkedHashMap<>() {
+    private final Map<Integer, DeltaLogIndexPage> pages = new LinkedHashMap<>() {
         @Override
-        protected boolean removeEldestEntry(final Map.Entry<Integer, IndexPage> eldest) {
+        protected boolean removeEldestEntry(final Map.Entry<Integer, DeltaLogIndexPage> eldest) {
             return size() > MAX_PAGE_COUNT;
         }
     };
@@ -76,12 +75,12 @@ public class DeltaLogIndexFile {
         file.close();
     }
 
-    private IndexPage getPage(final long logSequenceNumber) {
+    private DeltaLogIndexPage getPage(final long logSequenceNumber) {
         return pages.get(getPageNumber(logSequenceNumber));
     }
 
     @SneakyThrows
-    private IndexPage loadPage(final long logSequenceNumber) {
+    private DeltaLogIndexPage loadPage(final long logSequenceNumber) {
         flush();
 
         final var pageNumber = getPageNumber(logSequenceNumber);
@@ -89,7 +88,7 @@ public class DeltaLogIndexFile {
         final var logSequenceNumberEnd = min(logSequenceNumberStart + PAGE_SIZE - 1, recordCount);
 
         // page
-        final var page = new IndexPage(logSequenceNumberStart);
+        final var page = new DeltaLogIndexPage(logSequenceNumberStart);
         file.seek(getIndexPosition(logSequenceNumberStart));
         for (var s = logSequenceNumberStart; s <= logSequenceNumberEnd; s++) {
             page.setPosition(s, file.readLong());

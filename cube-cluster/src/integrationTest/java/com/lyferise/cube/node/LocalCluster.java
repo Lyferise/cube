@@ -60,10 +60,9 @@ public class LocalCluster implements Closeable {
         final var nodePath = Paths.get(".cube/node" + nodeId);
         createDirectory(nodePath);
 
-        // wal
-        var wal = config.getWal();
-        wal.setDataFile(nodePath.resolve("wal.dat").toString());
-        wal.setIndexFile(nodePath.resolve("wal.idx").toString());
+        // data
+        var data = config.getData();
+        data.setPath(nodePath.resolve("data").toString());
 
         // node
         nodes.add(new ClusterNode(new CubeNode(config), nodePath));

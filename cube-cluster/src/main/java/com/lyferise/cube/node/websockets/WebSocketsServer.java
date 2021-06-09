@@ -3,9 +3,10 @@ package com.lyferise.cube.node.websockets;
 import com.lyferise.cube.components.ComponentState;
 import com.lyferise.cube.concurrency.Signal;
 import com.lyferise.cube.events.SpacetimeIdGenerator;
+import com.lyferise.cube.node.Dispatcher;
 import com.lyferise.cube.node.configuration.WebSocketsConfiguration;
-import com.lyferise.cube.node.wal.Wal;
-import com.lyferise.cube.node.wal.WalEntry;
+import com.lyferise.cube.node.messages.Message;
+import com.lyferise.cube.serialization.ByteArrayReader;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.java_websocket.WebSocket;
@@ -20,7 +21,7 @@ import static com.lyferise.cube.components.ComponentState.*;
 @Slf4j
 public class WebSocketsServer extends WebSocketServer {
     private final SessionManager sessionManager;
-    private final Wal wal;
+    private final Dispatcher dispatcher;
     private final SpacetimeIdGenerator spacetimeIdGenerator;
     private final Signal startSignal = new Signal();
     private ComponentState state = CREATED;
@@ -28,12 +29,12 @@ public class WebSocketsServer extends WebSocketServer {
     public WebSocketsServer(
             final WebSocketsConfiguration config,
             final SessionManager sessionManager,
-            final Wal wal,
+            final Dispatcher dispatcher,
             final SpacetimeIdGenerator spacetimeIdGenerator) {
 
         super(new InetSocketAddress(config.getPort()));
         this.sessionManager = sessionManager;
-        this.wal = wal;
+        this.dispatcher = dispatcher;
         this.spacetimeIdGenerator = spacetimeIdGenerator;
         startBlocking();
     }
@@ -68,7 +69,7 @@ public class WebSocketsServer extends WebSocketServer {
         final var session = sessionManager.get(webSocket);
         final byte[] data = new byte[buffer.remaining()];
         buffer.get(data);
-        wal.enqueue(new WalEntry(spacetimeIdGenerator.next(), session.getKey(), data));
+        dispatcher.dispatch(new Message(spacetimeIdGenerator.next(), session.getKey(), new ByteArrayReader(data)));
     }
 
     @Override
