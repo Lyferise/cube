@@ -3,6 +3,8 @@ package com.lyferise.cube.node.deltalog;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.lyferise.cube.events.SequenceNumber.verifySequenceNumber;
+
 public class InMemoryDeltaLog implements DeltaLog {
     private final List<DeltaLogRecord> records = new ArrayList<>();
 
@@ -22,20 +24,7 @@ public class InMemoryDeltaLog implements DeltaLog {
     }
 
     private void append(final DeltaLogRecord record) {
-
-        // sequence
-        final var expectedLogSequenceNumber = records.size() + 1;
-        final var logSequenceNumber = record.getLogSequenceNumber();
-        if (logSequenceNumber != expectedLogSequenceNumber) {
-            throw new UnsupportedOperationException(
-                    "Delta log sequence check failed: expected "
-                            + expectedLogSequenceNumber
-                            + " not "
-                            + logSequenceNumber
-                            + ".");
-        }
-
-        // append
+        verifySequenceNumber(record.getLogSequenceNumber(), records.size() + 1);
         records.add(record);
     }
 }
