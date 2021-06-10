@@ -48,12 +48,12 @@ public class DeltaLogAgent extends Agent {
     protected void execute() {
 
         // write
-        var modified = append();
-        modified |= apply();
+        var modified = appendToHead();
+        modified |= commitFromTail();
         if (modified) deltaLog.flush();
 
         // read
-        read();
+        executeReadQueries();
     }
 
     @Override
@@ -73,7 +73,7 @@ public class DeltaLogAgent extends Agent {
         log.error("Delta log agent error", e);
     }
 
-    private boolean append() {
+    private boolean appendToHead() {
         var n = 0;
         DeltaLogAppendRequest appendRequest;
         while (n < batchSize && (appendRequest = appendQueue.poll()) != null) {
@@ -84,7 +84,7 @@ public class DeltaLogAgent extends Agent {
         return n > 0;
     }
 
-    private boolean apply() {
+    private boolean commitFromTail() {
 
         // commit?
         var modified = false;
@@ -106,7 +106,7 @@ public class DeltaLogAgent extends Agent {
         return true;
     }
 
-    private void read() {
+    private void executeReadQueries() {
         var n = 0;
         DeltaLogQuery query;
         while (n < batchSize && (query = readQueue.poll()) != null) {
