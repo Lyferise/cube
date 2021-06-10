@@ -5,6 +5,7 @@ import java.util.List;
 
 public class InMemoryDeltaLog implements DeltaLog {
     private final List<DeltaLogRecord> records = new ArrayList<>();
+    private long commitSequenceNumber;
 
     @Override
     public long getHeadSequenceNumber() {
@@ -13,12 +14,12 @@ public class InMemoryDeltaLog implements DeltaLog {
 
     @Override
     public long getCommitSequenceNumber() {
-        return records.size();
+        return commitSequenceNumber;
     }
 
     @Override
     public void setCommitSequenceNumber(final long commitSequenceNumber) {
-        throw new UnsupportedOperationException();
+        this.commitSequenceNumber = commitSequenceNumber;
     }
 
     @Override
@@ -31,9 +32,8 @@ public class InMemoryDeltaLog implements DeltaLog {
 
     @Override
     public void append(final DeltaLogAppendRequest appendRequest) {
-        if (!appendRequest.isCommitted()) throw new UnsupportedOperationException();
         for (final DeltaLogRecord record : appendRequest.getRecords()) {
-            append(record);
+            append(record, appendRequest.isCommitted());
         }
     }
 
@@ -41,8 +41,10 @@ public class InMemoryDeltaLog implements DeltaLog {
     public void flush() {
     }
 
-    private void append(final DeltaLogRecord record) {
-        record.setLogSequenceNumber(records.size() + 1);
+    private void append(final DeltaLogRecord record, final boolean isCommitted) {
+        final var logSequenceNumber = records.size() + 1;
+        record.setLogSequenceNumber(logSequenceNumber);
         records.add(record);
+        if (isCommitted) commitSequenceNumber = logSequenceNumber;
     }
 }

@@ -2,8 +2,10 @@ package com.lyferise.cube.node.deltalog;
 
 import com.lyferise.cube.concurrency.Signal;
 import lombok.SneakyThrows;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.lyferise.cube.components.ComponentState.STARTED;
@@ -81,6 +83,39 @@ public class DeltaLogAgentTest {
         final var record2 = queryResult.getRecords().get(0);
         assertThat(record2.getLogSequenceNumber(), is(equalTo(1L)));
         assertThat(record2.getData(), is(equalTo(data)));
+
+        // stop
+        deltaLogAgent.stop();
+    }
+
+    @Disabled
+    @Test
+    @SneakyThrows
+    public void shouldReplayLog() {
+
+        // records
+        final var recordCount = 100L;
+        final var records = new ArrayList<DeltaLogRecord>();
+        for (var i = 0; i < recordCount; i++) {
+            records.add(new DeltaLogRecord(randomBytes(1000)));
+        }
+
+        // delta log
+        final var deltaLog = new InMemoryDeltaLog();
+        deltaLog.append(new DeltaLogAppendRequest(records, false));
+
+        // start
+        final var deltaLogAgent = new DeltaLogAgent(
+                deltaLog,
+                BATCH_SIZE,
+                queryResult -> {
+                },
+                appendRequest -> {
+                },
+                new FakeDeltaLogProcessor());
+
+        // TODO: wait for signal!
+        sleep(5000);
 
         // stop
         deltaLogAgent.stop();
