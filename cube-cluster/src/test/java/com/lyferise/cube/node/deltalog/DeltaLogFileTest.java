@@ -20,7 +20,7 @@ public class DeltaLogFileTest {
     public void shouldWriteThenReadLogFile() {
 
         // records
-        final var recordCount = 100;
+        final var recordCount = 100L;
         final var records = new ArrayList<DeltaLogRecord>();
         for (var i = 0; i < recordCount; i++) {
             records.add(new DeltaLogRecord(randomBytes(1000)));
@@ -33,11 +33,17 @@ public class DeltaLogFileTest {
 
             // write
             try (final var deltaLog = new DeltaLogFile(dataFile, indexFile)) {
-                deltaLog.append(new DeltaLogRecordGroup(records));
+                assertThat(deltaLog.getHeadSequenceNumber(), is(equalTo(0L)));
+                assertThat(deltaLog.getCommitSequenceNumber(), is(equalTo(0L)));
+                deltaLog.append(new DeltaLogAppendRequest(records, true));
+                assertThat(deltaLog.getHeadSequenceNumber(), is(equalTo(recordCount)));
+                assertThat(deltaLog.getCommitSequenceNumber(), is(equalTo(recordCount)));
             }
 
             // read
             try (final var deltaLog = new DeltaLogFile(dataFile, indexFile)) {
+                assertThat(deltaLog.getHeadSequenceNumber(), is(equalTo(recordCount)));
+                assertThat(deltaLog.getCommitSequenceNumber(), is(equalTo(recordCount)));
                 for (var i = 0; i < recordCount; i++) {
                     final var logSequenceNumber = i + 1;
                     final List<DeltaLogRecord> records2 = deltaLog.read(logSequenceNumber, logSequenceNumber).getRecords();

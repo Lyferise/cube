@@ -3,10 +3,23 @@ package com.lyferise.cube.node.deltalog;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.lyferise.cube.events.SequenceNumber.verifySequenceNumber;
-
 public class InMemoryDeltaLog implements DeltaLog {
     private final List<DeltaLogRecord> records = new ArrayList<>();
+
+    @Override
+    public long getHeadSequenceNumber() {
+        return records.size();
+    }
+
+    @Override
+    public long getCommitSequenceNumber() {
+        return records.size();
+    }
+
+    @Override
+    public void setCommitSequenceNumber(final long commitSequenceNumber) {
+        throw new UnsupportedOperationException();
+    }
 
     @Override
     public DeltaLogRecordGroup read(final long logSequenceNumberStart, final long logSequenceNumberEnd) {
@@ -17,10 +30,15 @@ public class InMemoryDeltaLog implements DeltaLog {
     }
 
     @Override
-    public void append(final DeltaLogRecordGroup recordGroup) {
-        for (final DeltaLogRecord record : recordGroup.getRecords()) {
+    public void append(final DeltaLogAppendRequest appendRequest) {
+        if (!appendRequest.isCommitted()) throw new UnsupportedOperationException();
+        for (final DeltaLogRecord record : appendRequest.getRecords()) {
             append(record);
         }
+    }
+
+    @Override
+    public void flush() {
     }
 
     private void append(final DeltaLogRecord record) {

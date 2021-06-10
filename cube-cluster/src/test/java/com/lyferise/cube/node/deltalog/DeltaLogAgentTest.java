@@ -29,8 +29,9 @@ public class DeltaLogAgentTest {
                 BATCH_SIZE,
                 queryResult -> {
                 },
-                recordGroup -> {
-                });
+                appendRequest -> {
+                },
+                new FakeDeltaLogProcessor());
         assertThat(agent.getState(), is(equalTo(STARTED)));
 
         // wait
@@ -58,13 +59,16 @@ public class DeltaLogAgentTest {
                     result.set(queryResult);
                     onRead.set();
                 },
-                recordGroup -> onWrite.set());
+                appendRequest -> onWrite.set(),
+                new FakeDeltaLogProcessor());
 
         // write
         final var data = randomBytes(1000);
         final var record = new DeltaLogRecord(data);
-        deltaLogAgent.enqueue(new DeltaLogRecordGroup(record));
+        deltaLogAgent.enqueue(new DeltaLogAppendRequest(true, record));
         assertThat(onWrite.await(5000), is(true));
+        assertThat(deltaLog.getHeadSequenceNumber(), is(equalTo(1L)));
+        assertThat(deltaLog.getCommitSequenceNumber(), is(equalTo(1L)));
 
         // read
         final var queryId = randomUUID();

@@ -9,16 +9,14 @@ import lombok.SneakyThrows;
 import java.io.File;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
-import java.util.List;
-
-import static com.lyferise.cube.events.SequenceNumber.verifySequenceNumber;
 
 public class DeltaLogDataFile {
     private final RandomAccessFile file;
     private final BinaryReader reader;
     private final BinaryWriter writer;
-    private long writeSequence;
-    private long writePosition;
+    private long headSequenceNumber;
+    private long commitSequenceNumber;
+    private long fileLength;
 
     @SneakyThrows
     public DeltaLogDataFile(final String path) {
@@ -33,11 +31,28 @@ public class DeltaLogDataFile {
         // header
         if (newFile) {
             file.writeLong(0);
+            file.writeLong(0);
             flush();
         } else {
-            writeSequence = file.readLong();
+            headSequenceNumber = file.readLong();
+            commitSequenceNumber = file.readLong();
         }
-        writePosition = file.length();
+        fileLength = file.length();
+    }
+
+    public long getHeadSequenceNumber() {
+        return headSequenceNumber;
+    }
+
+    public long getCommitSequenceNumber() {
+        return commitSequenceNumber;
+    }
+
+    @SneakyThrows
+    public void setCommitSequenceNumber(final long commitSequenceNumber) {
+        this.commitSequenceNumber = commitSequenceNumber;
+        file.seek(8);
+        file.writeLong(commitSequenceNumber);
     }
 
     @SneakyThrows
@@ -48,7 +63,7 @@ public class DeltaLogDataFile {
 
         file.seek(position);
         final int recordCount = (int) (logSequenceNumberEnd - logSequenceNumberStart + 1);
-        final List<DeltaLogRecord> records = new ArrayList<>(recordCount);
+        var records = new ArrayList<DeltaLogRecord>(recordCount);
         for (var i = 0; i < recordCount; i++) {
             final var record = new DeltaLogRecord();
             record.read(reader);
@@ -58,20 +73,21 @@ public class DeltaLogDataFile {
     }
 
     @SneakyThrows
-    public long write(final DeltaLogRecord record) {
+    public long write(final DeltaLogRecord record, final boolean isCommitted) {
 
         // position
-        final var position = writePosition;
-        file.seek(position);
+        final var position = fileLength;
+        file.seek(fileLength);
 
         // record
-        record.setLogSequenceNumber(++writeSequence);
+        record.setLogSequenceNumber(++headSequenceNumber);
         record.write(writer);
 
         // header
-        writePosition = file.getFilePointer();
+        fileLength = file.getFilePointer();
         file.seek(0);
-        file.writeLong(writeSequence);
+        file.writeLong(headSequenceNumber);
+        if (isCommitted) file.writeLong(commitSequenceNumber = headSequenceNumber);
         return position;
     }
 

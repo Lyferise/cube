@@ -2,7 +2,15 @@ package com.lyferise.cube.node.deltalog;
 
 public interface DeltaLog {
 
-    DeltaLogRecordGroup read(final long logSequenceNumberStart, final long logSequenceNumberEnd);
+    long getHeadSequenceNumber();
 
-    void append(final DeltaLogRecordGroup recordGroup);
+    long getCommitSequenceNumber();
+
+    void setCommitSequenceNumber(long commitSequenceNumber);
+
+    DeltaLogRecordGroup read(long logSequenceNumberStart, long logSequenceNumberEnd);
+
+    void append(DeltaLogAppendRequest appendRequest);
+
+    void flush();
 }

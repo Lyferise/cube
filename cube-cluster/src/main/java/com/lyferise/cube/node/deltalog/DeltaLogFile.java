@@ -19,19 +19,36 @@ public class DeltaLogFile implements DeltaLog, Closeable {
     }
 
     @Override
+    public long getHeadSequenceNumber() {
+        return dataFile.getHeadSequenceNumber();
+    }
+
+    @Override
+    public long getCommitSequenceNumber() {
+        return dataFile.getCommitSequenceNumber();
+    }
+
+    @Override
+    public void setCommitSequenceNumber(final long commitSequenceNumber) {
+        dataFile.setCommitSequenceNumber(commitSequenceNumber);
+    }
+
+    @Override
     public DeltaLogRecordGroup read(final long logSequenceNumberStart, final long logSequenceNumberEnd) {
         final var position = indexFile.getPosition(logSequenceNumberStart);
         return dataFile.read(position, logSequenceNumberStart, logSequenceNumberEnd);
     }
 
     @Override
-    public void append(final DeltaLogRecordGroup recordGroup) {
-        for (final DeltaLogRecord record : recordGroup.getRecords()) {
-            final var position = dataFile.write(record);
+    public void append(final DeltaLogAppendRequest appendRequest) {
+        final var isCommitted = appendRequest.isCommitted();
+        for (final DeltaLogRecord record : appendRequest.getRecords()) {
+            final var position = dataFile.write(record, isCommitted);
             indexFile.setPosition(record.getLogSequenceNumber(), position);
         }
     }
 
+    @Override
     @SneakyThrows
     public void flush() {
         if (state == STOPPED) return;
