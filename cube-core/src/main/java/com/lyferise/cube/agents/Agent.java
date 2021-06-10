@@ -35,7 +35,7 @@ public abstract class Agent {
     private void run() {
         thread.setName(getClass().getName() + "-" + thread.getId());
 
-        while (true) {
+        while (state != STOPPED){
             try {
                 execute();
                 waitForSignal();

@@ -2,7 +2,6 @@ package com.lyferise.cube.node.deltalog;
 
 import com.lyferise.cube.concurrency.Signal;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -26,7 +25,7 @@ public class DeltaLogAgentTest {
 
         // start
         final var deltaLog = new InMemoryDeltaLog();
-        final var agent = new DeltaLogAgent(
+        final var deltaLogAgent = new DeltaLogAgent(
                 deltaLog,
                 BATCH_SIZE,
                 queryResult -> {
@@ -34,14 +33,14 @@ public class DeltaLogAgentTest {
                 appendRequest -> {
                 },
                 new FakeDeltaLogProcessor());
-        assertThat(agent.getState(), is(equalTo(STARTED)));
+        assertThat(deltaLogAgent.getState(), is(equalTo(STARTED)));
 
         // wait
         sleep(500);
 
         // stop
-        agent.stop();
-        assertThat(agent.getState(), is(equalTo(STOPPED)));
+        deltaLogAgent.stop();
+        assertThat(deltaLogAgent.getState(), is(equalTo(STOPPED)));
     }
 
     @Test
@@ -88,7 +87,6 @@ public class DeltaLogAgentTest {
         deltaLogAgent.stop();
     }
 
-    @Disabled
     @Test
     @SneakyThrows
     public void shouldReplayLog() {
@@ -103,8 +101,11 @@ public class DeltaLogAgentTest {
         // delta log
         final var deltaLog = new InMemoryDeltaLog();
         deltaLog.append(new DeltaLogAppendRequest(records, false));
+        assertThat(deltaLog.getHeadSequenceNumber(), is(equalTo(recordCount)));
+        assertThat(deltaLog.getCommitSequenceNumber(), is(equalTo(0L)));
 
         // start
+        final var deltaLogProcessor = new FakeDeltaLogProcessor();
         final var deltaLogAgent = new DeltaLogAgent(
                 deltaLog,
                 BATCH_SIZE,
@@ -112,10 +113,16 @@ public class DeltaLogAgentTest {
                 },
                 appendRequest -> {
                 },
-                new FakeDeltaLogProcessor());
+                deltaLogProcessor);
 
-        // TODO: wait for signal!
-        sleep(5000);
+        // process
+        assertThat(deltaLogProcessor.getSignal().await(5000), is(true));
+        assertThat(deltaLogProcessor.getRecords(), is(equalTo(records)));
+
+        // commit
+        sleep(500);
+        assertThat(deltaLog.getHeadSequenceNumber(), is(equalTo(recordCount)));
+        assertThat(deltaLog.getCommitSequenceNumber(), is(equalTo(recordCount)));
 
         // stop
         deltaLogAgent.stop();
