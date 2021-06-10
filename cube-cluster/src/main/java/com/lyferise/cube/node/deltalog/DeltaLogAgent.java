@@ -97,14 +97,13 @@ public class DeltaLogAgent extends Agent {
             commitSequenceNumber = deltaLog.getCommitSequenceNumber();
         }
 
-        // apply
+        // apply?
         final var headSequenceNumber = deltaLog.getHeadSequenceNumber();
-        if (headSequenceNumber > commitSequenceNumber) {
-            final var logSequenceNumberStart = commitSequenceNumber + 1;
-            final var logSequenceNumberEnd = min(commitSequenceNumber + batchSize, headSequenceNumber);
-            deltaLogProcessor.apply(deltaLog.read(logSequenceNumberStart, logSequenceNumberEnd));
-        }
-        return modified;
+        if (headSequenceNumber == commitSequenceNumber) return modified;
+        final var logSequenceNumberStart = commitSequenceNumber + 1;
+        final var logSequenceNumberEnd = min(commitSequenceNumber + batchSize, headSequenceNumber);
+        deltaLogProcessor.apply(deltaLog.read(logSequenceNumberStart, logSequenceNumberEnd));
+        return true;
     }
 
     private void read() {
