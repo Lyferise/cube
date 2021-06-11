@@ -9,7 +9,12 @@ public enum Operator {
     POSITIVE("+"),
     NEGATIVE("-"),
     NOT("not"),
-    EQUAL("=");
+    EQUAL("="),
+    NOT_EQUAL("!="),
+    GREATER(">"),
+    LESS("<"),
+    GREATER_OR_EQUAL(">="),
+    LESS_OR_EQUAL("<=");
 
     private final String text;
 
