@@ -41,6 +41,20 @@ public class CubeLexerTest {
     }
 
     @Test
+    public void shouldTokenizeSymbolsWithIdentifiers() {
+        assertThat(
+                tokenize("a + b(c)"),
+                contains(
+                        new Identifier("a"),
+                        new Symbol("+"),
+                        new Identifier("b"),
+                        new Symbol("("),
+                        new Identifier("c"),
+                        new Symbol(")")));
+
+    }
+
+    @Test
     public void shouldTokenizeSingleSymbolWithWhitespace() {
         assertThat(
                 tokenize("  *  "),
