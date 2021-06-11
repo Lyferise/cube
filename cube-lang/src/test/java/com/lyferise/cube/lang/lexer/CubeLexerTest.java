@@ -1,12 +1,11 @@
-package com.lyferise.cube.lang.parser;
+package com.lyferise.cube.lang.lexer;
 
 import com.lyferise.cube.lang.elements.Identifier;
 import com.lyferise.cube.lang.elements.Symbol;
 import com.lyferise.cube.lang.elements.constants.IntConstant;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import static com.lyferise.cube.lang.parser.CubeLexer.tokenize;
+import static com.lyferise.cube.lang.lexer.TokenStream.tokenize;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -80,7 +79,6 @@ public class CubeLexerTest {
     }
 
     @Test
-    @Disabled
     public void shouldTokenizeIntConstants() {
         assertThat(
                 tokenize("0 1 -1 +1 -2147483648 2147483647"),

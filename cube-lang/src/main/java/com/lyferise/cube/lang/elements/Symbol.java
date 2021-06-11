@@ -12,6 +12,10 @@ public class Symbol extends Element {
         this.text = text;
     }
 
+    public String getText() {
+        return text;
+    }
+
     @Override
     public void format(final ElementFormatter formatter) {
         formatter.write(text);

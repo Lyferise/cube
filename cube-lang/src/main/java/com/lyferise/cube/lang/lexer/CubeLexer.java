@@ -1,14 +1,13 @@
-package com.lyferise.cube.lang.parser;
+package com.lyferise.cube.lang.lexer;
 
 import com.lyferise.cube.lang.elements.Element;
 import com.lyferise.cube.lang.elements.ElementType;
 import com.lyferise.cube.lang.elements.Identifier;
 import com.lyferise.cube.lang.elements.Symbol;
+import com.lyferise.cube.lang.elements.constants.IntConstant;
 
-import java.util.List;
-
-import static com.lyferise.cube.lang.elements.ElementType.IDENTIFIER;
-import static com.lyferise.cube.lang.elements.ElementType.SYMBOL;
+import static com.lyferise.cube.lang.elements.ElementType.*;
+import static java.lang.Integer.parseInt;
 
 public class CubeLexer {
     private int position;
@@ -17,6 +16,13 @@ public class CubeLexer {
     private int tokenStart;
     private int tokenEnd;
     private ElementType tokenType;
+
+    public CubeLexer() {
+    }
+
+    public CubeLexer(final String text) {
+        read(text);
+    }
 
     public void read(final String text) {
         this.text = text;
@@ -32,14 +38,9 @@ public class CubeLexer {
         return switch (tokenType) {
             case SYMBOL -> new Symbol(getTokenText());
             case IDENTIFIER -> new Identifier(getTokenText());
+            case INT_CONSTANT -> new IntConstant(parseInt(getTokenText()));
             default -> throw new UnsupportedOperationException();
         };
-    }
-
-    public static List<Element> tokenize(final String text) {
-        var lexer = new CubeLexer();
-        lexer.read(text);
-        return new LexerTokenStream(lexer).toList();
     }
 
     public ElementType next() {
@@ -48,12 +49,17 @@ public class CubeLexer {
         if (!canRead()) return null;
         while (canRead() && whitespace(peek())) position++;
 
-        // identifier
+        // number?
         if (!canRead()) return null;
-        if (identifier(peek())) return readIdentifier();
+        final var ch = peek();
+        if (ch >= '0' && ch <= '9') return readNumber();
+        if (ch == '-' || ch == '+') {
+            final var ch2 = peek2();
+            if (ch2 >= '0' && ch2 <= '9') return readNumber();
+        }
 
-        // symbol
-        return readSymbol();
+        // identifier?
+        return identifier(ch) ? readIdentifier() : readSymbol();
     }
 
     private ElementType readIdentifier() {
@@ -74,7 +80,7 @@ public class CubeLexer {
         // symbol
         var n = 0;
         final var ch = peek();
-        if (ch == '.' || ch == '*' || ch == '+' || ch == '\'' || ch == '(' || ch == ')') {
+        if (ch == '.' || ch == '*' || ch == '\'' || ch == '(' || ch == ')' || ch == '-' || ch == '+') {
             n = 1;
         } else if (ch == '=') {
             n = peek2() == '=' ? 2 : 1;
@@ -90,6 +96,25 @@ public class CubeLexer {
         position += n;
         tokenEnd = position;
         return tokenType = SYMBOL;
+    }
+
+    private ElementType readNumber() {
+
+        // +/-
+        tokenStart = position;
+        var ch = peek();
+        if (ch == '+' || ch == '-') {
+            position++;
+        }
+
+        // 0 ... 9
+        while (canRead() && (ch = peek()) >= '0' && ch <= '9') {
+            position++;
+        }
+
+        // token
+        tokenEnd = position;
+        return tokenType = INT_CONSTANT;
     }
 
     private boolean canRead() {

@@ -1,4 +1,4 @@
-package com.lyferise.cube.lang.parser;
+package com.lyferise.cube.lang.lexer;
 
 import com.lyferise.cube.lang.elements.Element;
 
@@ -8,8 +8,17 @@ import java.util.List;
 public class LexerTokenStream implements TokenStream {
     private final CubeLexer lexer;
 
+    public LexerTokenStream(final String text) {
+        this(new CubeLexer(text));
+    }
+
     public LexerTokenStream(final CubeLexer lexer) {
         this.lexer = lexer;
+    }
+
+    @Override
+    public Element peek() {
+        throw new UnsupportedOperationException();
     }
 
     @Override

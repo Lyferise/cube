@@ -3,9 +3,7 @@ package com.lyferise.cube.lang.elements;
 import com.lyferise.cube.lang.Operator;
 import com.lyferise.cube.lang.formatter.ElementFormatter;
 
-import static com.lyferise.cube.lang.Operator.NOT;
 import static com.lyferise.cube.lang.elements.ElementType.BINARY_EXPRESSION;
-import static com.lyferise.cube.lang.elements.ElementType.UNARY_EXPRESSION;
 
 public class BinaryExpression extends Element {
     private final Operator operator;
@@ -38,5 +36,12 @@ public class BinaryExpression extends Element {
         formatter.write(operator.getText());
         formatter.write(' ');
         right.format(formatter);
+    }
+
+    @Override
+    public boolean equals(final Object object) {
+        if (!(object instanceof BinaryExpression)) return false;
+        final var binaryExpression = (BinaryExpression) object;
+        return left.equals(binaryExpression.left) && right.equals(binaryExpression.right);
     }
 }

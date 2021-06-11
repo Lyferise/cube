@@ -1,11 +1,10 @@
 package com.lyferise.cube.lang.elements.constants;
 
-import com.lyferise.cube.lang.elements.Element;
 import com.lyferise.cube.lang.formatter.ElementFormatter;
 
 import static com.lyferise.cube.lang.elements.ElementType.STRING_CONSTANT;
 
-public class StringConstant extends Element {
+public class StringConstant extends Constant {
     private final String text;
 
     public StringConstant(final String text) {
