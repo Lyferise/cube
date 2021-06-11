@@ -13,17 +13,29 @@ import static org.hamcrest.Matchers.is;
 public class CubeParserTest {
 
     @Test
-    public void shouldParse1() {
+    public void shouldParseIntConstant() {
         assertThat(parse("1"), is(equalTo(new IntConstant(1))));
     }
 
     @Test
-    public void shouldParse1Plus2() {
+    public void shouldParseBinaryExpression1() {
         assertThat(
                 parse("1 + 2"),
                 is(equalTo(
                         new BinaryExpression(ADD,
                                 new IntConstant(1),
                                 new IntConstant(2)))));
+    }
+
+    @Test
+    public void shouldParseBinaryExpression2() {
+        assertThat(
+                parse("1 + 2 + 3"),
+                is(equalTo(
+                        new BinaryExpression(ADD,
+                                new IntConstant(1),
+                                new BinaryExpression(ADD,
+                                        new IntConstant(2),
+                                        new IntConstant(3))))));
     }
 }
