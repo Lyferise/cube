@@ -7,8 +7,8 @@ import com.lyferise.cube.lang.lexer.TokenStream;
 
 import static com.lyferise.cube.lang.Operator.ADD;
 import static com.lyferise.cube.lang.Operator.MULTIPLY;
-import static com.lyferise.cube.lang.elements.SymbolType.ASTERISK;
-import static com.lyferise.cube.lang.elements.SymbolType.PLUS;
+import static com.lyferise.cube.lang.elements.SymbolType.*;
+import static com.lyferise.cube.lang.formatter.ElementFormatter.format;
 import static com.lyferise.cube.lang.lexer.TokenStream.tokenStream;
 
 public class CubeParser {
@@ -33,7 +33,7 @@ public class CubeParser {
         Element right;
         int bindingPower;
         while ((right = tokens.peek()) != null
-                && (bindingPower = languageDefinition.bindingPower(right)) >= rightBindingPower) {
+                && (bindingPower = languageDefinition.bindingPower(right)) > rightBindingPower) {
             left = infixHandler(left, tokens.next(), bindingPower);
         }
         return left;
@@ -42,12 +42,31 @@ public class CubeParser {
     private Element prefixHandler(final Element element) {
         if (element instanceof Constant) return element;
         if (element instanceof Identifier) return element;
-        throw new UnsupportedElementException(element);
+
+        // ( ... )
+        if (element.is(OPEN_BRACKET)) {
+            final var element2 = parseElement();
+            match(CLOSE_BRACKET);
+            return element2;
+        }
+
+        throw new UnsupportedElementException(languageDefinition, element);
+    }
+
+    private void match(final SymbolType symbolType) {
+        final var token = tokens.next();
+        if (token == null) {
+            throw new UnsupportedOperationException("expected " + symbolType);
+        }
+        if (!token.is(symbolType)) {
+            throw new UnsupportedOperationException(
+                    "expected " + symbolType + " not " + format(languageDefinition, token));
+        }
     }
 
     private Element infixHandler(final Element left, final Element right, int rightBindingPower) {
         if (right.is(PLUS)) return new BinaryExpression(ADD, left, parseElement(rightBindingPower));
         if (right.is(ASTERISK)) return new BinaryExpression(MULTIPLY, left, parseElement(rightBindingPower));
-        throw new UnsupportedElementException(right);
+        throw new UnsupportedElementException(languageDefinition, right);
     }
 }

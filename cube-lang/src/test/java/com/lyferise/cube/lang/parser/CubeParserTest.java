@@ -36,10 +36,10 @@ public class CubeParserTest {
                 parse(cube(), "1 + 2 + 3"),
                 is(equalTo(
                         new BinaryExpression(ADD,
-                                new IntConstant(1),
                                 new BinaryExpression(ADD,
-                                        new IntConstant(2),
-                                        new IntConstant(3))))));
+                                        new IntConstant(1),
+                                        new IntConstant(2)),
+                                new IntConstant(3)))));
     }
 
     @Test
@@ -64,5 +64,46 @@ public class CubeParserTest {
                                         new Identifier("a"),
                                         new Identifier("b")),
                                 new Identifier("c")))));
+    }
+
+    @Test
+    public void shouldParseBinaryExpression5() {
+        assertThat(
+                parse(cube(), "(a + b) * c"),
+                is(equalTo(
+                        new BinaryExpression(MULTIPLY,
+                                new BinaryExpression(ADD,
+                                        new Identifier("a"),
+                                        new Identifier("b")),
+                                new Identifier("c")))));
+    }
+
+    @Test
+    public void shouldParseBinaryExpression6() {
+        assertThat(
+                parse(cube(), "(a + b) * (c * d)"),
+                is(equalTo(
+                        new BinaryExpression(MULTIPLY,
+                                new BinaryExpression(ADD,
+                                        new Identifier("a"),
+                                        new Identifier("b")),
+                                new BinaryExpression(ADD,
+                                        new Identifier("c"),
+                                        new Identifier("d"))))));
+    }
+
+    @Test
+    public void shouldParseBracketedIntConstant1() {
+        assertThat(parse(cube(), "(1)"), is(equalTo(new IntConstant(1))));
+    }
+
+    @Test
+    public void shouldParseBracketedIntConstant2() {
+        assertThat(parse(cube(), "((2))"), is(equalTo(new IntConstant(2))));
+    }
+
+    @Test
+    public void shouldParseBracketedIntConstant3() {
+        assertThat(parse(cube(), "(((3)))"), is(equalTo(new IntConstant(3))));
     }
 }
