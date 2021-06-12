@@ -5,6 +5,7 @@ plugins {
 ext {
     hamcrestVersion = "2.2"
     junitVersion = "5.7.2"
+    commonCliVersion = "1.4"
 }
 
 version = "1.0"
@@ -15,9 +16,11 @@ repositories {
 }
 
 dependencies {
+    implementation project(':cube-client')
     testImplementation "org.hamcrest:hamcrest:$hamcrestVersion"
     testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
+    implementation group: 'commons-cli', name: 'commons-cli', version: "$commonCliVersion"
 }
 
 java {
@@ -27,4 +30,25 @@ java {
 
 test {
     useJUnitPlatform()
+}
+
+ext.sharedManifest = manifest {
+    attributes("Main-Class" : "com.lyferise.cube.cli.Application",
+            "Implementation-Title": "cube-cli",
+            "Implementation-Version": file('../version.txt').text)
+}
+
+tasks.register('uberJar', Jar) {
+    archiveBaseName = "lyferise-cube-cli"
+    archiveVersion = file('../version.txt').text
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    manifest = project.manifest {
+        from sharedManifest
+    }
+
+    from sourceSets.main.output
+    dependsOn configurations.runtimeClasspath
+    from {
+        configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
+    }
 }
