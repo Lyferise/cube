@@ -8,7 +8,7 @@ import java.io.DataInput;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public abstract class DataInputReader implements BinaryReader {
-    private final static TypeCode[] TYPE_CODES = TypeCode.values();
+    private static final TypeCode[] TYPE_CODES = TypeCode.values();
     protected final TypeMap typeMap;
     protected final DataInput in;
 

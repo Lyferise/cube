@@ -31,11 +31,15 @@ public class BinaryExpression extends Element {
 
     @Override
     public void format(final ElementFormatter formatter) {
+        // formatter.write('(');
         left.format(formatter);
+        // formatter.write(')');
         formatter.write(' ');
         formatter.write(operator.getText());
         formatter.write(' ');
+        // formatter.write('(');
         right.format(formatter);
+        // formatter.write(')');
     }
 
     @Override

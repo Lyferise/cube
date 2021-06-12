@@ -4,7 +4,9 @@ import com.lyferise.cube.lang.elements.BinaryExpression;
 import com.lyferise.cube.lang.elements.Identifier;
 import org.junit.jupiter.api.Test;
 
+import static com.lyferise.cube.lang.CubeLanguage.cube;
 import static com.lyferise.cube.lang.Operator.EQUAL;
+import static com.lyferise.cube.lang.formatter.ElementFormatter.format;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -16,7 +18,7 @@ public class SubscribeStatementTest {
         final var statement = new SubscribeStatement(new Identifier("x"));
 
         assertThat(
-                statement.toString(),
+                format(cube(), statement),
                 is(equalTo("subscribe to x")));
     }
 
@@ -29,7 +31,7 @@ public class SubscribeStatementTest {
                                 new Identifier("b"))));
 
         assertThat(
-                statement.toString(),
+                format(cube(), statement),
                 is(equalTo("subscribe to x where a = b")));
     }
 }

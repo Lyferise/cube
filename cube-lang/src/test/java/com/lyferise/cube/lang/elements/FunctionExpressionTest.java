@@ -4,7 +4,9 @@ import com.lyferise.cube.lang.elements.constants.LongConstant;
 import com.lyferise.cube.lang.elements.constants.StringConstant;
 import org.junit.jupiter.api.Test;
 
+import static com.lyferise.cube.lang.CubeLanguage.cube;
 import static com.lyferise.cube.lang.Operator.EQUAL;
+import static com.lyferise.cube.lang.formatter.ElementFormatter.format;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -24,7 +26,7 @@ public class FunctionExpressionTest {
                                 new StringConstant("Hola!"))));
 
         assertThat(
-                expression.toString(),
+                format(cube(), expression),
                 is(equalTo("send_chat_message(channel_id = 78910283918293, text = 'Hola!')")));
     }
 }

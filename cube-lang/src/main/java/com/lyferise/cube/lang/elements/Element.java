@@ -15,10 +15,7 @@ public abstract class Element {
 
     public abstract void format(final ElementFormatter formatter);
 
-    @Override
-    public String toString() {
-        final var formatter = new ElementFormatter();
-        format(formatter);
-        return formatter.toString();
+    public boolean is(final SymbolType symbolType) {
+        return (this instanceof Symbol) && ((Symbol) this).getSymbolType() == symbolType;
     }
 }

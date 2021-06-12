@@ -7,7 +7,9 @@ import com.lyferise.cube.lang.elements.MultipartIdentifier;
 import com.lyferise.cube.lang.elements.constants.IntConstant;
 import org.junit.jupiter.api.Test;
 
+import static com.lyferise.cube.lang.CubeLanguage.cube;
 import static com.lyferise.cube.lang.Operator.EQUAL;
+import static com.lyferise.cube.lang.formatter.ElementFormatter.format;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -20,7 +22,7 @@ public class SelectStatementTest {
                 new ElementList(new IntConstant(1)));
 
         assertThat(
-                statement.toString(),
+                format(cube(), statement),
                 is(equalTo("select 1")));
     }
 
@@ -30,7 +32,7 @@ public class SelectStatementTest {
                 new FromClause(new MultipartIdentifier("a", "b")));
 
         assertThat(
-                statement.toString(),
+                format(cube(), statement),
                 is(equalTo("select * from a.b")));
     }
 
@@ -44,7 +46,7 @@ public class SelectStatementTest {
                                 new Identifier("y"))));
 
         assertThat(
-                statement.toString(),
+                format(cube(), statement),
                 is(equalTo("select * from a.b where x = y")));
     }
 }

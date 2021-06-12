@@ -5,25 +5,25 @@ import com.lyferise.cube.lang.formatter.ElementFormatter;
 import static com.lyferise.cube.lang.elements.ElementType.SYMBOL;
 
 public class Symbol extends Element {
-    private final String text;
+    private final SymbolType symbolType;
 
-    public Symbol(final String text) {
+    public Symbol(final SymbolType symbolType) {
         super(SYMBOL);
-        this.text = text;
+        this.symbolType = symbolType;
     }
 
-    public String getText() {
-        return text;
+    public SymbolType getSymbolType() {
+        return symbolType;
     }
 
     @Override
     public void format(final ElementFormatter formatter) {
-        formatter.write(text);
+        formatter.write(symbolType.getText());
     }
 
     @Override
     public boolean equals(final Object object) {
         if (!(object instanceof Symbol)) return false;
-        return text.equals(((Symbol) object).text);
+        return symbolType == ((Symbol) object).symbolType;
     }
 }

@@ -5,6 +5,7 @@ import com.lyferise.cube.lang.elements.Symbol;
 import com.lyferise.cube.lang.elements.constants.IntConstant;
 import org.junit.jupiter.api.Test;
 
+import static com.lyferise.cube.lang.elements.SymbolType.*;
 import static com.lyferise.cube.lang.lexer.TokenStream.tokenize;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -31,12 +32,12 @@ public class CubeLexerTest {
         assertThat(
                 tokenize("*.='()"),
                 contains(
-                        new Symbol("*"),
-                        new Symbol("."),
-                        new Symbol("="),
-                        new Symbol("'"),
-                        new Symbol("("),
-                        new Symbol(")")));
+                        new Symbol(ASTERISK),
+                        new Symbol(DOT),
+                        new Symbol(EQUAL_SIGN),
+                        new Symbol(SINGLE_QUOTE),
+                        new Symbol(OPEN_BRACKET),
+                        new Symbol(CLOSE_BRACKET)));
     }
 
     @Test
@@ -45,11 +46,11 @@ public class CubeLexerTest {
                 tokenize("a + b(c)"),
                 contains(
                         new Identifier("a"),
-                        new Symbol("+"),
+                        new Symbol(PLUS),
                         new Identifier("b"),
-                        new Symbol("("),
+                        new Symbol(OPEN_BRACKET),
                         new Identifier("c"),
-                        new Symbol(")")));
+                        new Symbol(CLOSE_BRACKET)));
 
     }
 
@@ -57,7 +58,7 @@ public class CubeLexerTest {
     public void shouldTokenizeSingleSymbolWithWhitespace() {
         assertThat(
                 tokenize("  *  "),
-                contains(new Symbol("*")));
+                contains(new Symbol(ASTERISK)));
     }
 
     @Test
@@ -67,10 +68,10 @@ public class CubeLexerTest {
                 contains(
                         new Identifier("aaa"),
                         new Identifier("a"),
-                        new Symbol("."),
+                        new Symbol(DOT),
                         new Identifier("b"),
                         new Identifier("xxx"),
-                        new Symbol("."),
+                        new Symbol(DOT),
                         new Identifier("yyy"),
                         new Identifier("test_1"),
                         new Identifier("test1"),

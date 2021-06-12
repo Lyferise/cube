@@ -1,12 +1,10 @@
 package com.lyferise.cube.lang.lexer;
 
-import com.lyferise.cube.lang.elements.Element;
-import com.lyferise.cube.lang.elements.ElementType;
-import com.lyferise.cube.lang.elements.Identifier;
-import com.lyferise.cube.lang.elements.Symbol;
+import com.lyferise.cube.lang.elements.*;
 import com.lyferise.cube.lang.elements.constants.IntConstant;
 
 import static com.lyferise.cube.lang.elements.ElementType.*;
+import static com.lyferise.cube.lang.elements.SymbolType.*;
 import static java.lang.Integer.parseInt;
 
 public class CubeLexer {
@@ -16,6 +14,7 @@ public class CubeLexer {
     private int tokenStart;
     private int tokenEnd;
     private ElementType tokenType;
+    private SymbolType symbolType;
 
     public CubeLexer() {
     }
@@ -36,7 +35,7 @@ public class CubeLexer {
 
     public Element getToken() {
         return switch (tokenType) {
-            case SYMBOL -> new Symbol(getTokenText());
+            case SYMBOL -> new Symbol(symbolType);
             case IDENTIFIER -> new Identifier(getTokenText());
             case INT_CONSTANT -> new IntConstant(parseInt(getTokenText()));
             default -> throw new UnsupportedOperationException();
@@ -80,10 +79,49 @@ public class CubeLexer {
         // symbol
         var n = 0;
         final var ch = peek();
-        if (ch == '.' || ch == '*' || ch == '\'' || ch == '(' || ch == ')' || ch == '-' || ch == '+') {
-            n = 1;
-        } else if (ch == '=') {
-            n = peek2() == '=' ? 2 : 1;
+
+        switch (ch) {
+            case '.' -> {
+                n = 1;
+                symbolType = DOT;
+            }
+            case '*' -> {
+                n = 1;
+                symbolType = ASTERISK;
+            }
+            case '\'' -> {
+                n = 1;
+                symbolType = SINGLE_QUOTE;
+            }
+            case '(' -> {
+                n = 1;
+                symbolType = OPEN_BRACKET;
+            }
+            case ')' -> {
+                n = 1;
+                symbolType = CLOSE_BRACKET;
+            }
+            case '-' -> {
+                n = 1;
+                symbolType = DASH;
+            }
+            case '+' -> {
+                n = 1;
+                symbolType = PLUS;
+            }
+            case '=' -> {
+                n = 1;
+                symbolType = EQUAL_SIGN;
+            }
+            case '>' -> {
+                if (peek2() != '=') {
+                    n = 1;
+                    symbolType = GREATER_SIGN;
+                } else {
+                    n = 2;
+                    symbolType = GREATER_OR_EQUAL_SIGN;
+                }
+            }
         }
 
         // not found?
