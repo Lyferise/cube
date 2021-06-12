@@ -1,5 +1,6 @@
 package com.lyferise.cube.lang.elements;
 
+import com.lyferise.cube.lang.LanguageDefinition;
 import com.lyferise.cube.lang.Operator;
 import com.lyferise.cube.lang.formatter.ElementFormatter;
 
@@ -31,15 +32,30 @@ public class BinaryExpression extends Element {
 
     @Override
     public void format(final ElementFormatter formatter) {
-        // formatter.write('(');
-        left.format(formatter);
-        // formatter.write(')');
+
+        // left
+        formatOperand(formatter, left);
+
+        // operator
         formatter.write(' ');
         formatter.write(operator.getText());
         formatter.write(' ');
-        // formatter.write('(');
-        right.format(formatter);
-        // formatter.write(')');
+
+        // right
+        formatOperand(formatter, right);
+    }
+
+    private void formatOperand(final ElementFormatter formatter, final Element element) {
+        final var brackets = shouldBracket(formatter.getLanguageDefinition(), element);
+        if (brackets) formatter.write('(');
+        element.format(formatter);
+        if (brackets) formatter.write(')');
+    }
+
+    private boolean shouldBracket(final LanguageDefinition languageDefinition, Element element) {
+        return ((element instanceof BinaryExpression))
+                && languageDefinition.bindingPower(((BinaryExpression) element).operator)
+                < languageDefinition.bindingPower(operator);
     }
 
     @Override
