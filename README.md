@@ -57,3 +57,11 @@ Cube uses a Git [monorepo](https://en.wikipedia.org/wiki/Monorepo), structured a
 - [JDK 14.0.2](https://www.oracle.com/java/technologies/javase/jdk14-archive-downloads.html)
 - [Gradle 7.0](https://gradle.org/releases)
 - [MySQL 8.0.25](https://dev.mysql.com/downloads/mysql)
+
+### Building from Source
+
+```
+./gradlew uberJar
+cd cube-cluster/build/libs
+java -jar lyferise-cube-1.666.jar
+```
