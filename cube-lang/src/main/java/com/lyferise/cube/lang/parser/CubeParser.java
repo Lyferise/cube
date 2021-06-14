@@ -1,12 +1,12 @@
 package com.lyferise.cube.lang.parser;
 
+import com.lyferise.cube.lang.Keyword;
 import com.lyferise.cube.lang.LanguageDefinition;
 import com.lyferise.cube.lang.elements.*;
 import com.lyferise.cube.lang.elements.constants.Constant;
 import com.lyferise.cube.lang.lexer.TokenStream;
 
-import static com.lyferise.cube.lang.Operator.ADD;
-import static com.lyferise.cube.lang.Operator.MULTIPLY;
+import static com.lyferise.cube.lang.Operator.*;
 import static com.lyferise.cube.lang.elements.SymbolType.*;
 import static com.lyferise.cube.lang.formatter.ElementFormatter.format;
 import static com.lyferise.cube.lang.lexer.TokenStream.tokenStream;
@@ -43,6 +43,16 @@ public class CubeParser {
         if (element instanceof Constant) return element;
         if (element instanceof Identifier) return element;
 
+        // -
+        if (element.is(DASH)) {
+            return new UnaryExpression(NEGATIVE, parseElement());
+        }
+
+        // not
+        if (element.is(Keyword.NOT)) {
+            return new UnaryExpression(NOT, parseElement());
+        }
+
         // ( ... )
         if (element.is(OPEN_BRACKET)) {
             final var element2 = parseElement();
@@ -51,6 +61,12 @@ public class CubeParser {
         }
 
         throw new UnsupportedElementException(languageDefinition, element);
+    }
+
+    private Element infixHandler(final Element left, final Element right, int rightBindingPower) {
+        if (right.is(PLUS)) return new BinaryExpression(ADD, left, parseElement(rightBindingPower));
+        if (right.is(ASTERISK)) return new BinaryExpression(MULTIPLY, left, parseElement(rightBindingPower));
+        throw new UnsupportedElementException(languageDefinition, right);
     }
 
     private void match(final SymbolType symbolType) {
@@ -62,11 +78,5 @@ public class CubeParser {
             throw new UnsupportedOperationException(
                     "expected " + symbolType + " not " + format(languageDefinition, token));
         }
-    }
-
-    private Element infixHandler(final Element left, final Element right, int rightBindingPower) {
-        if (right.is(PLUS)) return new BinaryExpression(ADD, left, parseElement(rightBindingPower));
-        if (right.is(ASTERISK)) return new BinaryExpression(MULTIPLY, left, parseElement(rightBindingPower));
-        throw new UnsupportedElementException(languageDefinition, right);
     }
 }

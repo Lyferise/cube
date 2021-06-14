@@ -15,5 +15,6 @@ public enum ElementType {
     SUBSCRIBE_STATEMENT,
     SYMBOL,
     UNARY_EXPRESSION,
-    WHERE_CLAUSE
+    WHERE_CLAUSE,
+    KEYWORD
 }

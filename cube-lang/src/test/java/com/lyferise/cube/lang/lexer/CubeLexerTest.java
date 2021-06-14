@@ -1,10 +1,12 @@
 package com.lyferise.cube.lang.lexer;
 
 import com.lyferise.cube.lang.elements.Identifier;
+import com.lyferise.cube.lang.elements.KeywordToken;
 import com.lyferise.cube.lang.elements.Symbol;
 import com.lyferise.cube.lang.elements.constants.IntConstant;
 import org.junit.jupiter.api.Test;
 
+import static com.lyferise.cube.lang.Keyword.*;
 import static com.lyferise.cube.lang.elements.SymbolType.*;
 import static com.lyferise.cube.lang.lexer.TokenStream.tokenize;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -90,5 +92,17 @@ public class CubeLexerTest {
                         new IntConstant(1),
                         new IntConstant(Integer.MIN_VALUE),
                         new IntConstant(Integer.MAX_VALUE)));
+    }
+
+    @Test
+    public void shouldTokenizeKeywords() {
+        assertThat(
+                tokenize("not and or select where"),
+                contains(
+                        new KeywordToken(NOT),
+                        new KeywordToken(AND),
+                        new KeywordToken(OR),
+                        new KeywordToken(SELECT),
+                        new KeywordToken(WHERE)));
     }
 }

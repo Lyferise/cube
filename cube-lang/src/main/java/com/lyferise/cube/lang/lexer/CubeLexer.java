@@ -1,5 +1,6 @@
 package com.lyferise.cube.lang.lexer;
 
+import com.lyferise.cube.lang.Keyword;
 import com.lyferise.cube.lang.elements.*;
 import com.lyferise.cube.lang.elements.constants.IntConstant;
 
@@ -36,7 +37,11 @@ public class CubeLexer {
     public Element getToken() {
         return switch (tokenType) {
             case SYMBOL -> new Symbol(symbolType);
-            case IDENTIFIER -> new Identifier(getTokenText());
+            case IDENTIFIER -> {
+                final var text = getTokenText();
+                final var keyword = Keyword.of(text);
+                yield keyword != null ? new KeywordToken(keyword) : new Identifier(text);
+            }
             case INT_CONSTANT -> new IntConstant(parseInt(getTokenText()));
             default -> throw new UnsupportedOperationException();
         };

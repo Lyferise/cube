@@ -45,6 +45,15 @@ public class BinaryExpression extends Element {
         formatOperand(formatter, right);
     }
 
+    @Override
+    public boolean equals(final Object object) {
+        if (!(object instanceof BinaryExpression)) return false;
+        final var binaryExpression = (BinaryExpression) object;
+        return this.operator.equals(binaryExpression.operator)
+                && left.equals(binaryExpression.left)
+                && right.equals(binaryExpression.right);
+    }
+
     private void formatOperand(final ElementFormatter formatter, final Element element) {
         final var brackets = shouldBracket(formatter.getLanguageDefinition(), element);
         if (brackets) formatter.write('(');
@@ -56,12 +65,5 @@ public class BinaryExpression extends Element {
         return ((element instanceof BinaryExpression))
                 && languageDefinition.bindingPower(((BinaryExpression) element).operator)
                 < languageDefinition.bindingPower(operator);
-    }
-
-    @Override
-    public boolean equals(final Object object) {
-        if (!(object instanceof BinaryExpression)) return false;
-        final var binaryExpression = (BinaryExpression) object;
-        return left.equals(binaryExpression.left) && right.equals(binaryExpression.right);
     }
 }

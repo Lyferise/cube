@@ -2,12 +2,12 @@ package com.lyferise.cube.lang.parser;
 
 import com.lyferise.cube.lang.elements.BinaryExpression;
 import com.lyferise.cube.lang.elements.Identifier;
+import com.lyferise.cube.lang.elements.UnaryExpression;
 import com.lyferise.cube.lang.elements.constants.IntConstant;
 import org.junit.jupiter.api.Test;
 
 import static com.lyferise.cube.lang.CubeLanguage.cube;
-import static com.lyferise.cube.lang.Operator.ADD;
-import static com.lyferise.cube.lang.Operator.MULTIPLY;
+import static com.lyferise.cube.lang.Operator.*;
 import static com.lyferise.cube.lang.parser.CubeParser.parse;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -18,6 +18,22 @@ public class CubeParserTest {
     @Test
     public void shouldParseIntConstant() {
         assertThat(parse(cube(), "1"), is(equalTo(new IntConstant(1))));
+    }
+
+    @Test
+    public void shouldParseUnaryExpression1() {
+        assertThat(
+                parse(cube(), "-x"),
+                is(equalTo(
+                        new UnaryExpression(NEGATIVE, new Identifier("x")))));
+    }
+
+    @Test
+    public void shouldParseUnaryExpression2() {
+        assertThat(
+                parse(cube(), "not x"),
+                is(equalTo(
+                        new UnaryExpression(NOT, new Identifier("x")))));
     }
 
     @Test
@@ -81,7 +97,7 @@ public class CubeParserTest {
     @Test
     public void shouldParseBinaryExpression6() {
         assertThat(
-                parse(cube(), "(a + b) * (c * d)"),
+                parse(cube(), "(a + b) * (c + d)"),
                 is(equalTo(
                         new BinaryExpression(MULTIPLY,
                                 new BinaryExpression(ADD,

@@ -30,4 +30,11 @@ public class UnaryExpression extends Element {
         if (operator == NOT) formatter.write(' ');
         element.format(formatter);
     }
+
+    @Override
+    public boolean equals(final Object object) {
+        if (!(object instanceof UnaryExpression)) return false;
+        final var unaryExpression = (UnaryExpression) object;
+        return this.operator.equals(unaryExpression.operator) && element.equals(unaryExpression.element);
+    }
 }
