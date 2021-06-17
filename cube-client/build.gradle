@@ -7,6 +7,7 @@ ext {
     hamcrestVersion = "2.2"
     junitVersion = "5.7.2"
     webSocketVersion = "1.5.2"
+    slf4jVersion = "1.7.30"
 }
 
 version = "1.0"
@@ -23,6 +24,7 @@ dependencies {
     annotationProcessor "org.projectlombok:lombok:$lombokVersion"
     implementation "org.java-websocket:Java-WebSocket:$webSocketVersion"
     implementation project(":cube-core")
+    implementation group: 'org.slf4j', name: 'slf4j-simple', version: "$slf4jVersion"
 
     // test
     testImplementation "org.hamcrest:hamcrest:$hamcrestVersion"

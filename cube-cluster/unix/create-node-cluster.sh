@@ -26,41 +26,79 @@
 #
 # Node IDs are assigned using the formula nodeId = 1782 + 913 * k
 
-make_node_name() {
+PORT_BASE=7000
+NODE_PREFIX="node"
+CFG_DIR="conf"
+CFG_FILE="application.yml"
+
+make_node_id() {
     newId=$((1782 + 913 * ($1-1)));
-   echo "node$newId";
+    echo "$newId";
 }
 
 make_node_dir_structure() {
-    mkdir "./$1/$2";
-    mkdir "./$1/$2/conf";
-    mkdir "./$1/$2/bin";
-    mkdir "./$1/$2/log";
-    mkdir "./$1/$2/data";
+    mkdir "$1";
+    mkdir "$1/$CFG_DIR";
+    mkdir "$1/bin";
+    mkdir "$1/log";
+    mkdir "$1/data";
 }
 
-copy_scripts() {
-    cp ./start-node.sh "./$1/$2";
-    cp ./stop-node.sh "./$1/$2";
+copy_script() {
+    cp ./start-node.sh "$1";
+    cp ./stop-node.sh "$1";
 }
 
-copy_configs() {
-    cp "../conf/"* "./$1/$2/conf";
+copy_config() {
+    cp "../$CFG_DIR/$CFG_FILE" "$1/$CFG_DIR";
 }
 
-copy_binaries() {
-    cp "../build/libs/"*".jar" "./$1/$2/bin";
+modify_config() {
+    CFG_PATH="$1/$CFG_DIR/$CFG_FILE"
+    sed -i "s/nodeId: 1/nodeId: $2/g" "$CFG_PATH"
+    sed -i "s/port: \([0-9]\+\)/port: $3/g" "$CFG_PATH"
+}
+
+copy_binary() {
+    cp "../build/libs/"*".jar" "$1/bin";
+}
+
+add_cluster_info() {
+    echo "$1/$2/$CFG_DIR/$CFG_FILE"
 }
 
 create_dir_structure() {
     mkdir "$1";
+    declare -a nodeCfgs
+    declare -a nodeIds
+    declare -a nodePorts
     for i in $(seq 1 "$2")
     do
-        nodeName=$(make_node_name "$i");
-        make_node_dir_structure "$1" "$nodeName";
-        copy_scripts "$1" "$nodeName";
-        copy_configs "$1" "$nodeName";
-        copy_binaries "$1" "$nodeName";
+        nodeId=$(make_node_id "$i");
+        nodeName="$NODE_PREFIX$nodeId";
+        nodeDir="./$1/$nodeName"
+        make_node_dir_structure "$nodeDir";
+        copy_script "$nodeDir";
+        copy_config "$nodeDir";
+        modify_config "$nodeDir" "$nodeId" $(("$PORT_BASE"+"$i"))
+        copy_binary "$nodeDir";
+        nodeCfgs+=("$nodeDir/$CFG_DIR/$CFG_FILE");
+        nodeIds+=("$nodeId");
+        nodePorts+=($(("$PORT_BASE"+"$i")));
+    done
+
+    for dir in "${nodeCfgs[@]}"
+    do
+        echo "$dir"
+        printf "cluster:\n" >> "$dir"
+        for idx in $(seq 0 $((${#nodeIds[@]}-1)))
+        do
+            {
+              printf "  - node:\n"
+              printf "    nodeId: %s\n" "${nodeIds[$idx]}"
+              printf "    address: ws://localhost:%s\n" "${nodePorts[$idx]}"
+            } >> "$dir"
+        done
     done
 }
 
@@ -86,4 +124,3 @@ validate_arguments() {
 
 validate_arguments "$1" "$2"
 create_dir_structure "$1" "$2"
-
