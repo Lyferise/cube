@@ -53,14 +53,14 @@ copy_binaries() {
 }
 
 create_dir_structure() {
-    mkdir $1;
-    for i in $(seq 1 $2)
+    mkdir "$1";
+    for i in $(seq 1 "$2")
     do
-        nodeName=$(make_node_name $i);
-        make_node_dir_structure $1 $nodeName;
-        copy_scripts $1 $nodeName;
-        copy_configs $1 $nodeName;
-        copy_binaries $1 $nodeName;
+        nodeName=$(make_node_name "$i");
+        make_node_dir_structure "$1" "$nodeName";
+        copy_scripts "$1" "$nodeName";
+        copy_configs "$1" "$nodeName";
+        copy_binaries "$1" "$nodeName";
     done
 }
 
@@ -72,18 +72,18 @@ validate_arguments() {
     if [ -z "$1" ] | [ -z "$2" ]
     then
         echo "Error: missing argument(s)";
-        print_usage $0;
-        exit;
+        print_usage "$0";
+        exit 1;
     fi
 
     if ! [[ "$2" =~ ^[0-9]+$ ]]
     then
         echo "Error: non-integer argument";
-        print_usage $0;
-        exit;
+        print_usage "$0";
+        exit 1;
     fi
 }
 
-validate_arguments $1 $2
-create_dir_structure $1 $2    
+validate_arguments "$1" "$2"
+create_dir_structure "$1" "$2"
 
