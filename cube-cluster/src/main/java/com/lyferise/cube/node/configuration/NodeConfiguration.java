@@ -6,13 +6,15 @@ import lombok.Data;
 import lombok.SneakyThrows;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 public class NodeConfiguration {
     long nodeId;
     WebSocketsConfiguration webSockets = new WebSocketsConfiguration();
     DataConfiguration data = new DataConfiguration();
-    ClusterConfiguration clusters = new ClusterConfiguration();
+    List<ClusterConfiguration> cluster = new ArrayList<>();
 
     @SneakyThrows
     public static NodeConfiguration readConfiguration(final String path) {
