@@ -23,5 +23,12 @@ CONSOLE_OUTPUT_FILE="$SCRIPT_DIR/console.log"
 nohup "$JAVA" -jar "$EXECUTABLE" > "$CONSOLE_OUTPUT_FILE" 2>&1 < /dev/null &
 PROCESS=$(pgrep -a java | grep "$SCRIPT_DIR" | grep -v grep)
 
-echo "STARTED: $PROCESS"
-cd "$PWD" || exit 1
+if [ -z "$PROCESS" ]; then
+  echo "...::: DON'T PANIC :::..."
+  echo "It seems process failed to start."
+  echo "Check $CONSOLE_OUTPUT_FILE for details."
+  exit 1
+else
+  echo "STARTED: $PROCESS"
+  cd "$PWD" || exit 1
+fi

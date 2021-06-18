@@ -12,6 +12,7 @@ public class NodeConfiguration {
     long nodeId;
     WebSocketsConfiguration webSockets = new WebSocketsConfiguration();
     DataConfiguration data = new DataConfiguration();
+    ClusterConfiguration clusters = new ClusterConfiguration();
 
     @SneakyThrows
     public static NodeConfiguration readConfiguration(final String path) {

@@ -89,12 +89,11 @@ create_dir_structure() {
 
     for dir in "${nodeCfgs[@]}"
     do
-        echo "$dir"
         printf "cluster:\n" >> "$dir"
         for idx in $(seq 0 $((${#nodeIds[@]}-1)))
         do
             {
-              printf "  - node:\n"
+              printf "  -\n"
               printf "    nodeId: %s\n" "${nodeIds[$idx]}"
               printf "    address: ws://localhost:%s\n" "${nodePorts[$idx]}"
             } >> "$dir"
