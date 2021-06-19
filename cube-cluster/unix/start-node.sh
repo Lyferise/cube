@@ -20,7 +20,7 @@ if [ -n "$IS_RUNNING" ]; then
 fi
 
 EXECUTABLE=$(ls "$SCRIPT_DIR"/bin/*.jar)
-CONSOLE_OUTPUT_FILE="$SCRIPT_DIR/console.log"
+CONSOLE_OUTPUT_FILE="$SCRIPT_DIR/log/console.log"
 nohup "$JAVA" -jar "$EXECUTABLE" > "$CONSOLE_OUTPUT_FILE" 2>&1 < /dev/null &
 
 # Wait for process to start
