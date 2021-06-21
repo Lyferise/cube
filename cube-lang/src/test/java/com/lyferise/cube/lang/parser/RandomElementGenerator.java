@@ -43,6 +43,7 @@ public class RandomElementGenerator {
     private Element binaryExpression() {
         final var left = element();
         final var right = element();
+        if (right instanceof BinaryExpression) return left;
         final var operator = switch (random.nextInt(2)) {
             case 0 -> ADD;
             case 1 -> MULTIPLY;

@@ -45,12 +45,14 @@ public class CubeParser {
 
         // -
         if (element.is(DASH)) {
-            return new UnaryExpression(NEGATIVE, parseElement());
+            var bindingPower = languageDefinition.bindingPower(element);
+            return new UnaryExpression(NEGATIVE, parseElement(bindingPower));
         }
 
         // not
         if (element.is(Keyword.NOT)) {
-            return new UnaryExpression(NOT, parseElement());
+            var bindingPower = languageDefinition.bindingPower(element);
+            return new UnaryExpression(NOT, parseElement(bindingPower));
         }
 
         // ( ... )

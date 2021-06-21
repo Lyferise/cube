@@ -109,6 +109,17 @@ public class CubeParserTest {
     }
 
     @Test
+    public void shouldParseBinaryExpression7() {
+        assertThat(
+                parse(cube(), "-a + b"),
+                is(equalTo(
+                        new BinaryExpression(ADD,
+                                new UnaryExpression(NEGATIVE,
+                                        new Identifier("a")),
+                                new Identifier("b")))));
+    }
+
+    @Test
     public void shouldParseBracketedIntConstant1() {
         assertThat(parse(cube(), "(1)"), is(equalTo(new IntConstant(1))));
     }

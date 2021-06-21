@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 import static com.lyferise.cube.lang.CubeLanguage.cube;
 import static com.lyferise.cube.lang.Operator.*;
 import static com.lyferise.cube.lang.formatter.ElementFormatter.format;
-import static com.lyferise.cube.lang.parser.CubeParser.parse;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -77,5 +76,28 @@ public class BinaryExpressionTest {
                         new Identifier("d")));
 
         assertThat(format(cube(), expression), is(equalTo("(a + b) * (c + d)")));
+    }
+
+    @Test
+    public void shouldFormatBinaryExpression7() {
+        final var expression =
+                new UnaryExpression(NEGATIVE,
+                        new BinaryExpression(ADD,
+                                new Identifier("a"),
+                                new Identifier("b")));
+
+        assertThat(format(cube(), expression), is(equalTo("-(a + b)")));
+    }
+
+    @Test
+    public void shouldFormatBinaryExpression8() {
+        final var expression =
+                new BinaryExpression(ADD,
+                        new BinaryExpression(ADD,
+                                new Identifier("a"),
+                                new Identifier("b")),
+                        new Identifier("c"));
+
+        assertThat(format(cube(), expression), is(equalTo("a + b + c")));
     }
 }

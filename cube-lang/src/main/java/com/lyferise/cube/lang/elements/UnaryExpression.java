@@ -25,10 +25,29 @@ public class UnaryExpression extends Element {
     }
 
     @Override
+    public int getChildCount() {
+        return 1;
+    }
+
+    @Override
+    public Element getChild(final int index) {
+        if (index != 0) throw new IndexOutOfBoundsException(index);
+        return element;
+    }
+
+    @Override
     public void format(final ElementFormatter formatter) {
+
+        // operator
         formatter.write(operator.getText());
         if (operator == NOT) formatter.write(' ');
+
+        // operand
+        final var brackets = shouldBracket();
+        if (brackets) formatter.write('(');
         element.format(formatter);
+        if (brackets) formatter.write(')');
+
     }
 
     @Override
@@ -36,5 +55,9 @@ public class UnaryExpression extends Element {
         if (!(object instanceof UnaryExpression)) return false;
         final var unaryExpression = (UnaryExpression) object;
         return this.operator.equals(unaryExpression.operator) && element.equals(unaryExpression.element);
+    }
+
+    private boolean shouldBracket() {
+        return element instanceof BinaryExpression;
     }
 }

@@ -3,6 +3,7 @@ package com.lyferise.cube.lang;
 import com.lyferise.cube.lang.elements.Element;
 import com.lyferise.cube.lang.elements.UnsupportedElementException;
 
+import static com.lyferise.cube.lang.Keyword.NOT;
 import static com.lyferise.cube.lang.elements.SymbolType.*;
 
 public class CubeLanguage implements LanguageDefinition {
@@ -11,6 +12,7 @@ public class CubeLanguage implements LanguageDefinition {
     private static final int NO_POWER = 0;
     private static final int ADD_POWER = 1;
     private static final int MULTIPLY_POWER = 2;
+    private static final int UNARY_POWER = 3;
 
     public static CubeLanguage cube() {
         return CUBE_LANGUAGE;
@@ -30,6 +32,7 @@ public class CubeLanguage implements LanguageDefinition {
         if (element.is(CLOSE_BRACKET)) return NO_POWER;
         if (element.is(PLUS)) return ADD_POWER;
         if (element.is(ASTERISK)) return MULTIPLY_POWER;
+        if (element.is(DASH) || element.is(NOT)) return UNARY_POWER;
         throw new UnsupportedElementException(this, element);
     }
 }

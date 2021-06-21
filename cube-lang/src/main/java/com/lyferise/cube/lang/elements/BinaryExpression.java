@@ -31,6 +31,20 @@ public class BinaryExpression extends Element {
     }
 
     @Override
+    public int getChildCount() {
+        return 2;
+    }
+
+    @Override
+    public Element getChild(final int index) {
+        return switch (index) {
+            case 0 -> left;
+            case 1 -> right;
+            default -> throw new IndexOutOfBoundsException(index);
+        };
+    }
+
+    @Override
     public void format(final ElementFormatter formatter) {
 
         // left

@@ -14,6 +14,14 @@ public abstract class Element {
         return elementType;
     }
 
+    public int getChildCount() {
+        return 0;
+    }
+
+    public Element getChild(final int index) {
+        throw new IndexOutOfBoundsException(index);
+    }
+
     public abstract void format(final ElementFormatter formatter);
 
     public boolean is(final SymbolType symbolType) {
